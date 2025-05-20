@@ -1,0 +1,70 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Django
+*.log
+*.pot
+*.pyc
+db.sqlite3
+media/
+staticfiles/
+*.sqlite3
+.env
+.env.*
+
+# VSCode
+.vscode/
+
+# Virtual environment
+venv/
+env/
+ENV/
+.venv/
+.idea/
+
+# Migrations (optional: only ignore if you recreate them often)
+**/migrations/*.py
+!**/migrations/__init__.py
+
+# Pip dependency files
+pip-log.txt
+pip-delete-this-directory.txt
+
+# pytest
+.cache/
+.pytest_cache/
+
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+
+# MyPy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# pyright
+typings/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Local environment files
+*.local
