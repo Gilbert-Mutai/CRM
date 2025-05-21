@@ -20,9 +20,9 @@ def login_user(request):
         if user is not None:
             login(request, user)
             messages.success(request, "You have logged in successfully!")
-            return redirect('records')  # Redirect to home after login
+            return redirect('records') 
         else:
-            messages.warning(request, "Invalid username or password. Please try again.")
+            messages.error(request, "Invalid username or password. Please try again.")
             return redirect('login')
     else:
         return render(request, 'login.html')
@@ -36,7 +36,7 @@ def logout_user(request):
 def register_user(request):
     # Restrict access to admin users only
     if not (request.user.is_staff or request.user.is_superuser):
-        messages.warning(request, "You are not authorized to perform this action!")
+        messages.error(request, "You are not authorized to perform this action!")
         return redirect('records')
 
     if request.method == "POST":

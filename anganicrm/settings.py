@@ -1,4 +1,5 @@
 from pathlib import Path
+from django.contrib.messages import constants as messages_constants
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -107,6 +108,16 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 LOGIN_URL = '/login/'
+
+
+MESSAGE_TAGS = {
+    messages_constants.DEBUG: 'secondary',  # optional: maps debug to gray
+    messages_constants.INFO: 'info',
+    messages_constants.SUCCESS: 'success',
+    messages_constants.WARNING: 'warning',
+    messages_constants.ERROR: 'danger',  # THIS is the key part
+}
+
 
 
 # Default primary key field type
