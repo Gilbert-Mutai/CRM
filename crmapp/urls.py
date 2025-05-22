@@ -1,4 +1,5 @@
-from django.urls import path
+from django.urls import path,include
+from django.contrib.auth import views as auth_views
 from . import views
 
 urlpatterns = [
@@ -8,4 +9,7 @@ urlpatterns = [
     path('register/', views.register_user, name='register'),
     path('records/', views.customer_records, name='records'),
     
+    path('set-password/<uidb64>/<token>/', views.set_new_password, name='set_new_password'),
+    
 ]
+

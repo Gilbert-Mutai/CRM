@@ -1,0 +1,16 @@
+body {
+    background-color: #fff;
+    }
+
+.alert {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1050;
+  min-width: 250px;
+  transition: opacity 0.5s ease;
+}
+
+.alert.hide {
+  opacity: 0;
+}

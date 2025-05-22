@@ -1,4 +1,8 @@
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+load_dotenv() 
+
 from django.contrib.messages import constants as messages_constants
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -20,6 +24,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    "jazzmin",
+    
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -107,17 +113,38 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+STATICFILES_DIRS = [
+    BASE_DIR / 'static'
+]
+
 LOGIN_URL = '/login/'
 
 
 MESSAGE_TAGS = {
-    messages_constants.DEBUG: 'secondary',  # optional: maps debug to gray
+    messages_constants.DEBUG: 'secondary',
     messages_constants.INFO: 'info',
     messages_constants.SUCCESS: 'success',
     messages_constants.WARNING: 'warning',
-    messages_constants.ERROR: 'danger',  # THIS is the key part
+    messages_constants.ERROR: 'danger',  
 }
 
+
+AUTH_USER_MODEL = 'crmapp.CustomUser'
+
+AUTHENTICATION_BACKENDS = [
+    'crmapp.backends.EmailBackend', 
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+#SMTP Setup
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = os.getenv('EMAIL_HOST')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS') == 'True'
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 
 # Default primary key field type
