@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2 class="text-center mb-4">Customer Details</h2>
+
+<div class="table-responsive" style="max-width: 600px; margin: auto;">
+  <table class="table table-bordered table-hover align-middle">
+    <tbody>
+      <tr>
+        <th scope="row"><i class="bi bi-person-fill me-2 text-primary"></i>Name</th>
+        <td>{{ customer_record.first_name }} {{ customer_record.last_name }}</td>
+      </tr>
+      <tr>
+        <th scope="row"><i class="bi bi-envelope-fill me-2 text-info"></i>Email</th>
+        <td>{{ customer_record.email }}</td>
+      </tr>
+      <tr>
+        <th scope="row"><i class="bi bi-telephone-fill me-2 text-success"></i>Phone</th>
+        <td>{{ customer_record.phone }}</td>
+      </tr>
+      <tr>
+        <th scope="row"><i class="bi bi-geo-alt-fill me-2 text-danger"></i>Address</th>
+        <td>{{ customer_record.address }}</td>
+      </tr>
+      <tr>
+        <th scope="row"><i class="bi bi-building me-2 text-secondary"></i>City</th>
+        <td>{{ customer_record.city }}</td>
+      </tr>
+      <tr>
+        <th scope="row"><i class="bi bi-flag-fill me-2 text-warning"></i>State</th>
+        <td>{{ customer_record.state }}</td>
+      </tr>
+      <tr>
+        <th scope="row"><i class="bi bi-postal-code me-2 text-info"></i>Zipcode</th>
+        <td>{{ customer_record.zipcode }}</td>
+      </tr>
+      <tr>
+        <th scope="row"><i class="bi bi-calendar-plus me-2 text-muted"></i>Created On</th>
+        <td>{{ customer_record.created_at|date:"M d, Y H:i" }}</td>
+      </tr>
+      <tr>
+        <th scope="row"><i class="bi bi-calendar-check me-2 text-muted"></i>Last Updated</th>
+        <td>
+          {{ customer_record.last_updated|date:"M d, Y H:i" }}
+          {% if customer_record.updated_by %}
+            by <strong>
+              {{ customer_record.updated_by.get_full_name|default:customer_record.updated_by.email }}
+            </strong>
+          {% endif %}
+        </td>
+
+
+      </tr>
+    </tbody>  
+  </table>
+</div>
+
+<!-- Action Buttons -->
+<div class="d-flex justify-content-center gap-2 mt-4">
+  <a href="{% url 'records' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left-circle me-1"></i>Go Back</a>
+  <a href="{% url 'delete_record' customer_record.id %}" class="btn btn-outline-danger"><i class="bi bi-trash me-1"></i>Delete</a>
+  <a href="{% url 'update_record' customer_record.id %}" class="btn btn-outline-primary"><i class="bi bi-pencil-square me-1"></i>Update</a>
+</div>
+
+{% endblock %}

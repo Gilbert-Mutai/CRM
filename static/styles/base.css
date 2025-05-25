@@ -1,5 +1,5 @@
 body {
-    background-color: #fff;
+    background-color:#F4F6F8;
     }
 
 .alert {
@@ -13,4 +13,11 @@ body {
 
 .alert.hide {
   opacity: 0;
+}
+
+
+tr[data-href]:hover {
+  background-color: #eef5ff;
+  transition: background-color 0.2s ease-in-out;
+  cursor: pointer;
 }
