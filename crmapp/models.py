@@ -41,19 +41,49 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         return self.first_name
     
 
-class Record(models.Model):
+class ThreeCX(models.Model):
+    # Metadata
     created_at = models.DateTimeField(auto_now_add=True)
-    first_name = models.CharField(max_length=50)
-    last_name = models.CharField(max_length=50)
-    email = models.CharField(max_length=100)
-    phone = models.CharField(max_length=15)
-    address = models.CharField(max_length=100)
-    city = models.CharField(max_length=50)
-    state = models.CharField(max_length=50)
-    zipcode = models.CharField(max_length=20)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='threecx_created_records'
+    )
+
+    # Business fields
+    company_name = models.CharField(max_length=100)
+    email_address = models.EmailField()
+    contact_details = models.CharField(max_length=50)
+
+    # Dropdown choices
+    SIP_PROVIDERS = [
+        ('Angani', 'Angani'),
+        ('Safaricom', 'Safaricom'),
+        ('Airtel', 'Airtel'),
+    ]
+    sip_provider = models.CharField(max_length=20, choices=SIP_PROVIDERS)
+
+    fqdn = models.CharField(max_length=100)
+
+    LICENCE_TYPES = [
+        ('3CX Standard', '3CX Standard'),
+        ('3CX Pro', '3CX Pro'),
+        ('3CX Enterprise', '3CX Enterprise'),
+    ]
+    licence_type = models.CharField(max_length=20, choices=LICENCE_TYPES)
+
+    # Audit trail
     last_updated = models.DateTimeField(auto_now=True)
-    updated_by = models.ForeignKey(settings.AUTH_USER_MODEL,null=True,blank=True,on_delete=models.SET_NULL)
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='threecx_updated_records'
+    )
 
     def __str__(self):
-        return f"{self.first_name} {self.last_name}"
+        return self.company_name
 

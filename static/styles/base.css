@@ -21,3 +21,20 @@ tr[data-href]:hover {
   transition: background-color 0.2s ease-in-out;
   cursor: pointer;
 }
+
+
+
+#bulk-actions {
+  margin-bottom: 1rem;
+
+  /* Reserve space but hide visually */
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+#bulk-actions.visible {
+  visibility: visible;
+  opacity: 1;
+}
+

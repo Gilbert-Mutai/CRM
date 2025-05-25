@@ -2,56 +2,46 @@
 {% block content %}
 
 <div class="col-md-8 offset-md-2 col-lg-6 offset-lg-3">
-  <h2 class="mb-4 text-center">Update Record</h2>
+  <h2 class="mb-4 text-center">Update 3CX Record</h2>
 
   <form method="POST" novalidate>
     {% csrf_token %}
 
     <div class="mb-3">
-      <label for="id_first_name" class="form-label">First Name</label>
-      {{ form.first_name }}
+      <label for="id_company_name" class="form-label">Company Name</label>
+      {{ form.company_name }}
     </div>
 
     <div class="mb-3">
-      <label for="id_last_name" class="form-label">Last Name</label>
-      {{ form.last_name }}
+      <label for="id_email_address" class="form-label">Email Address</label>
+      {{ form.email_address }}
     </div>
 
     <div class="mb-3">
-      <label for="id_email" class="form-label">Email</label>
-      {{ form.email }}
+      <label for="id_contact_details" class="form-label">Contact Details</label>
+      {{ form.contact_details }}
     </div>
 
     <div class="mb-3">
-      <label for="id_phone" class="form-label">Phone</label>
-      {{ form.phone }}
+      <label for="id_sip_provider" class="form-label">SIP Provider</label>
+      {{ form.sip_provider }}
     </div>
 
     <div class="mb-3">
-      <label for="id_address" class="form-label">Address</label>
-      {{ form.address }}
+      <label for="id_fqdn" class="form-label">FQDN</label>
+      {{ form.fqdn }}
     </div>
 
     <div class="mb-3">
-      <label for="id_city" class="form-label">City</label>
-      {{ form.city }}
-    </div>
-
-    <div class="mb-3">
-      <label for="id_state" class="form-label">State</label>
-      {{ form.state }}
-    </div>
-
-    <div class="mb-3">
-      <label for="id_zipcode" class="form-label">Zipcode</label>
-      {{ form.zipcode }}
+      <label for="id_licence_type" class="form-label">Licence Type</label>
+      {{ form.licence_type }}
     </div>
 
     <div class="d-flex justify-content-start gap-2 mt-4">
       <button type="submit" class="btn btn-outline-primary">
         <i class="bi bi-check-circle me-1"></i>Update
       </button>
-      <a href="{% url 'record' customer_record.id %}" class="btn btn-outline-secondary">
+      <a href="{% url 'threecx_record' customer_record.id %}" class="btn btn-outline-secondary">
         <i class="bi bi-x-circle me-1"></i>Cancel
       </a>
     </div>

@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h4>Send Notification</h4>
+<form method="post">
+  {% csrf_token %}
+  <input type="hidden" name="emails" value="{{ emails|join:',' }}">
+
+  <div class="mb-3">
+    <label>To:</label>
+    <input type="text" class="form-control" value="{{ emails|join:', ' }}" readonly>
+  </div>
+
+  <div class="mb-3">
+    <label>Subject:</label>
+    <input type="text" name="subject" class="form-control">
+  </div>
+
+  <div class="mb-3">
+    <label>Signature:</label>
+    <select name="signature" class="form-select">
+      <option>Angani Support</option>
+      <option>Angani Infrastructure</option>
+      <option>Angani Service Delivery</option>
+    </select>
+  </div>
+
+  <div class="mb-3">
+    <label>Body:</label>
+    <textarea name="body" class="form-control richtext"></textarea>
+  </div>
+
+  <button type="submit" class="btn btn-outline-primary">Send</button>
+
+  <a href="{% url 'threecx_records' %}" class="btn btn-outline-secondary">
+  <i class="bi bi-x-circle me-1"></i>Cancel
+  </a>
+</form>
+
+<!-- TinyMCE -->
+<script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+<script>
+  tinymce.init({
+    selector: 'textarea.richtext',
+    plugins: 'lists link image table code help wordcount',
+    toolbar: 'undo redo | formatselect | bold italic underline | alignleft aligncenter alignright | bullist numlist outdent indent | forecolor backcolor | code',
+    menubar: false
+  });
+</script>
+
+{% endblock %}

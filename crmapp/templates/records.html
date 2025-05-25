@@ -1,62 +1,128 @@
 {% extends 'base.html' %}
 {% block content %}
 
+<!-- Bulk Actions -->
+<div id="bulk-actions" class="bulk-actions">
+  <button id="send-email-btn" class="btn btn-primary btn-sm">Send Notification</button>
+  <button class="btn btn-secondary btn-sm">Send Meeting Invite</button>
+</div>
+
+
+<!-- Table -->
 <div class="table-responsive">
-<table class="table table-striped table-hover table-bordered">
-  <thead class="table-primary">
-    <tr>
-      <th scope="col">Name</th>
-      <th scope="col">Email</th>
-      <th scope="col">Phone</th>
-      <th scope="col">Address</th>
-      <th scope="col">City</th>
-      <th scope="col">State</th>
-      <th scope="col">Zipcode</th>
-      <th scope="col">Created On</th>
-      <th scope="col">Details</th>
-    </tr>
-  </thead>
-  <tbody>
-    
-{% if records %}
-	{% for record in records %}
-		<tr data-href="{% url 'record' record.id %}">
-		<td>{{ record.first_name }} {{ record.last_name }}</td>
-		<td>{{ record.email }}</td>
-		<td>{{ record.phone }}</td>
-		<td>{{ record.address }}</td>
-		<td>{{ record.city }}</td>
-		<td>{{ record.state }}</td>
-		<td>{{ record.zipcode }}</td>
-		<td>{{ record.created_at|date:"M d, Y" }}</td>
-		<td>
-    	<a href="{% url 'record' record.id %}" class="btn btn-sm btn-outline-primary" title="View Record">View</a>
-  		</td>
-		</tr>
+  <table class="table table-striped table-hover table-bordered">
+    <thead class="table-primary">
+      <tr>
+        <th><input type="checkbox" id="select-all" title="Select All" /></th>
+        <th>Company Name</th>
+        <th>Email</th>
+        <th>Contact Details</th>
+        <th>SIP Provider</th>
+        <th>FQDN</th>
+        <th>Licence Type</th>
+        <th>Details</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for record in records %}
+        <tr data-href="{% url 'threecx_record' record.id %}">
+          <td><input type="checkbox" class="record-checkbox" value="{{ record.email_address }}"></td>
+          <td>{{ record.company_name }}</td>
+          <td>{{ record.email_address }}</td>
+          <td>{{ record.contact_details }}</td>
+          <td>{{ record.get_sip_provider_display }}</td>
+          <td>{{ record.fqdn }}</td>
+          <td>{{ record.get_licence_type_display }}</td>
+          <td>
+            <a href="{% url 'threecx_record' record.id %}" class="btn btn-sm btn-outline-primary" title="View Record">View</a>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
 
-	{% endfor %}
+<!-- JS for row click, checkbox selection, and bulk actions -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const selectAll = document.getElementById('select-all');
+  const bulkActions = document.getElementById('bulk-actions');
 
-{% endif %}
+  function getCheckboxes() {
+    return document.querySelectorAll('.record-checkbox');
+  }
 
-	
-	  </tbody>
-	</table>
-	</div>
+  function toggleBulkActionButton() {
+    const selectedCount = Array.from(getCheckboxes()).filter(cb => cb.checked).length;
+    if (selectedCount > 0) {
+      bulkActions.classList.add('visible');
+    } else {
+      bulkActions.classList.remove('visible');
+    }
+  }
 
-	<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const rows = document.querySelectorAll("tr[data-href]");
-    rows.forEach(row => {
-      row.style.cursor = "pointer";
-      row.addEventListener("click", function (e) {
-        // Prevent redirect if a link or button inside the row is clicked
-        if (!e.target.closest("a")) {
-          window.location = this.dataset.href;
-        }
-      });
+  // Make rows clickable unless target is a checkbox or link
+  document.querySelectorAll('tbody tr[data-href]').forEach(row => {
+    row.style.cursor = 'pointer';
+    row.addEventListener('click', function (e) {
+      if (!e.target.closest('a') && e.target.type !== 'checkbox') {
+        window.location = this.dataset.href;
+      }
     });
   });
-</script>
 
+  // Select All toggle
+  selectAll.addEventListener('change', function () {
+    getCheckboxes().forEach(cb => {
+      cb.checked = this.checked;
+      cb.closest('tr').classList.toggle('table-active', this.checked);
+    });
+    toggleBulkActionButton();
+  });
+
+  // Individual checkbox toggles
+  getCheckboxes().forEach(cb => {
+    cb.addEventListener('change', function () {
+      this.closest('tr').classList.toggle('table-active', this.checked);
+      toggleBulkActionButton();
+
+      const allChecked = Array.from(getCheckboxes()).every(chk => chk.checked);
+      selectAll.checked = allChecked;
+    });
+  });
+
+  // Send Notification button
+  document.getElementById('send-email-btn').addEventListener('click', function () {
+    const selectedEmails = Array.from(getCheckboxes())
+      .filter(cb => cb.checked)
+      .map(cb => cb.value);
+
+    if (selectedEmails.length === 0) {
+      alert('Please select at least one record to send notification.');
+      return;
+    }
+
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = "{% url 'compose_email' %}";
+    form.style.display = 'none';
+
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = 'csrfmiddlewaretoken';
+    csrfInput.value = '{{ csrf_token }}';
+    form.appendChild(csrfInput);
+
+    const emailsInput = document.createElement('input');
+    emailsInput.type = 'hidden';
+    emailsInput.name = 'emails';
+    emailsInput.value = selectedEmails.join(',');
+    form.appendChild(emailsInput);
+
+    document.body.appendChild(form);
+    form.submit();
+  });
+});
+</script>
 
 {% endblock %}

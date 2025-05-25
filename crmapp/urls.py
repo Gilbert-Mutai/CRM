@@ -36,12 +36,14 @@ urlpatterns = [
         template_name='registration/password_reset_complete.html'
     ),  name='password_reset_complete'),
     
-    # Records Paths
-    path('records/', views.customer_records, name='records'),
-    path('record/<int:pk>', views.customer_record_details, name='record'),
-    path('delete_record/<int:pk>', views.delete_record, name='delete_record'),
-    path('add_record/', views.add_record, name='add_record'),
-    path('update_record/<int:pk>', views.update_record, name='update_record'),
+    # 3CX Records
+    path('3cx-records/', views.threecx_records, name='threecx_records'),
+    path('3cx-record/<int:pk>/', views.threecx_record_details, name='threecx_record'),
+    path('3cx-delete/<int:pk>/', views.delete_threecx_record, name='delete_threecx_record'),
+    path('3cx-add/', views.add_threecx_record, name='add_threecx_record'),
+    path('3cx-update/<int:pk>/', views.update_threecx_record, name='update_threecx_record'),
+    
+    path('compose-email/', views.compose_email, name='compose_email'),
     
 ]
 

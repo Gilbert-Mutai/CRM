@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.forms import SetPasswordForm
-from .models import CustomUser,Record
+from .models import CustomUser,ThreeCX
 
 class SignUpForm(UserCreationForm):
     email = forms.EmailField(
@@ -53,17 +53,39 @@ class CustomSetPasswordForm(SetPasswordForm):
         })
     )
 
-# Create Add Record Form
-class AddRecordForm(forms.ModelForm):
-	first_name = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"First Name", "class":"form-control"}), label="")
-	last_name = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"Last Name", "class":"form-control"}), label="")
-	email = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"Email", "class":"form-control"}), label="")
-	phone = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"Phone", "class":"form-control"}), label="")
-	address = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"Address", "class":"form-control"}), label="")
-	city = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"City", "class":"form-control"}), label="")
-	state = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"State", "class":"form-control"}), label="")
-	zipcode = forms.CharField(required=True, widget=forms.widgets.TextInput(attrs={"placeholder":"Zipcode", "class":"form-control"}), label="")
 
-	class Meta:
-		model = Record
-		exclude = ("user",)
+class AddThreeCXForm(forms.ModelForm):
+    company_name = forms.CharField(
+        required=True,
+        widget=forms.TextInput(attrs={"placeholder": "Company Name", "class": "form-control"}),
+        label=""
+    )
+    email_address = forms.EmailField(
+        required=True,
+        widget=forms.EmailInput(attrs={"placeholder": "Email Address", "class": "form-control"}),
+        label=""
+    )
+    contact_details = forms.CharField(
+        required=True,
+        widget=forms.TextInput(attrs={"placeholder": "Contact Details", "class": "form-control"}),
+        label=""
+    )
+    fqdn = forms.CharField(
+        required=True,
+        widget=forms.TextInput(attrs={"placeholder": "FQDN", "class": "form-control"}),
+        label=""
+    )
+    sip_provider = forms.ChoiceField(
+        choices=ThreeCX.SIP_PROVIDERS,
+        widget=forms.Select(attrs={"class": "form-control"}),
+        label=""
+    )
+    licence_type = forms.ChoiceField(
+        choices=ThreeCX.LICENCE_TYPES,
+        widget=forms.Select(attrs={"class": "form-control"}),
+        label=""
+    )
+
+    class Meta:
+        model = ThreeCX
+        exclude = ('created_by', 'updated_by')
