@@ -4,47 +4,52 @@
 <h4>Send Notification</h4>
 <form method="post">
   {% csrf_token %}
-  <input type="hidden" name="emails" value="{{ emails|join:',' }}">
+  <input type="hidden" name="bcc_emails" value="{{ emails|join:',' }}">
 
   <div class="mb-3">
-    <label>To:</label>
+    <label>Bcc:</label>
     <input type="text" class="form-control" value="{{ emails|join:', ' }}" readonly>
   </div>
 
   <div class="mb-3">
     <label>Subject:</label>
-    <input type="text" name="subject" class="form-control">
+    <input type="text" name="subject" class="form-control" required>
   </div>
 
   <div class="mb-3">
-    <label>Signature:</label>
+    <label>Send as:</label>
     <select name="signature" class="form-select">
-      <option>Angani Support</option>
-      <option>Angani Infrastructure</option>
-      <option>Angani Service Delivery</option>
+      <option value="Angani Support">Angani Support</option>
+      <option value="Angani Infrastructure">Angani Infrastructure</option>
+      <option value="Angani Service Delivery">Angani Service Delivery</option>
     </select>
   </div>
 
   <div class="mb-3">
     <label>Body:</label>
-    <textarea name="body" class="form-control richtext"></textarea>
+    <textarea name="body" id="editor" class="form-control" required></textarea>
   </div>
 
   <button type="submit" class="btn btn-outline-primary">Send</button>
-
   <a href="{% url 'threecx_records' %}" class="btn btn-outline-secondary">
-  <i class="bi bi-x-circle me-1"></i>Cancel
+    <i class="bi bi-x-circle me-1"></i>Cancel
   </a>
 </form>
 
-<!-- TinyMCE -->
-<script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+<!-- Load CKEditor (Free version, no API key needed) -->
+<script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
 <script>
-  tinymce.init({
-    selector: 'textarea.richtext',
-    plugins: 'lists link image table code help wordcount',
-    toolbar: 'undo redo | formatselect | bold italic underline | alignleft aligncenter alignright | bullist numlist outdent indent | forecolor backcolor | code',
-    menubar: false
+  CKEDITOR.replace('editor', {
+    height: 300,
+    removePlugins: 'sourcearea',
+    toolbar: [
+      { name: 'clipboard', items: ['Undo', 'Redo'] },
+      { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', '-', 'RemoveFormat'] },
+      { name: 'paragraph', items: ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote'] },
+      { name: 'insert', items: ['Link', 'Unlink', 'Image', 'Table'] },
+      { name: 'styles', items: ['Format'] },
+      { name: 'tools', items: ['Maximize'] }
+    ]
   });
 </script>
 

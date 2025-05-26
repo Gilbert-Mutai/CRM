@@ -56,7 +56,7 @@ def logout_user(request):
 def register_user(request):
     if not (request.user.is_staff or request.user.is_superuser):
         messages.error(request, "You are not authorized to perform this action!")
-        return redirect('records')
+        return redirect('threecx_records')
 
     if request.method == "POST":
         form = SignUpForm(request.POST)
