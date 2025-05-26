@@ -33,7 +33,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     
-    'crmapp',
+    'threecx',
+    'accounts',
 ]
 
 MIDDLEWARE = [
@@ -51,7 +52,7 @@ ROOT_URLCONF = 'anganicrm.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -119,7 +120,8 @@ STATICFILES_DIRS = [
     BASE_DIR / 'static'
 ]
 
-LOGIN_URL = '/login/'
+LOGIN_URL = 'login'
+
 
 
 MESSAGE_TAGS = {
@@ -131,10 +133,10 @@ MESSAGE_TAGS = {
 }
 
 
-AUTH_USER_MODEL = 'crmapp.CustomUser'
+AUTH_USER_MODEL = 'accounts.CustomUser'
 
 AUTHENTICATION_BACKENDS = [
-    'crmapp.backends.EmailBackend', 
+    'threecx.backends.EmailBackend', 
     'django.contrib.auth.backends.ModelBackend',
 ]
 

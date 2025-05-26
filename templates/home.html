@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% load tz %}
+
+{% block body_class %}home-bg{% endblock %}
+
+{% block content %}
+  <div class="page-wrapper">
+    <div class="homepage-container">
+        <img src="{% static 'images/logo.png' %}" alt="Logo" class="logo">
+        
+        <h1>Angani Client Manager</h1>
+        <p class="subtitle">Secure and simple client data management</p>
+        <a href="{% url 'menu' %}" class="btn-proceed">Proceed</a>
+    </div>
+
+    <footer class="footer">
+        &copy; {{ now|date:"Y" }} Angani Client Manager. All rights reserved.
+    </footer>
+  </div>
+{% endblock %}

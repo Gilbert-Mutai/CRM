@@ -1,7 +1,9 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser, ThreeCX
+from .models import CustomUser
 from .forms import SignUpForm
+
+# Register your models here.
 
 class CustomUserAdmin(UserAdmin):
     model = CustomUser
@@ -22,28 +24,7 @@ class CustomUserAdmin(UserAdmin):
             'fields': ('email', 'password1', 'password2'),
         }),
     )
-
-@admin.register(ThreeCX)
-class ThreeCXAdmin(admin.ModelAdmin):
-    list_display = ('company_name', 'email_address', 'contact_details', 'sip_provider', 'fqdn', 'licence_type', 'created_at', 'last_updated')
-    list_filter = ('sip_provider', 'licence_type')
-    search_fields = ('company_name', 'email_address')
-    readonly_fields = ('created_at', 'last_updated')
     
-    fieldsets = (
-        (None, {
-            'fields': ('company_name', 'email_address', 'contact_details', 'sip_provider', 'fqdn', 'licence_type')
-        }),
-        ('Timestamps', {
-            'fields': ('created_at', 'last_updated')
-        }),
-    )
-    
-    def save_model(self, request, obj, form, change):
-        if not obj.pk:
-            obj.created_by = request.user
-        obj.updated_by = request.user
-        super().save_model(request, obj, form, change)
-
 # Register the CustomUser with CustomUserAdmin
 admin.site.register(CustomUser, CustomUserAdmin)
+

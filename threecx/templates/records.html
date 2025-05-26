@@ -104,7 +104,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const form = document.createElement('form');
     form.method = 'POST';
-    form.action = "{% url 'compose_email' %}";
+    form.action = "{% url 'send_notification' %}";
     form.style.display = 'none';
 
     const csrfInput = document.createElement('input');

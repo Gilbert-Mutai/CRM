@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class CrmappConfig(AppConfig):
+class AccountsConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'crmapp'
+    name = 'accounts'

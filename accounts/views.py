@@ -1,28 +1,22 @@
-from django.shortcuts import render, redirect,get_object_or_404
+from django.shortcuts import render,redirect
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
-from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives
 from django.urls import reverse
 from django.contrib.auth.forms import SetPasswordForm
-from .forms import SignUpForm,AddThreeCXForm
+from .forms import SignUpForm
+from django.template.loader import render_to_string
 from django.utils.crypto import get_random_string
 from datetime import datetime
-from django.core.mail import EmailMultiAlternatives
-from django.template.loader import render_to_string
-from django.utils.timezone import now
-from .models import ThreeCX
 
 
 User = get_user_model()
 
-
-def home(request):
-    return render(request, 'home.html')
-
+# Create your views here.
 
 def login_user(request):
     if request.method == "POST":
@@ -38,7 +32,7 @@ def login_user(request):
         if user is not None:
             login(request, user)
             messages.success(request, "You have logged in successfully!")
-            return redirect('threecx_records')
+            return redirect('menu')
         else:
             messages.error(request, "Invalid email or password. Please try again.")
             return redirect('login')
@@ -49,14 +43,13 @@ def login_user(request):
 def logout_user(request):
     logout(request)
     messages.warning(request, "You have been logged out!")
-    return redirect('home')
-
+    return redirect('login')
 
 @login_required
 def register_user(request):
     if not (request.user.is_staff or request.user.is_superuser):
         messages.error(request, "You are not authorized to perform this action!")
-        return redirect('threecx_records')
+        return redirect('login')
 
     if request.method == "POST":
         form = SignUpForm(request.POST)
@@ -79,7 +72,7 @@ def register_user(request):
             send_confirmation_email(user)
 
             messages.success(request, "User added successfully!")
-            return redirect('records')
+            return redirect('menu')
     else:
         form = SignUpForm()
 
@@ -130,74 +123,3 @@ def set_new_password(request, uidb64, token):
     else:
         return render(request, 'invalid_link.html')
     
-
-def threecx_records(request): 
-    records = ThreeCX.objects.all().order_by('-last_updated', '-created_at')
-    context = {'records': records}
-    return render(request, 'records.html', context)
-
-
-def threecx_record_details(request, pk):
-    if request.user.is_authenticated:
-        customer_record = get_object_or_404(ThreeCX, id=pk)
-        return render(request, 'record_details.html', {'customer_record': customer_record})
-    else:
-        messages.warning(request, "You must be logged in to view that page.")
-        return redirect('home')
-
-
-def delete_threecx_record(request, pk):
-    if request.user.is_authenticated:
-        record_to_delete = get_object_or_404(ThreeCX, id=pk)
-        record_to_delete.delete()
-        messages.success(request, "Record deleted successfully.")
-        return redirect('threecx_records')
-    else:
-        messages.warning(request, "You must be logged in to do that.")
-        return redirect('login')
-
-
-def add_threecx_record(request):
-    if request.user.is_authenticated:
-        if request.method == "POST":
-            form = AddThreeCXForm(request.POST)
-            if form.is_valid():
-                new_record = form.save(commit=False)
-                new_record.created_by = request.user
-                new_record.updated_by = request.user
-                new_record.save()
-                messages.success(request, "Record has been added!")
-                return redirect('threecx_records')
-        else:
-            form = AddThreeCXForm()
-        return render(request, 'add_record.html', {'form': form})
-    else:
-        messages.warning(request, "You must be logged in.")
-        return redirect('login')
-
-
-def update_threecx_record(request, pk):
-    if request.user.is_authenticated:
-        current_record = get_object_or_404(ThreeCX, id=pk)
-        form = AddThreeCXForm(request.POST or None, instance=current_record)
-        
-        if form.is_valid():
-            updated_record = form.save(commit=False)
-            updated_record.updated_by = request.user
-            updated_record.save()
-            messages.success(request, "Record has been updated!")
-            return redirect('threecx_record', pk=pk)
-
-        return render(request, 'update_record.html', {
-            'form': form,
-            'customer_record': current_record 
-        })
-    else:
-        messages.warning(request, "You must be logged in.")
-        return redirect('login')
-
-def compose_email(request):
-    if request.method == "POST":
-        emails = request.POST.get('emails', '').split(',')
-        return render(request, 'compose_email.html', {'emails': emails})
-    return redirect('threecx_records')
