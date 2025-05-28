@@ -105,3 +105,28 @@ tr[data-href]:hover {
   opacity: 1;
 }
 
+/* Dark style for user dropdown menu */
+.dark-dropdown {
+  background-color: #222;    
+  color: #ddd;                   /* Light text */
+  border: none;                  /* Remove border if desired */
+}
+
+/* Dropdown item style */
+.dark-dropdown .dropdown-item {
+  color: #ddd;                  /* Light text */
+}
+
+/* Hover and focus states */
+.dark-dropdown .dropdown-item:hover,
+.dark-dropdown .dropdown-item:focus {
+  background-color: #444;       /* Slightly lighter dark */
+  color: #fff;                  /* Brighter text on hover */
+}
+
+/* Divider style */
+.dark-dropdown .dropdown-divider {
+  border-top: 1px solid #444;   /* Dark divider */
+}
+
+

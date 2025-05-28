@@ -35,6 +35,11 @@ INSTALLED_APPS = [
     
     'threecx',
     'accounts',
+    'domains',
+    'nova',
+    'novapool4',
+    'pm',
+    'sdwan',
 ]
 
 MIDDLEWARE = [

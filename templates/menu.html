@@ -1,13 +1,88 @@
 {% extends 'base.html' %}
-
-{% block content %}
-
 {% load static %}
 
-    <h1>Menu will go here...</h1>
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4 text-light">Client Sections</h1>
 
+    {% if user.is_authenticated %}
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            <!-- 3CX Clients -->
+            <div class="col">
+                <div class="card text-bg-dark h-100 shadow rounded-4 border-0">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="bi bi-telephone text-primary me-2"></i>3CX Clients
+                        </h5>
+                        <a href="{% url 'threecx_records' %}" class="btn btn-outline-primary mt-3">Go to 3CX</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Domain Hosting -->
+            <div class="col">
+                <div class="card text-bg-dark h-100 shadow rounded-4 border-0">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="bi bi-globe text-success me-2"></i>Domain & Hosting
+                        </h5>
+                        <a href="{% url 'domain_records' %}" class="btn btn-outline-success mt-3">Go to Domains</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Nova Clients -->
+            <div class="col">
+                <div class="card text-bg-dark h-100 shadow rounded-4 border-0">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="bi bi-lightning-charge text-warning me-2"></i>Nova Clients
+                        </h5>
+                        <a href="{% url 'nova_records' %}" class="btn btn-outline-warning mt-3">Go to Nova</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Novapool4 Clients -->
+            <div class="col">
+                <div class="card text-bg-dark h-100 shadow rounded-4 border-0">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="bi bi-cpu text-warning me-2"></i>Novapool 4 Clients
+                        </h5>
+                        <a href="{% url 'novapool4_records' %}" class="btn btn-outline-warning mt-3">Go to Novapool 4</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SD-WAN Clients -->
+            <div class="col">
+                <div class="card text-bg-dark h-100 shadow rounded-4 border-0">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="bi bi-diagram-3 text-primary me-2"></i>SD-WAN Clients
+                        </h5>
+                        <a href="{% url 'sdwan_records' %}" class="btn btn-outline-primary mt-3">Go to SD-WAN</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project Manager -->
+            <div class="col">
+                <div class="card text-bg-dark h-100 shadow rounded-4 border-0">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="bi bi-kanban text-info me-2"></i>Project Manager
+                        </h5>
+                        <a href="{% url 'pm_records' %}" class="btn btn-outline-info mt-3">Go to Projects</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-warning mt-4" role="alert">
+            You must be logged in to view this page.
+        </div>
+    {% endif %}
+</div>
 {% endblock %}
-
-
-
-    

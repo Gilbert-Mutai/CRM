@@ -6,13 +6,13 @@ from .models import ThreeCX
 def threecx_records(request): 
     records = ThreeCX.objects.all().order_by('-last_updated', '-created_at')
     context = {'records': records}
-    return render(request, 'records.html', context)
+    return render(request, 'threecx_records.html', context)
 
 
 def threecx_record_details(request, pk):
     if request.user.is_authenticated:
         customer_record = get_object_or_404(ThreeCX, id=pk)
-        return render(request, 'record_details.html', {'customer_record': customer_record})
+        return render(request, 'threecx_record_details.html', {'customer_record': customer_record})
     else:
         messages.warning(request, "You must be logged in to view that page.")
         return redirect('home')
@@ -42,7 +42,7 @@ def add_threecx_record(request):
                 return redirect('threecx_records')
         else:
             form = AddThreeCXForm()
-        return render(request, 'add_record.html', {'form': form})
+        return render(request, 'threecx_add_record.html', {'form': form})
     else:
         messages.warning(request, "You must be logged in.")
         return redirect('login')
@@ -60,7 +60,7 @@ def update_threecx_record(request, pk):
             messages.success(request, "Record has been updated!")
             return redirect('threecx_record', pk=pk)
 
-        return render(request, 'update_record.html', {
+        return render(request, 'threecx_update_record.html', {
             'form': form,
             'customer_record': current_record 
         })
@@ -71,5 +71,5 @@ def update_threecx_record(request, pk):
 def send_notification(request):
     if request.method == "POST":
         emails = request.POST.get('emails', '').split(',')
-        return render(request, 'email_notification.html', {'emails': emails})
+        return render(request, 'threecx_email_notification.html', {'emails': emails})
     return redirect('threecx_records')
