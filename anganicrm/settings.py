@@ -2,24 +2,16 @@ from pathlib import Path
 import os
 from dotenv import load_dotenv
 load_dotenv() 
-
 from django.contrib.messages import constants as messages_constants
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+SECRET_KEY = os.getenv('SECRET_KEY')
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
+DEBUG = os.getenv('DEBUG') == 'True'
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-fqjk3@ysg$nsj(zwq7fll#h8$r^mna%h&bvre^y_8$^dtu$1=c'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
 
 # Application definition
 
@@ -109,8 +101,6 @@ LANGUAGE_CODE = 'en-us'
 
 
 # Default is UTC
-TIME_ZONE = 'UTC'
-
 TIME_ZONE = 'Africa/Nairobi'
 
 USE_TZ = True 
@@ -126,7 +116,6 @@ STATICFILES_DIRS = [
 ]
 
 LOGIN_URL = 'login'
-
 
 
 MESSAGE_TAGS = {
@@ -155,10 +144,7 @@ EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = "Angani Client Manager <noreply.anganicrm@gmail.com>"
 
-
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-

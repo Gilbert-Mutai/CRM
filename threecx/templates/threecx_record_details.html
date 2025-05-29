@@ -6,6 +6,7 @@
 <div class="table-responsive" style="max-width: 600px; margin: auto;">
   <table class="table table-bordered table-hover align-middle">
     <tbody>
+      <!-- Customer Info -->
       <tr>
         <th scope="row"><i class="bi bi-building me-2 text-secondary"></i>Company Name</th>
         <td>{{ customer_record.company_name }}</td>
@@ -27,8 +28,8 @@
         <td>{{ customer_record.get_sip_provider_display }}</td>
       </tr>
       <tr>
-        <th scope="row"><i class="bi bi-award-fill me-2 text-secondary"></i>Licence Type</th>
-        <td>{{ customer_record.get_licence_type_display }}</td>
+        <th scope="row"><i class="bi bi-award-fill me-2 text-secondary"></i>License Type</th>
+        <td>{{ customer_record.get_license_type_display }}</td>
       </tr>
       <tr>
         <th scope="row"><i class="bi bi-calendar-plus me-2 text-muted"></i>Created On</th>
@@ -57,12 +58,49 @@
   <a href="{% url 'threecx_records' %}" class="btn btn-outline-secondary">
     <i class="bi bi-arrow-left-circle me-1"></i>Go Back
   </a>
-  <a href="{% url 'delete_threecx_record' customer_record.id %}" class="btn btn-outline-danger">
+  <a href="#" 
+     class="btn btn-outline-danger" 
+     onclick="confirmAction(this)"
+     data-url="{% url 'delete_threecx_record' customer_record.id %}" 
+     data-message="Are you sure you want to delete this record? This action cannot be undone.">
     <i class="bi bi-trash me-1"></i>Delete
   </a>
   <a href="{% url 'update_threecx_record' customer_record.id %}" class="btn btn-outline-primary">
     <i class="bi bi-pencil-square me-1"></i>Update
   </a>
 </div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="confirmActionModal" tabindex="-1" aria-labelledby="confirmActionLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-warning text-dark">
+        <h5 class="modal-title" id="confirmActionLabel">Confirm Deletion</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p id="confirmMessage">Are you sure?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <a href="#" class="btn btn-danger" id="confirmBtn">Yes, delete</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- JS Logic -->
+<script>
+function confirmAction(element) {
+  const url = element.getAttribute('data-url');
+  const message = element.getAttribute('data-message');
+
+  document.getElementById('confirmMessage').innerText = message;
+  document.getElementById('confirmBtn').setAttribute('href', url);
+
+  const modal = new bootstrap.Modal(document.getElementById('confirmActionModal'));
+  modal.show();
+}
+</script>
 
 {% endblock %}

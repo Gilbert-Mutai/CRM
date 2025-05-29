@@ -27,12 +27,19 @@ class AddThreeCXForm(forms.ModelForm):
         widget=forms.Select(attrs={"class": "form-control"}),
         label=""
     )
-    licence_type = forms.ChoiceField(
-        choices=ThreeCX.LICENCE_TYPES,
+    license_type = forms.ChoiceField(
+        choices=ThreeCX.LICENSE_TYPES,
         widget=forms.Select(attrs={"class": "form-control"}),
         label=""
     )
 
     class Meta:
         model = ThreeCX
-        exclude = ('created_by', 'updated_by')
+        fields = [
+            'company_name',
+            'email_address',
+            'contact_details',
+            'fqdn',
+            'sip_provider',
+            'license_type',
+        ]

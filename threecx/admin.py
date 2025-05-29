@@ -5,14 +5,14 @@ from .models import ThreeCX
 
 @admin.register(ThreeCX)
 class ThreeCXAdmin(admin.ModelAdmin):
-    list_display = ('company_name', 'email_address', 'contact_details', 'sip_provider', 'fqdn', 'licence_type', 'created_at', 'last_updated')
-    list_filter = ('sip_provider', 'licence_type')
+    list_display = ('company_name', 'email_address', 'contact_details', 'sip_provider', 'fqdn', 'license_type', 'created_at', 'last_updated')
+    list_filter = ('sip_provider', 'license_type')
     search_fields = ('company_name', 'email_address')
     readonly_fields = ('created_at', 'last_updated')
     
     fieldsets = (
         (None, {
-            'fields': ('company_name', 'email_address', 'contact_details', 'sip_provider', 'fqdn', 'licence_type')
+            'fields': ('company_name', 'email_address', 'contact_details', 'sip_provider', 'fqdn', 'license_type')
         }),
         ('Timestamps', {
             'fields': ('created_at', 'last_updated')
