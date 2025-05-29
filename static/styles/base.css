@@ -3,6 +3,12 @@ body.home-bg {
     color: #F4F6F8;
 }
 
+body.menu-bg {
+    background-color: rgb(50, 116, 135); 
+    color: #F4F6F8;
+}
+
+
 body {
     background-color: #F4F6F8; /* Default for all other pages */
     margin: 0;
@@ -185,6 +191,16 @@ tr[data-href]:hover {
   visibility: visible;
   opacity: 1;
 }
+
+
+.card-hover:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    transform: scale(1.02);
+    cursor: pointer;
+}
+
+
 
 
 

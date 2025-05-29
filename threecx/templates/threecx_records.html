@@ -221,9 +221,24 @@ document.addEventListener("DOMContentLoaded", function () {
   const pageSizeSelect = document.getElementById('page-size-select');
 
   // Submit filter form on filter changes
-  [searchInput, sipSelect, licenseSelect].forEach(el => {
-    el.addEventListener('change', () => form.submit());
-  });
+      // Debounce function to limit rapid submissions
+function debounce(func, delay) {
+  let timeout;
+  return function (...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), delay);
+  };
+}
+
+    // Instant search on input with debounce (500ms)
+    searchInput.addEventListener('input', debounce(() => {
+      form.submit();
+    }, 500));
+
+    // SIP and License filter still submit on change
+    [sipSelect, licenseSelect].forEach(el => {
+      el.addEventListener('change', () => form.submit());
+    });
 
   // Submit page size form on change
   pageSizeSelect.addEventListener('change', () => {
