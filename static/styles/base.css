@@ -3,12 +3,6 @@ body.home-bg {
     color: #F4F6F8;
 }
 
-body.menu-bg {
-    background-color: rgb(50, 116, 135); 
-    color: #F4F6F8;
-}
-
-
 body {
     background-color: #F4F6F8; /* Default for all other pages */
     margin: 0;

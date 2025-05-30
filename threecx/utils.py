@@ -5,6 +5,7 @@ from .models import ThreeCX
 import csv
 from io import StringIO
 from django.http import HttpResponse
+import re
 
 
 def get_all_records():
@@ -18,19 +19,14 @@ def delete_record(pk):
     record.delete()
 
 def validate_emails(raw_emails: str):
-    raw_emails_list = [email.strip() for email in raw_emails.split(',') if email.strip()]
-
-    valid_emails = []
-    invalid_emails = []
-
-    for email in raw_emails_list:
-        try:
-            validate_email(email)
-            valid_emails.append(email)
-        except ValidationError:
-            invalid_emails.append(email)
-
-    return valid_emails, invalid_emails
+    """
+    Splits a comma-separated string, returns (valid_list, invalid_list).
+    """
+    pattern = re.compile(r"[^@]+@[^@]+\.[^@]+")
+    emails = [e.strip() for e in raw_emails.split(',') if e.strip()]
+    valid = [e for e in emails if pattern.match(e)]
+    invalid = [e for e in emails if not pattern.match(e)]
+    return valid, invalid
 
 def has_form_changed(form, instance=None):
     return form.has_changed()

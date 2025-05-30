@@ -49,7 +49,13 @@
 <!-- Bulk Actions -->
 <div id="bulk-actions" class="bulk-actions mb-3" aria-live="polite" aria-atomic="true" role="region">
   <button id="send-email-btn" class="btn btn-primary btn-sm" disabled>Send Notification</button>
-  <button id="export-btn" class="btn btn-success btn-sm" disabled>Export Selected</button>
+
+  <!-- Export Form -->
+  <form id="export-form" method="post" action="{% url 'export_selected_records' %}" style="display:inline;">
+    {% csrf_token %}
+    <input type="hidden" name="emails" id="export-emails" value="" />
+    <button type="submit" id="export-btn" class="btn btn-success btn-sm" disabled>Export Selected</button>
+  </form>
 </div>
 
 <!-- Table -->
@@ -130,12 +136,11 @@
         </li>
       {% endif %}
 
-        <li class="page-item disabled">
-      <span class="page-link">
-       Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
-      </span>
+      <li class="page-item disabled">
+        <span class="page-link">
+          Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+        </span>
       </li>
-
 
       {% if page_obj.has_next %}
         <li class="page-item">
@@ -219,112 +224,118 @@ document.addEventListener("DOMContentLoaded", function () {
   const licenseSelect = document.getElementById('license-select');
   const checkboxes = document.querySelectorAll('.record-checkbox');
   const pageSizeSelect = document.getElementById('page-size-select');
+  const exportEmailsInput = document.getElementById('export-emails');
+  const exportForm = document.getElementById('export-form');
 
   // Submit filter form on filter changes
-      // Debounce function to limit rapid submissions
-function debounce(func, delay) {
-  let timeout;
-  return function (...args) {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => func.apply(this, args), delay);
-  };
-}
+  // Debounce function to limit rapid submissions
+  function debounce(func, delay) {
+    let timeout;
+    return function (...args) {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func.apply(this, args), delay);
+    };
+  }
 
-    // Instant search on input with debounce (500ms)
-    searchInput.addEventListener('input', debounce(() => {
-      form.submit();
-    }, 500));
+  // Instant search on input with debounce (500ms)
+  searchInput.addEventListener('input', debounce(() => {
+    form.submit();
+  }, 500));
 
-    // SIP and License filter still submit on change
-    [sipSelect, licenseSelect].forEach(el => {
-      el.addEventListener('change', () => form.submit());
-    });
+  // SIP and License filters submit on change
+  sipSelect.addEventListener('change', () => form.submit());
+  licenseSelect.addEventListener('change', () => form.submit());
 
-  // Submit page size form on change
+  // Page size form submit on change
   pageSizeSelect.addEventListener('change', () => {
     document.getElementById('page-size-form').submit();
   });
 
-  // Track checked records and toggle bulk actions
+  // Row click navigates to detail, unless clicking checkbox or buttons
+  document.querySelectorAll('tbody tr').forEach(row => {
+    row.addEventListener('click', (e) => {
+      if (
+        e.target.type === 'checkbox' ||
+        e.target.closest('a, button')
+      ) {
+        return; // Ignore clicks on checkboxes or links/buttons
+      }
+      const href = row.dataset.href;
+      if (href) {
+        window.location.href = href;
+      }
+    });
+
+    // Make row keyboard accessible with Enter key
+    row.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        const href = row.dataset.href;
+        if (href) {
+          window.location.href = href;
+        }
+      }
+    });
+  });
+
+  // Manage checkbox selection state and bulk action visibility
   function updateBulkActions() {
-    const checkedCount = document.querySelectorAll('.record-checkbox:checked').length;
-    if (checkedCount > 0) {
+    const checkedBoxes = document.querySelectorAll('.record-checkbox:checked');
+    const count = checkedBoxes.length;
+
+    if (count > 0) {
       bulkActions.classList.add('visible');
       sendEmailBtn.disabled = false;
       exportBtn.disabled = false;
-      addRecordBtn.setAttribute('aria-disabled', 'true');
-      addRecordBtn.style.pointerEvents = 'none';
+      // Update hidden export input with emails joined by commas
+      const emails = Array.from(checkedBoxes).map(cb => cb.value);
+      exportEmailsInput.value = emails.join(',');
     } else {
       bulkActions.classList.remove('visible');
       sendEmailBtn.disabled = true;
       exportBtn.disabled = true;
-      addRecordBtn.removeAttribute('aria-disabled');
-      addRecordBtn.style.pointerEvents = 'auto';
+      exportEmailsInput.value = '';
+      selectAll.checked = false;
     }
   }
 
-  // Select all toggle
+  // Checkbox event listeners
+  checkboxes.forEach(cb => {
+    cb.addEventListener('change', updateBulkActions);
+  });
+
+  // Select all checkbox logic
   selectAll.addEventListener('change', () => {
-    checkboxes.forEach(cb => cb.checked = selectAll.checked);
+    checkboxes.forEach(cb => {
+      cb.checked = selectAll.checked;
+    });
     updateBulkActions();
   });
 
-  // Individual checkbox change
-  checkboxes.forEach(cb => {
-    cb.addEventListener('change', () => {
-      if (!cb.checked) {
-        selectAll.checked = false;
-      } else if ([...checkboxes].every(c => c.checked)) {
-        selectAll.checked = true;
-      }
-      updateBulkActions();
-    });
-  });
-
-  // Table row clickable except checkbox and buttons
-  const rows = document.querySelectorAll('tbody tr[data-href]');
-  rows.forEach(row => {
-    row.addEventListener('click', (e) => {
-      if (!e.target.closest('input[type="checkbox"]') && !e.target.closest('a, button')) {
-        window.location = row.getAttribute('data-href');
-      }
-    });
-  });
-
-  // Accessibility: keyboard Enter/Space on row also triggers navigation
-  rows.forEach(row => {
-    row.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        window.location = row.getAttribute('data-href');
-      }
-    });
-  });
-
-  // Modal for sending notification
+  // Send Email Button - open confirmation modal
   const confirmSendModal = new bootstrap.Modal(document.getElementById('confirmSendModal'));
   const selectedCountSpan = document.getElementById('selected-count');
   const confirmSendBtn = document.getElementById('confirmSendBtn');
 
   sendEmailBtn.addEventListener('click', () => {
-    const count = document.querySelectorAll('.record-checkbox:checked').length;
-    selectedCountSpan.textContent = count;
+    const selectedCount = document.querySelectorAll('.record-checkbox:checked').length;
+    selectedCountSpan.textContent = selectedCount;
     confirmSendModal.show();
   });
 
+  // Confirm send notification logic
   confirmSendBtn.addEventListener('click', () => {
-    // Here implement your send notification logic, e.g. AJAX call or form submit
     confirmSendModal.hide();
-    alert('Notification sent!'); // placeholder
+    // Redirect to send notification page with selected emails as query param (or handle differently)
+    const emails = Array.from(document.querySelectorAll('.record-checkbox:checked')).map(cb => cb.value);
+    if (emails.length > 0) {
+      // Example redirect, adapt if you have another plan
+      const url = new URL("{% url 'send_notification' %}", window.location.origin);
+      url.searchParams.append('emails', emails.join(','));
+      window.location.href = url.toString();
+    }
   });
 
-  // Export button placeholder
-  exportBtn.addEventListener('click', () => {
-    const selectedEmails = Array.from(document.querySelectorAll('.record-checkbox:checked'))
-                                .map(cb => cb.value);
-    // Implement your export logic here, e.g. submit form or AJAX
-    alert('Exporting ' + selectedEmails.length + ' records');
-  });
 });
 </script>
 
