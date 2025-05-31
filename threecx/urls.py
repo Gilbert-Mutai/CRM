@@ -12,7 +12,6 @@ urlpatterns = [
     path('update/<int:pk>/', views.update_threecx_record, name='update_threecx_record'),
     
     path('send-notification/', views.send_notification, name='send_notification'),
-    
     path('export/', views.export_selected_records, name='export_selected_records'),
 
     

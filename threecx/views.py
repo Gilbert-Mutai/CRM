@@ -20,8 +20,8 @@ def threecx_records(request):
 
     if query:
         records = records.filter(
-            Q(company_name__icontains=query) |
-            Q(email_address__icontains=query) |
+            Q(client__name__icontains=query) |
+            Q(client__email__icontains=query) |
             Q(fqdn__icontains=query)
         )
 

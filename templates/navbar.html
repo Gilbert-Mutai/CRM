@@ -17,12 +17,18 @@
               <i class="bi bi-folder2-open me-1"></i> Menu
             </a>
             <ul class="dropdown-menu dropdown-menu-end shadow-lg animate__animated animate__fadeIn dark-dropdown" aria-labelledby="navbarDropdown">
-              <li><a class="dropdown-item" href="{% url 'threecx_records' %}"><i class="bi bi-telephone me-2 text-secondary"></i>3CX Clients</a></li>
-              <li><a class="dropdown-item" href="{% url 'nova_records' %}"><i class="bi bi-lightning-charge me-2 text-secondary"></i>Nova Clients</a></li>
-              <li><a class="dropdown-item" href="{% url 'novapool4_records' %}"><i class="bi bi-cpu me-2 text-secondary"></i>Novapool 4 Clients</a></li>
-              <li><a class="dropdown-item" href="{% url 'domain_records' %}"><i class="bi bi-globe me-2 text-secondary"></i>Domain & Hosting</a></li>
+              <li><a class="dropdown-item" href="{% url 'client_records' %}"><i class="bi bi-people me-2 text-secondary"></i>Customer Master</a></li>
               <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item" href="{% url 'pm_records' %}"><i class="bi bi-kanban me-2 text-secondary"></i>Project Manager</a></li>
+              <li><a class="dropdown-item" href="{% url 'threecx_records' %}"><i class="bi bi-telephone me-2 text-secondary"></i>3CX</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="{% url 'nova_records' %}"><i class="bi bi-lightning-charge me-2 text-secondary"></i>Nova</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="{% url 'novapool4_records' %}"><i class="bi bi-cpu me-2 text-secondary"></i>Novapool 4</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="{% url 'domain_records' %}"><i class="bi bi-globe me-2 text-secondary"></i>Domains</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="{% url 'pm_records' %}"><i class="bi bi-kanban me-2 text-secondary"></i>Projects</a></li>
+              <li><hr class="dropdown-divider"></li>
             </ul>
           </li>
         </ul>
@@ -40,9 +46,12 @@
             <ul class="dropdown-menu dropdown-menu-end shadow-lg animate__animated animate__fadeIn dark-dropdown" aria-labelledby="navbarDropdown">
 
               {% if user.is_staff or user.is_superuser %}
-                <li><a class="dropdown-item" href="{% url 'register' %}"><i class="bi bi-person-plus me-2"></i>Add User</a></li>
-                <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="{% url 'register' %}"><i class="bi bi-person-plus me-2"></i>Add User</a></li>
+              <li><a class="dropdown-item" href="{% url 'add_client_record' %}"><i class="bi bi-person-badge me-2"></i>Add Client</a></li>
+              <li><hr class="dropdown-divider"></li>
               {% endif %}
+
+
               <li><a class="dropdown-item" href="{% url 'logout' %}"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
             </ul>
           </li>

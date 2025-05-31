@@ -45,7 +45,6 @@
     </select>
   </div>
 </form>
-
 <!-- Bulk Actions -->
 <div id="bulk-actions" class="bulk-actions mb-3" aria-live="polite" aria-atomic="true" role="region">
   <button id="send-email-btn" class="btn btn-primary btn-sm" disabled>Send Notification</button>
@@ -66,24 +65,24 @@
         <th scope="col">
           <input type="checkbox" id="select-all" title="Select All" aria-label="Select All Records" />
         </th>
-        <th scope="col">Company Name</th>
+        <th scope="col">Name</th>
         <th scope="col">Email</th>
-        <th scope="col">Contact Details</th>
+        <th scope="col">Phone Number</th>
         <th scope="col">SIP Provider</th>
         <th scope="col">FQDN</th>
         <th scope="col">License Type</th>
         <th scope="col">Details</th>
       </tr>
     </thead>
-    <tbody>
+       <tbody>
       {% for record in records %}
-        <tr data-href="{% url 'threecx_record' record.id %}" tabindex="0" role="row" aria-label="Record {{ record.company_name }}">
+        <tr data-href="{% url 'threecx_record' record.id %}" tabindex="0" role="row" aria-label="Record {{ record.client.name }}">
           <td>
-            <input type="checkbox" class="record-checkbox" value="{{ record.email_address }}" aria-label="Select {{ record.company_name }}" />
+            <input type="checkbox" class="record-checkbox" value="{{ record.client.email }}" aria-label="Select {{ record.client.name }}" />
           </td>
-          <td>{{ record.company_name }}</td>
-          <td>{{ record.email_address }}</td>
-          <td>{{ record.contact_details }}</td>
+          <td>{{ record.client.name }}</td>
+          <td>{{ record.client.email }}</td>
+          <td>{{ record.client.phone_number }}</td>
           <td>{{ record.get_sip_provider_display }}</td>
           <td>{{ record.fqdn }}</td>
           <td>{{ record.get_license_type_display }}</td>
@@ -97,6 +96,7 @@
         </tr>
       {% endfor %}
     </tbody>
+ 
   </table>
 </div>
 

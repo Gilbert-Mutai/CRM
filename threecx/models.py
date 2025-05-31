@@ -1,23 +1,22 @@
 from django.db import models
 from django.conf import settings 
+from django.core.validators import RegexValidator
+from core.models import Client
 
 class ThreeCX(models.Model):
     # Metadata
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        null=True,
-        blank=True,
+        null=True, blank=True,
         on_delete=models.SET_NULL,
         related_name='threecx_created_records'
     )
 
-    # Business fields
-    company_name = models.CharField(max_length=100)
-    email_address = models.EmailField()
-    contact_details = models.CharField(max_length=50)
+    # Link to client
+    client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='threecx_records')
 
-    # Dropdown choices
+    # Dropdowns
     SIP_PROVIDERS = [
         ('Angani', 'Angani'),
         ('Safaricom', 'Safaricom'),
@@ -38,19 +37,16 @@ class ThreeCX(models.Model):
     last_updated = models.DateTimeField(auto_now=True)
     updated_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        null=True,
-        blank=True,
+        null=True, blank=True,
         on_delete=models.SET_NULL,
         related_name='threecx_updated_records'
     )
 
     def __str__(self):
-        return self.company_name
+        return f"{self.client.name} - {self.fqdn}"
 
     class Meta:
         indexes = [
-            models.Index(fields=['company_name']),
-            models.Index(fields=['email_address']),
             models.Index(fields=['fqdn']),
             models.Index(fields=['sip_provider']),
             models.Index(fields=['license_type']),

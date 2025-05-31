@@ -32,19 +32,19 @@ def has_form_changed(form, instance=None):
     return form.has_changed()
 
 
-
 def generate_csv_for_selected_emails(emails):
-    records = ThreeCX.objects.filter(email_address__in=emails)
+    # Filter via related Client's email field
+    records = ThreeCX.objects.filter(client__email__in=emails)
 
     csv_buffer = StringIO()
     writer = csv.writer(csv_buffer)
-    writer.writerow(['Company Name', 'Email', 'Contact Details', 'SIP Provider', 'FQDN', 'License Type'])
+    writer.writerow(['Company/Username', 'Email', 'Phone Number', 'SIP Provider', 'FQDN', 'License Type'])
 
     for rec in records:
         writer.writerow([
-            rec.company_name,
-            rec.email_address,
-            rec.contact_details,
+            rec.client.name,             
+            rec.client.email,           
+            rec.client.phone_number,     
             rec.get_sip_provider_display(),
             rec.fqdn,
             rec.get_license_type_display(),
@@ -56,4 +56,5 @@ def generate_csv_for_selected_emails(emails):
     response = HttpResponse(csv_content, content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="3cx_records.csv"'
     return response
+
 

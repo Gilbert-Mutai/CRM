@@ -87,18 +87,16 @@ tr[data-href]:hover {
     cursor: pointer;
 }
 
-#bulk-actions {
-    margin-bottom: 1rem;
-
-    /* Reserve space but hide visually */
-    visibility: hidden;
-    opacity: 0;
-    transition: opacity 0.3s ease;
+.bulk-actions {
+  /* keep it inline but hidden with opacity 0 */
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
-#bulk-actions.visible {
-    visibility: visible;
-    opacity: 1;
+.bulk-actions.visible {
+  visibility: visible;
+  opacity: 1;
 }
 
 /* Dark style for user dropdown menu */
