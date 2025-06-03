@@ -96,6 +96,7 @@ def add_client_record(request):
 
     return render(request, 'client_add_record.html', {'form': form})
 
+
 @login_required
 def update_client_record(request, pk):
     client_record = get_object_or_404(Client, pk=pk)
@@ -103,15 +104,19 @@ def update_client_record(request, pk):
     if request.method == 'POST':
         form = ClientUpdateForm(request.POST, instance=client_record)
         if form.is_valid():
-            updated_client = form.save(commit=False)
-            updated_client.updated_by = request.user
-            updated_client.save()
-            messages.success(request, "Client updated successfully.")
+            if form.has_changed():
+                updated_client = form.save(commit=False)
+                updated_client.updated_by = request.user
+                updated_client.save()
+                messages.success(request, "Client updated successfully.")
+            else:
+                messages.warning(request, "No changes detected.")
             return redirect('client_record', pk=client_record.pk)
     else:
         form = ClientUpdateForm(instance=client_record)
 
     return render(request, 'client_update_record.html', {'form': form, 'client_record': client_record})
+
 
 def delete_client_record(request, pk):
     if not request.user.is_authenticated:

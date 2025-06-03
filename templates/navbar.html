@@ -47,7 +47,6 @@
 
               {% if user.is_staff or user.is_superuser %}
               <li><a class="dropdown-item" href="{% url 'register' %}"><i class="bi bi-person-plus me-2"></i>Add User</a></li>
-              <li><a class="dropdown-item" href="{% url 'add_client_record' %}"><i class="bi bi-person-badge me-2"></i>Add Client</a></li>
               <li><hr class="dropdown-divider"></li>
               {% endif %}
 

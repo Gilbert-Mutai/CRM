@@ -4,8 +4,8 @@ from django.conf import settings
 from django.core.validators import RegexValidator
 
 class Client(models.Model):
-    INDIVIDUAL = 'individual'
-    COMPANY = 'company'
+    INDIVIDUAL = 'Individual'
+    COMPANY = 'Individual'
     CLIENT_TYPE_CHOICES = [
         (INDIVIDUAL, 'Individual'),
         (COMPANY, 'Company'),

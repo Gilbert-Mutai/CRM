@@ -19,14 +19,17 @@ def delete_record(pk):
     record.delete()
 
 def validate_emails(raw_emails: str):
-    """
-    Splits a comma-separated string, returns (valid_list, invalid_list).
-    """
-    pattern = re.compile(r"[^@]+@[^@]+\.[^@]+")
     emails = [e.strip() for e in raw_emails.split(',') if e.strip()]
-    valid = [e for e in emails if pattern.match(e)]
-    invalid = [e for e in emails if not pattern.match(e)]
+    valid = []
+    invalid = []
+    for email in emails:
+        try:
+            validate_email(email)
+            valid.append(email)
+        except ValidationError:
+            invalid.append(email)
     return valid, invalid
+
 
 def has_form_changed(form, instance=None):
     return form.has_changed()
@@ -38,7 +41,7 @@ def generate_csv_for_selected_emails(emails):
 
     csv_buffer = StringIO()
     writer = csv.writer(csv_buffer)
-    writer.writerow(['Company/Username', 'Email', 'Phone Number', 'SIP Provider', 'FQDN', 'License Type'])
+    writer.writerow(['Name', 'Email', 'Phone Number', 'SIP Provider', 'FQDN', 'License Type'])
 
     for rec in records:
         writer.writerow([
@@ -54,7 +57,7 @@ def generate_csv_for_selected_emails(emails):
     csv_buffer.close()
 
     response = HttpResponse(csv_content, content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="3cx_records.csv"'
+    response['Content-Disposition'] = 'attachment; filename="3cx_List.csv"'
     return response
 
 

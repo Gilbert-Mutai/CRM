@@ -1,61 +1,69 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<!-- Heading and Action Buttons -->
+  <!-- Heading and Action Buttons -->
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h4 class="mb-0">3CX Records</h4>
   <div class="d-flex gap-2">
     <a href="{% url 'menu' %}" class="btn btn-outline-secondary btn-sm" title="Back to Menu">
-      <i class="bi bi-arrow-left"></i> Back to Menu
+      <i class="bi bi-arrow-left"></i> Back
     </a>
-    <a href="{% url 'add_threecx_record' %}" id="add-record-btn" class="btn btn-primary btn-sm" title="Add New Record">
+    <a href="{% url 'add_threecx_record' %}" id="add-record-btn" class="btn btn-outline-primary btn-sm" title="Add New Record">
       <i class="bi bi-plus-lg"></i> Add Record
     </a>
   </div>
 </div>
 
-<!-- Search and Filters -->
-<form method="get" class="row g-2 mb-3 align-items-center" id="filter-form" role="search" aria-label="Filter records">
-  <div class="col-auto">
-    <input
-      type="text"
-      name="search"
-      class="form-control form-control-sm"
-      placeholder="Search"
-      value="{{ search_query }}"
-      aria-label="Search records"
-      id="search-input"
-      autocomplete="off"
-    />
-  </div>
-  <div class="col-auto">
-    <select name="sip_provider" class="form-select form-select-sm" aria-label="Filter by SIP Provider" id="sip-select">
-      <option value="">All SIP Providers</option>
-      {% for sip in sip_providers %}
-        <option value="{{ sip }}" {% if sip == selected_sip %}selected{% endif %}>{{ sip }}</option>
-      {% endfor %}
-    </select>
-  </div>
-  <div class="col-auto">
-    <select name="license_type" class="form-select form-select-sm" aria-label="Filter by License Type" id="license-select">
-      <option value="">All License Types</option>
-      {% for lic in license_types %}
-        <option value="{{ lic }}" {% if lic == selected_license %}selected{% endif %}>{{ lic }}</option>
-      {% endfor %}
-    </select>
+<!-- Combined Filters and Bulk Actions -->
+<form method="get" class="mb-3" id="filter-form">
+  <div class="row g-2 align-items-center">
+    <!-- Filters -->
+    <div class="col-auto" style="min-width: 220px;">
+      <input
+        type="text"
+        name="search"
+        class="form-control form-control-sm"
+        placeholder="Search"
+        value="{{ search_query }}"
+        id="search-input"
+        autocomplete="off"
+        aria-label="Search records"
+      />
+    </div>
+    <div class="col-auto" style="min-width: 180px;">
+      <select name="sip_provider" class="form-select form-select-sm" aria-label="Filter by SIP Provider" id="sip-select">
+        <option value="">All SIP Providers</option>
+        {% for sip in sip_providers %}
+          <option value="{{ sip }}" {% if sip == selected_sip %}selected{% endif %}>{{ sip }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-auto" style="min-width: 180px;">
+      <select name="license_type" class="form-select form-select-sm" aria-label="Filter by License Type" id="license-select">
+        <option value="">All License Types</option>
+        {% for lic in license_types %}
+          <option value="{{ lic }}" {% if lic == selected_license %}selected{% endif %}>{{ lic }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- Bulk Action Buttons (Right-Aligned) -->
+    <div class="col-auto ms-auto">
+      <div id="bulk-action-buttons" style="display: none;">
+        <a href="#" class="btn btn-sm btn-primary me-2" id="send-email-btn">Send Notification</a>
+
+        <a href="#" id="export-selected" class="btn btn-sm btn-success">Export</a>
+        <!-- You can use a <form> here if POST is required -->
+      </div>
+    </div>
   </div>
 </form>
-<!-- Bulk Actions -->
-<div id="bulk-actions" class="bulk-actions mb-3" aria-live="polite" aria-atomic="true" role="region">
-  <button id="send-email-btn" class="btn btn-primary btn-sm" disabled>Send Notification</button>
 
-  <!-- Export Form -->
-  <form id="export-form" method="post" action="{% url 'export_selected_records' %}" style="display:inline;">
-    {% csrf_token %}
-    <input type="hidden" name="emails" id="export-emails" value="" />
-    <button type="submit" id="export-btn" class="btn btn-success btn-sm" disabled>Export Selected</button>
-  </form>
-</div>
+<!-- Hidden export form -->
+<form id="export-form" method="post" action="{% url 'export_selected_records' %}">
+  {% csrf_token %}
+  <input type="hidden" name="emails" id="export-emails" value="">
+</form>
 
 <!-- Table -->
 <div class="table-responsive">
@@ -74,7 +82,7 @@
         <th scope="col">Details</th>
       </tr>
     </thead>
-       <tbody>
+    <tbody>
       {% for record in records %}
         <tr data-href="{% url 'threecx_record' record.id %}" tabindex="0" role="row" aria-label="Record {{ record.client.name }}">
           <td>
@@ -96,7 +104,6 @@
         </tr>
       {% endfor %}
     </tbody>
- 
   </table>
 </div>
 
@@ -161,6 +168,7 @@
   </nav>
 </div>
 
+
 <!-- Confirmation Modal -->
 <div class="modal fade" id="confirmSendModal" tabindex="-1" aria-labelledby="confirmSendModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
@@ -170,7 +178,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        Are you sure you want to send a notification to <span id="selected-count"></span> selected record(s)?
+        Are you sure you want to send a notification to <span id="selected-count"></span> selected client(s)?
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
@@ -210,132 +218,122 @@
   }
 </style>
 
-<!-- JavaScript for interaction -->
+<!-- Combined JavaScript -->
 <script>
 document.addEventListener("DOMContentLoaded", function () {
+  // Bootstrap Modal reference (Bootstrap 5)
+  const confirmSendModal = new bootstrap.Modal(document.getElementById('confirmSendModal'));
+
   const selectAll = document.getElementById('select-all');
-  const bulkActions = document.getElementById('bulk-actions');
+  const bulkActions = document.getElementById('bulk-action-buttons');
   const sendEmailBtn = document.getElementById('send-email-btn');
-  const exportBtn = document.getElementById('export-btn');
-  const addRecordBtn = document.getElementById('add-record-btn');
+  const exportBtn = document.getElementById('export-selected');
   const form = document.getElementById('filter-form');
   const searchInput = document.getElementById('search-input');
   const sipSelect = document.getElementById('sip-select');
   const licenseSelect = document.getElementById('license-select');
-  const checkboxes = document.querySelectorAll('.record-checkbox');
-  const pageSizeSelect = document.getElementById('page-size-select');
   const exportEmailsInput = document.getElementById('export-emails');
-  const exportForm = document.getElementById('export-form');
-
-  // Submit filter form on filter changes
-  // Debounce function to limit rapid submissions
-  function debounce(func, delay) {
-    let timeout;
-    return function (...args) {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => func.apply(this, args), delay);
-    };
-  }
-
-  // Instant search on input with debounce (500ms)
-  searchInput.addEventListener('input', debounce(() => {
-    form.submit();
-  }, 500));
-
-  // SIP and License filters submit on change
-  sipSelect.addEventListener('change', () => form.submit());
-  licenseSelect.addEventListener('change', () => form.submit());
-
-  // Page size form submit on change
-  pageSizeSelect.addEventListener('change', () => {
-    document.getElementById('page-size-form').submit();
-  });
-
-  // Row click navigates to detail, unless clicking checkbox or buttons
-  document.querySelectorAll('tbody tr').forEach(row => {
-    row.addEventListener('click', (e) => {
-      if (
-        e.target.type === 'checkbox' ||
-        e.target.closest('a, button')
-      ) {
-        return; // Ignore clicks on checkboxes or links/buttons
-      }
-      const href = row.dataset.href;
-      if (href) {
-        window.location.href = href;
-      }
-    });
-
-    // Make row keyboard accessible with Enter key
-    row.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        const href = row.dataset.href;
-        if (href) {
-          window.location.href = href;
-        }
-      }
-    });
-  });
-
-  // Manage checkbox selection state and bulk action visibility
-  function updateBulkActions() {
-    const checkedBoxes = document.querySelectorAll('.record-checkbox:checked');
-    const count = checkedBoxes.length;
-
-    if (count > 0) {
-      bulkActions.classList.add('visible');
-      sendEmailBtn.disabled = false;
-      exportBtn.disabled = false;
-      // Update hidden export input with emails joined by commas
-      const emails = Array.from(checkedBoxes).map(cb => cb.value);
-      exportEmailsInput.value = emails.join(',');
-    } else {
-      bulkActions.classList.remove('visible');
-      sendEmailBtn.disabled = true;
-      exportBtn.disabled = true;
-      exportEmailsInput.value = '';
-      selectAll.checked = false;
-    }
-  }
-
-  // Checkbox event listeners
-  checkboxes.forEach(cb => {
-    cb.addEventListener('change', updateBulkActions);
-  });
-
-  // Select all checkbox logic
-  selectAll.addEventListener('change', () => {
-    checkboxes.forEach(cb => {
-      cb.checked = selectAll.checked;
-    });
-    updateBulkActions();
-  });
-
-  // Send Email Button - open confirmation modal
-  const confirmSendModal = new bootstrap.Modal(document.getElementById('confirmSendModal'));
   const selectedCountSpan = document.getElementById('selected-count');
   const confirmSendBtn = document.getElementById('confirmSendBtn');
 
-  sendEmailBtn.addEventListener('click', () => {
-    const selectedCount = document.querySelectorAll('.record-checkbox:checked').length;
-    selectedCountSpan.textContent = selectedCount;
-    confirmSendModal.show();
+  // Store emails to send on confirmation
+  let emailsToSend = [];
+
+  // Show/hide bulk action buttons based on selection
+  function toggleBulkActions() {
+    const anyChecked = document.querySelectorAll('.record-checkbox:checked').length > 0;
+    bulkActions.style.display = anyChecked ? 'block' : 'none';
+  }
+
+  // Select/deselect all checkboxes
+  selectAll.addEventListener('change', () => {
+    const checkboxes = document.querySelectorAll('.record-checkbox');
+    checkboxes.forEach(cb => cb.checked = selectAll.checked);
+    toggleBulkActions();
   });
 
-  // Confirm send notification logic
-  confirmSendBtn.addEventListener('click', () => {
-    confirmSendModal.hide();
-    // Redirect to send notification page with selected emails as query param (or handle differently)
-    const emails = Array.from(document.querySelectorAll('.record-checkbox:checked')).map(cb => cb.value);
-    if (emails.length > 0) {
-      // Example redirect, adapt if you have another plan
-      const url = new URL("{% url 'send_notification' %}", window.location.origin);
-      url.searchParams.append('emails', emails.join(','));
-      window.location.href = url.toString();
+  // Update bulk actions visibility when any checkbox changes
+  document.querySelectorAll('.record-checkbox').forEach(cb => {
+    cb.addEventListener('change', () => {
+      toggleBulkActions();
+      // Update 'Select All' checkbox state
+      const total = document.querySelectorAll('.record-checkbox').length;
+      const checked = document.querySelectorAll('.record-checkbox:checked').length;
+      selectAll.checked = total === checked;
+      selectAll.indeterminate = checked > 0 && checked < total;
+    });
+  });
+
+  // Make rows clickable (except on checkbox or button)
+  document.querySelectorAll('tbody tr[data-href]').forEach(row => {
+    row.addEventListener('click', (e) => {
+      if (e.target.type !== 'checkbox' && !e.target.closest('a')) {
+        window.location = row.dataset.href;
+      }
+    });
+    // Keyboard accessibility: enter key navigates
+    row.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        window.location = row.dataset.href;
+      }
+    });
+  });
+
+  // Auto-submit filter form on change
+  [searchInput, sipSelect, licenseSelect].forEach(el => {
+    el.addEventListener('change', () => form.submit());
+  });
+  // Also submit on Enter key in search input
+  searchInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      form.submit();
     }
   });
 
+  // Send Email Button click - show confirmation modal
+  sendEmailBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    const selectedCheckboxes = document.querySelectorAll('.record-checkbox:checked');
+    if (selectedCheckboxes.length === 0) {
+      alert('Please select at least one record to send notification.');
+      return;
+    }
+    emailsToSend = Array.from(selectedCheckboxes).map(cb => cb.value);
+    selectedCountSpan.textContent = emailsToSend.length;
+    confirmSendModal.show();
+  });
+
+  // Confirm Send in modal
+  confirmSendBtn.addEventListener('click', () => {
+    if (emailsToSend.length > 0) {
+      // Prepare query parameters for sending notification view
+      const params = new URLSearchParams();
+      params.append('emails', emailsToSend.join(','));
+      window.location.href = '{% url "send_notification" %}?' + params.toString();
+    }
+  });
+
+  // Export Selected button click
+  exportBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    const selectedCheckboxes = document.querySelectorAll('.record-checkbox:checked');
+    if (selectedCheckboxes.length === 0) {
+      alert('Please select at least one record to export.');
+      return;
+    }
+    const emails = Array.from(selectedCheckboxes).map(cb => cb.value);
+    exportEmailsInput.value = emails.join(',');
+    document.getElementById('export-form').submit();
+  });
+
+  // Page size selector auto-submit
+  const pageSizeSelect = document.getElementById('page-size-select');
+  if (pageSizeSelect) {
+    pageSizeSelect.addEventListener('change', () => {
+      document.getElementById('page-size-form').submit();
+    });
+  }
 });
 </script>
 

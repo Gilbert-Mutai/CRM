@@ -3,14 +3,21 @@
 
 {% block content %}
 <div class="container mt-4">
-
-  <!-- Page Title -->
+  <!-- Heading and Action Buttons -->
   <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2>Angani Clients</h2>
+    <h4 class="mb-0">Angani Clients</h4>
+    <div class="d-flex gap-2">
+      <a href="{% url 'menu' %}" class="btn btn-outline-secondary btn-sm" title="Back to Menu">
+        <i class="bi bi-arrow-left"></i> Back
+      </a>
+      <a href="{% url 'add_client_record' %}" class="btn btn-outline-primary btn-sm" title="Add New Client">
+        <i class="bi bi-plus-lg"></i> Add Client
+      </a>
+    </div>
   </div>
 
-  <!-- Actions -->
-  <form id="bulk-action-form" method="get" class="mb-3">
+  <!-- Search & Filter Form -->
+  <form id="search-filter-form" method="get" action="{% url 'client_records' %}" class="mb-3">
     <div class="row g-2 align-items-center">
       <div class="col-auto" style="min-width: 220px;">
         <input type="text" id="search-input" name="search" class="form-control form-control-sm"
@@ -20,21 +27,23 @@
         <select name="client_type" id="client-type-filter" class="form-select form-select-sm">
           <option value="">All Client Types</option>
           {% for ct in client_types %}
-            <option value="{{ ct }}" {% if ct == selected_client_type %}selected{% endif %}>
-              {{ ct }}
-            </option>
+            <option value="{{ ct }}" {% if ct == selected_client_type %}selected{% endif %}>{{ ct }}</option>
           {% endfor %}
         </select>
       </div>
-
-      
       <div class="col-auto ms-auto">
         <div id="bulk-action-buttons" style="display: none;">
           <a href="#" class="btn btn-sm btn-success me-2" id="send-notification">Send Notification</a>
-          <a href="#" class="btn btn-sm btn-primary" id="export-selected">Export Selected</a>
+          <button type="button" class="btn btn-sm btn-primary" id="export-selected">Export</button>
         </div>
       </div>
     </div>
+  </form>
+
+  <!-- Export Form -->
+  <form id="export-form" method="post" action="{% url 'export_clients' %}">
+    {% csrf_token %}
+    <input type="hidden" name="emails" id="export-emails" value="">
   </form>
 
   <!-- Table -->
@@ -77,9 +86,7 @@
       <ul class="pagination justify-content-center">
         {% if clients.has_previous %}
           <li class="page-item">
-            <a class="page-link" href="?page={{ clients.previous_page_number }}&{{ request.GET.urlencode }}" aria-label="Previous">
-              &laquo;
-            </a>
+            <a class="page-link" href="?page={{ clients.previous_page_number }}&{{ request.GET.urlencode }}" aria-label="Previous">&laquo;</a>
           </li>
         {% endif %}
         {% for num in clients.paginator.page_range %}
@@ -89,20 +96,35 @@
         {% endfor %}
         {% if clients.has_next %}
           <li class="page-item">
-            <a class="page-link" href="?page={{ clients.next_page_number }}&{{ request.GET.urlencode }}" aria-label="Next">
-              &raquo;
-            </a>
+            <a class="page-link" href="?page={{ clients.next_page_number }}&{{ request.GET.urlencode }}" aria-label="Next">&raquo;</a>
           </li>
         {% endif %}
       </ul>
     </nav>
   {% endif %}
+</div>
 
+<!-- Notification Confirmation Modal -->
+<div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-warning text-dark">
+        <h5 class="modal-title" id="notificationModalLabel">Confirm Notification</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to send a notification to <span id="selected-count"></span>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary btn-sm" id="confirmSendNotification">Yes, Send</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- JavaScript -->
 <script>
-  // Debounce function to limit how often the search triggers
   function debounce(func, wait) {
     let timeout;
     return function(...args) {
@@ -111,21 +133,18 @@
     };
   }
 
-  const form = document.getElementById('bulk-action-form');
+  const searchForm = document.getElementById('search-filter-form');
   const searchInput = document.getElementById('search-input');
   const clientTypeFilter = document.getElementById('client-type-filter');
 
-  // Submit form when client type filter changes immediately
   clientTypeFilter.addEventListener('change', () => {
-    form.submit();
+    searchForm.submit();
   });
 
-  // Submit form when typing stops for 500ms
   searchInput.addEventListener('input', debounce(() => {
-    form.submit();
+    searchForm.submit();
   }, 500));
 
-  // Clickable rows (excluding checkbox and View button)
   document.querySelectorAll('tr[data-href]').forEach(row => {
     row.addEventListener('click', function(e) {
       if (!e.target.closest('input[type="checkbox"]') && !e.target.closest('a')) {
@@ -134,56 +153,64 @@
     });
   });
 
-  // Function to update bulk actions visibility
   function updateBulkActionsVisibility() {
     const checkedCount = document.querySelectorAll('.record-checkbox:checked').length;
     const bulkActions = document.getElementById('bulk-action-buttons');
-    if (checkedCount > 0) {
-      bulkActions.style.display = 'flex';  // shows the buttons
-    } else {
-      bulkActions.style.display = 'none';  // hides the buttons
-    }
+    bulkActions.style.display = checkedCount > 0 ? 'flex' : 'none';
   }
 
-  // Select all checkboxes
   document.getElementById('select-all').addEventListener('change', function() {
     const checkboxes = document.querySelectorAll('.record-checkbox');
     checkboxes.forEach(cb => cb.checked = this.checked);
     updateBulkActionsVisibility();
   });
 
-  // Individual checkbox change event
   document.querySelectorAll('.record-checkbox').forEach(cb => {
     cb.addEventListener('change', updateBulkActionsVisibility);
   });
 
-  // Initialize bulk actions visibility on page load
   document.addEventListener('DOMContentLoaded', updateBulkActionsVisibility);
 
-  // Send Notification
-  document.getElementById('send-notification').addEventListener('click', function(e) {
-    e.preventDefault();
-    const emails = Array.from(document.querySelectorAll('.record-checkbox:checked'))
-                        .map(cb => cb.value);
-    if (emails.length === 0) {
-      alert("Please select at least one client to send notification.");
+  // Export
+  document.getElementById('export-selected').addEventListener('click', function(event) {
+    event.preventDefault();
+    const selectedEmails = Array.from(document.querySelectorAll('.record-checkbox:checked'))
+                                .map(cb => cb.value)
+                                .join(',');
+
+    if (!selectedEmails) {
+      alert('Please select at least one client to export.');
       return;
     }
-    const queryString = new URLSearchParams({emails: emails.join(',')}).toString();
-    window.location.href = "{% url 'send_notification' %}?" + queryString;
+
+    document.getElementById('export-emails').value = selectedEmails;
+    document.getElementById('export-form').submit();
   });
 
-  // Export Selected
-  document.getElementById('export-selected').addEventListener('click', function(e) {
-    e.preventDefault();
-    const emails = Array.from(document.querySelectorAll('.record-checkbox:checked'))
-                        .map(cb => cb.value);
-    if (emails.length === 0) {
-      alert("Please select at least one client to export.");
-      return;
-    }
-    const queryString = new URLSearchParams({emails: emails.join(',')}).toString();
-    window.location.href = "{% url 'export_clients' %}?" + queryString;
+  document.getElementById('send-notification').addEventListener('click', function(e) {
+  e.preventDefault();
+  selectedNotificationEmails = Array.from(document.querySelectorAll('.record-checkbox:checked'))
+                                     .map(cb => cb.value);
+
+  if (selectedNotificationEmails.length === 0) {
+    alert("Please select at least one client to send notification.");
+    return;
+  }
+
+  // Update count in modal
+  const countElem = document.getElementById('selected-count');
+  countElem.textContent = `${selectedNotificationEmails.length} selected client(s) ?`;
+
+  const modal = new bootstrap.Modal(document.getElementById('notificationModal'));
+  modal.show();
+});
+
+
+  document.getElementById('confirmSendNotification').addEventListener('click', function() {
+    const queryString = new URLSearchParams({
+      emails: selectedNotificationEmails.join(',')
+    }).toString();
+    window.location.href = "{% url 'send_notification' %}?" + queryString;
   });
 </script>
 

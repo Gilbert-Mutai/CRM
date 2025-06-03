@@ -105,7 +105,7 @@
   const confirmMessage = document.getElementById('confirmMessage');
 
   modal.addEventListener('show.bs.modal', event => {
-    const button = event.relatedTarget;  // The <a> that triggered the modal
+    const button = event.relatedTarget;  
     const url = button.getAttribute('data-url');
     const message = button.getAttribute('data-message');
 
