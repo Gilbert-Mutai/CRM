@@ -31,8 +31,10 @@ INSTALLED_APPS = [
     'domains',
     'nova',
     'novapool4',
-    'pm',
     'sdwan',
+    'cloudberry',
+    'veeam',
+    'pm',
 ]
 
 MIDDLEWARE = [

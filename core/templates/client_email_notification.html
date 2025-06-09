@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block content %}
 
 <h4>Send Notification</h4>
@@ -56,6 +57,7 @@
 </div>
 
 <!-- Load CKEditor -->
+ {% comment %} <script src="{% static 'ckeditor/ckeditor.js' %}"></script> {% endcomment %}
 <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
 
 <script>

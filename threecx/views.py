@@ -47,7 +47,7 @@ def threecx_records(request):
 
     context = {
         'records': page_obj.object_list,
-        'page_obj': page_obj,  # the paginated page
+        'page_obj': page_obj,
         'page_size': page_size,
         'search_query': query,
         'selected_sip': sip_filter,
@@ -120,9 +120,34 @@ def update_threecx_record(request, pk):
         'form': form,
         'customer_record': current_record
     })
+    
+# Signature block mapping
+SIGNATURES = {
+    "Angani Support": """
+        Support, Angani Ltd<br>
+        Website: <a href="https://www.angani.co">www.angani.co</a><br>
+        Mob: +254207650028<br>
+        West Point Building, 1st Floor,<br>
+        Mpaka Road, Nairobi
+    """,
+    "Angani Infrastructure": """
+        Infrastructure Team, Angani Ltd<br>
+        Website: <a href="https://www.angani.co">www.angani.co</a><br>
+        Mob: +254207650028<br>
+        West Point Building, 1st Floor,<br>
+        Mpaka Road, Nairobi
+    """,
+    "Angani Service Delivery": """
+        Service Delivery, Angani Ltd<br>
+        Website: <a href="https://www.angani.co">www.angani.co</a><br>
+        Mob: +254207650028<br>
+        West Point Building, 1st Floor,<br>
+        Mpaka Road, Nairobi
+    """,
+}
 
 @login_required
-def send_notification(request):
+def send_notification_3cx(request):
     # STEP 1: GET → show form pre-filled with emails from querystring
     if request.method == "GET":
         emails_param = request.GET.get('emails', '')
@@ -166,9 +191,10 @@ def send_notification(request):
 
         subject = request.POST.get('subject', '').strip()
         body = request.POST.get('body', '').strip()
-        signature = request.POST.get('signature', '').strip()
+        signature_key = request.POST.get('signature', '').strip()
+        signature_html = SIGNATURES.get(signature_key, signature_key)  # fallback to raw input
 
-        full_body = f"{body}<br><br>Regards,<br><strong>{signature}</strong>"
+        full_body = f"{body}<br><br>Regards,<br><strong>{signature_html}</strong>"
 
         msg = EmailMultiAlternatives(
             subject=subject,
@@ -184,6 +210,7 @@ def send_notification(request):
 
     # Fallback
     return redirect('threecx_records')
+
 
 @require_POST
 @login_required

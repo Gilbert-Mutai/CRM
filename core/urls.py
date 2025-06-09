@@ -10,7 +10,7 @@ urlpatterns = [
     path('client/update/<int:pk>/', views.update_client_record, name='update_client_record'),
     path('client/delete/<int:pk>/', views.delete_client_record, name='delete_client_record'),
     
-    path('clients/send-notification/', views.send_notification, name='send_notification'),
+    path('clients/send-notification/', views.send_notification_client, name='send_notification_client'),
     path('clients/export/', views.export_clients, name='export_clients'),
     
 ]

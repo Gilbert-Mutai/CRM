@@ -22,35 +22,32 @@ def menu(request):
         {"title": "Nova", "url_name": "nova_records", "icon": "lightning-charge", "btn_class": "warning"},
         {"title": "Novapool 4", "url_name": "novapool4_records", "icon": "cpu", "btn_class": "warning"},
         {"title": "SD-WAN", "url_name": "sdwan_records", "icon": "diagram-3", "btn_class": "primary"},
+        {"title": "Cloudberry", "url_name": "cloudberry_records", "icon": "cloud", "btn_class": "info"},
+        {"title": "Veeam", "url_name": "veeam_records", "icon": "shield-check", "btn_class": "success"},
+        
         {"title": "Project Manager", "url_name": "pm_records", "icon": "kanban", "btn_class": "info"},
     ]
     return render(request, 'menu.html', {'client_sections': client_sections})
 
+
 @login_required
 def client_records(request):
-    # Extract filters
     query = request.GET.get('search', '').strip()
     selected_client_type = request.GET.get('client_type', '').strip()
 
-    # Initial queryset
     clients = Client.objects.all().order_by('-last_updated', '-created_at')
 
-    # Apply search filter (name, email, contact person)
     if query:
         clients = clients.filter(
             Q(name__icontains=query) |
             Q(email__icontains=query) |
             Q(contact_person__icontains=query)
         )
-
-    # Apply client type filter
     if selected_client_type:
         clients = clients.filter(client_type=selected_client_type)
 
-    # Get unique client types for filter dropdown
     client_types = Client.objects.values_list('client_type', flat=True).distinct()
 
-    # Pagination
     page_size = request.GET.get('page_size', 20)
     try:
         page_size = int(page_size)
@@ -63,16 +60,22 @@ def client_records(request):
     page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
 
+    get_params = request.GET.copy()
+    if 'page' in get_params:
+        del get_params['page']
+
     context = {
-        'clients': page_obj.object_list,
-        'page_obj': page_obj,
+        'clients': page_obj,  # <-- pass page object here
         'page_size': page_size,
         'search_query': query,
         'client_types': client_types,
         'selected_client_type': selected_client_type,
+        'querystring': get_params.urlencode(),
     }
 
+
     return render(request, 'client_records.html', context)
+
 
 @login_required
 def client_record(request, pk):
@@ -132,8 +135,33 @@ def delete_client_record(request, pk):
     messages.error(request, "Invalid request. Deletion only allowed via POST.")
     return redirect('client_record', pk=pk)
 
+# Signature block mapping
+SIGNATURES = {
+    "Angani Support": """
+        Support, Angani Ltd<br>
+        Website: <a href="https://www.angani.co">www.angani.co</a><br>
+        Mob: +254207650028<br>
+        West Point Building, 1st Floor,<br>
+        Mpaka Road, Nairobi
+    """,
+    "Angani Infrastructure": """
+        Infrastructure Team, Angani Ltd<br>
+        Website: <a href="https://www.angani.co">www.angani.co</a><br>
+        Mob: +254207650028<br>
+        West Point Building, 1st Floor,<br>
+        Mpaka Road, Nairobi
+    """,
+    "Angani Service Delivery": """
+        Service Delivery, Angani Ltd<br>
+        Website: <a href="https://www.angani.co">www.angani.co</a><br>
+        Mob: +254207650028<br>
+        West Point Building, 1st Floor,<br>
+        Mpaka Road, Nairobi
+    """,
+}
+
 @login_required
-def send_notification(request):
+def send_notification_client(request):
     if request.method == "GET":
         emails_param = request.GET.get('emails', '')
         emails = [e for e in emails_param.split(',') if e]
@@ -168,9 +196,11 @@ def send_notification(request):
 
         subject = request.POST.get('subject', '').strip()
         body = request.POST.get('body', '').strip()
-        signature = request.POST.get('signature', '').strip()
+        signature_key = request.POST.get('signature', '').strip()
 
-        full_body = f"{body}<br><br>Regards,<br><strong>{signature}</strong>"
+        # Use expanded signature block if available
+        signature_block = SIGNATURES.get(signature_key, signature_key)
+        full_body = f"{body}<br><br>--<br>{signature_block}"
 
         msg = EmailMultiAlternatives(
             subject=subject,
@@ -185,6 +215,7 @@ def send_notification(request):
         return redirect('client_records')
 
     return redirect('client_records')
+
 
 @require_POST
 @login_required

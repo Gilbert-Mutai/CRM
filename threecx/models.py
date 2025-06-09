@@ -24,7 +24,7 @@ class ThreeCX(models.Model):
     ]
     sip_provider = models.CharField(max_length=20, choices=SIP_PROVIDERS)
 
-    fqdn = models.CharField(max_length=100)
+    fqdn = models.CharField(max_length=100, unique=True)
 
     LICENSE_TYPES = [
         ('3CX Standard', '3CX Standard'),

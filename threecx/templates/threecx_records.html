@@ -46,6 +46,7 @@
         {% endfor %}
       </select>
     </div>
+    
 
     <!-- Bulk Action Buttons (Right-Aligned) -->
     <div class="col-auto ms-auto">
@@ -278,18 +279,22 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
   });
+// Auto-submit filter form on select change
+[sipSelect, licenseSelect].forEach(el => {
+  el.addEventListener('change', () => form.submit());
+});
 
-  // Auto-submit filter form on change
-  [searchInput, sipSelect, licenseSelect].forEach(el => {
-    el.addEventListener('change', () => form.submit());
-  });
-  // Also submit on Enter key in search input
-  searchInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      form.submit();
-    }
-  });
+// Auto-submit on search input (with debounce)
+let typingTimer;
+const typingDelay = 500; // milliseconds
+
+searchInput.addEventListener('input', () => {
+  clearTimeout(typingTimer);
+  typingTimer = setTimeout(() => {
+    form.submit();
+  }, typingDelay);
+});
+
 
   // Send Email Button click - show confirmation modal
   sendEmailBtn.addEventListener('click', (e) => {
@@ -310,7 +315,7 @@ document.addEventListener("DOMContentLoaded", function () {
       // Prepare query parameters for sending notification view
       const params = new URLSearchParams();
       params.append('emails', emailsToSend.join(','));
-      window.location.href = '{% url "send_notification" %}?' + params.toString();
+      window.location.href = '{% url "send_notification_3cx" %}?' + params.toString();
     }
   });
 
@@ -336,5 +341,6 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 </script>
+
 
 {% endblock content %}
