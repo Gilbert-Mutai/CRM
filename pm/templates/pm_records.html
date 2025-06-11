@@ -17,7 +17,7 @@
 <!-- Combined Filters and Bulk Actions -->
 <form method="get" class="mb-3" id="filter-form">
   <div class="row g-2 align-items-center">
-    <!-- Filters -->
+    <!-- Search -->
     <div class="col-auto" style="min-width: 220px;">
       <input
         type="text"
@@ -27,27 +27,60 @@
         value="{{ search_query }}"
         id="search-input"
         autocomplete="off"
-        aria-label="Search projects"
       />
     </div>
-    <div class="col-auto" style="min-width: 180px;">
-      <select name="status" class="form-select form-select-sm" aria-label="Filter by Project Status" id="status-select">
-        <option value="">All Statuses</option>
-        {% for status in project_statuses %}
-          <option value="{{ status }}" {% if status == selected_status %}selected{% endif %}>{{ status }}</option>
-        {% endfor %}
-      </select>
-    </div>
-    <div class="col-auto" style="min-width: 180px;">
-      <select name="priority" class="form-select form-select-sm" aria-label="Filter by Priority" id="priority-select">
-        <option value="">All Priorities</option>
-        {% for priority in project_priorities %}
-          <option value="{{ priority }}" {% if priority == selected_priority %}selected{% endif %}>{{ priority }}</option>
+
+    <!-- Status Filter -->
+    <div class="col-auto" style="min-width: 160px;">
+      <select name="status" class="form-select form-select-sm" id="status-select">
+        <option value="">Project Status</option>
+        {% for value, label in status_choices.items %}
+          <option value="{{ value }}" {% if value == selected_status %}selected{% endif %}>{{ label }}</option>
         {% endfor %}
       </select>
     </div>
 
-    <!-- Bulk Action Buttons (Right-Aligned) -->
+    <!-- Engineer Filter -->
+    <div class="col-auto" style="min-width: 160px;">
+      <select name="engineer" class="form-select form-select-sm" id="engineer-select">
+        <option value="">Engineer</option>
+        {% for id, name in engineers %}
+          <option value="{{ id }}" {% if id|stringformat:"s" == selected_engineer %}selected{% endif %}>{{ name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- Year Filter -->
+    <div class="col-auto" style="min-width: 130px;">
+      <select name="year" class="form-select form-select-sm" id="year-select">
+        <option value="">Year</option>
+        {% for year in available_years %}
+          <option value="{{ year }}" {% if year|stringformat:"s" == selected_year %}selected{% endif %}>{{ year }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- Month Filter -->
+    <div class="col-auto" style="min-width: 150px;">
+      <select name="month" class="form-select form-select-sm" id="month-select">
+        <option value="">Month</option>
+        {% for value, label in months %}
+          <option value="{{ value }}" {% if value|stringformat:"s" == selected_month %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- Completion Certificate Filter -->
+    <div class="col-auto" style="min-width: 180px;">
+      <select name="certificate" class="form-select form-select-sm" id="certificate-select">
+        <option value="">Certificate Status</option>
+        {% for value, label in certificate_choices.items %}
+          <option value="{{ value }}" {% if value == selected_certificate %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- Bulk Action Buttons -->
     <div class="col-auto ms-auto">
       <div id="bulk-action-buttons" style="display: none;">
         <a href="#" id="export-selected" class="btn btn-sm btn-success">Export</a>
@@ -66,200 +99,48 @@
 <div class="table-responsive">
   <table class="table table-striped table-hover table-bordered" role="grid">
     <thead class="table-primary">
-      <tr>
-        <th scope="col">
-          <input type="checkbox" id="select-all" title="Select All" aria-label="Select All Projects" />
-        </th>
-        <th scope="col">Client</th>
-        <th scope="col">Start Date</th>
-        <th scope="col">End Date</th>
-        <th scope="col">Status</th>
-        <th scope="col">Details</th>
-      </tr>
+    <tr>
+      <th scope="col">
+        <input type="checkbox" id="select-all" title="Select All" aria-label="Select All Projects" />
+      </th>
+      <th scope="col">Customer Name</th>
+      <th scope="col">Project Title</th>
+      <th scope="col">Service Description</th>
+      <th class="col">Date of Request</th>
+      <th scope="col">Status</th>
+      {% comment %} <th scope="col">Completion Date</th>
+      <th scope="col">Completion Certificate</th> {% endcomment %}
+      <th scope="col">Engineer</th>
+      <th scope="col">Comment</th>
+      <th scope="col">Details</th>
+    </tr>
     </thead>
     <tbody>
       {% for project in projects %}
-        <tr data-href="{% url 'pm_record' project.id %}" tabindex="0" role="row" aria-label="Project {{ project.name }}">
+        <tr data-href="{% url 'pm_record' project.id %}" tabindex="0" role="row" aria-label="Project {{ project.customer_name }}">
           <td>
-            <input type="checkbox" class="record-checkbox" value="{{ project.client.email }}" aria-label="Select {{ project.name }}" />
+            <input type="checkbox" class="record-checkbox" value="{{ project.customer_name.email }}" aria-label="Select {{ project.customer_name }}" />
           </td>
-          <td>{{ project.customer_name }}</td>
+          <td>{{ project.customer_name.name }}</td>
+          <td>{{ project.project_title }}</td>
+          <td>{{ project.service_description|truncatechars:50 }}</td>
           <td>{{ project.date_of_request|date:"Y-m-d" }}</td>
-          <td>{{ project.date_of_completion|date:"Y-m-d" }}</td>
           <td>{{ project.get_status_display }}</td>
+          {% comment %} <td>{{ project.date_of_completion|date:"Y-m-d" }}</td> {% endcomment %}
+          {% comment %} <td>{{ project.get_job_completion_certificate_display }}</td> {% endcomment %}
+          <td>{{ project.engineer.get_full_name }}</td>
+          <td>{{ project.comment|default:"-" }}</td>
           <td>
             <a href="{% url 'pm_record' project.id %}" class="btn btn-sm btn-outline-primary" title="View Project">View</a>
           </td>
         </tr>
       {% empty %}
         <tr>
-          <td colspan="8" class="text-center">No projects found.</td>
+          <td colspan="11" class="text-center">No projects found.</td>
         </tr>
       {% endfor %}
     </tbody>
   </table>
 </div>
-
-<!-- Pagination Controls -->
-<div class="d-flex justify-content-between align-items-center mt-3" aria-label="Pagination controls">
-  <div>
-    <form method="get" id="page-size-form" class="d-inline-block" aria-label="Select number of projects per page">
-      <input type="hidden" name="search" value="{{ search_query }}">
-      <input type="hidden" name="status" value="{{ selected_status }}">
-      <input type="hidden" name="priority" value="{{ selected_priority }}">
-      <select name="page_size" id="page-size-select" class="form-select form-select-sm d-inline-block" style="width: auto;">
-        <option value="20" {% if page_size == 20 %}selected{% endif %}>20</option>
-        <option value="50" {% if page_size == 50 %}selected{% endif %}>50</option>
-        <option value="100" {% if page_size == 100 %}selected{% endif %}>100</option>
-      </select>
-    </form>
-  </div>
-
-  <nav aria-label="Page navigation">
-    <ul class="pagination pagination-sm mb-0">
-      {% if page_obj.has_previous %}
-        <li class="page-item">
-          <a
-            class="page-link"
-            href="?page={{ page_obj.previous_page_number }}&page_size={{ page_size }}&search={{ search_query }}&status={{ selected_status }}&priority={{ selected_priority }}"
-            aria-label="Previous page"
-          >
-            &laquo;
-          </a>
-        </li>
-      {% else %}
-        <li class="page-item disabled">
-          <span class="page-link" aria-disabled="true">&laquo;</span>
-        </li>
-      {% endif %}
-
-      <li class="page-item disabled">
-        <span class="page-link">
-          Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
-        </span>
-      </li>
-
-      {% if page_obj.has_next %}
-        <li class="page-item">
-          <a
-            class="page-link"
-            href="?page={{ page_obj.next_page_number }}&page_size={{ page_size }}&search={{ search_query }}&status={{ selected_status }}&priority={{ selected_priority }}"
-            aria-label="Next page"
-          >
-            &raquo;
-          </a>
-        </li>
-      {% else %}
-        <li class="page-item disabled">
-          <span class="page-link" aria-disabled="true">&raquo;</span>
-        </li>
-      {% endif %}
-    </ul>
-  </nav>
-</div>
-
-<style>
-  .bulk-actions {
-    display: none;
-  }
-  .bulk-actions.visible {
-    display: block;
-  }
-
-  #filter-form input[type="text"],
-  #filter-form select {
-    background-color: #F4F6F8;
-    border: 1px solid #ced4da;
-    color: #1b1b1b;
-    box-shadow: none;
-  }
-
-  #filter-form input[type="text"]::placeholder {
-    color: #6c757d;
-  }
-
-  #filter-form input[type="text"]:focus,
-  #filter-form select:focus {
-    background-color: #F4F6F8;
-    border-color: #86b7fe;
-    box-shadow: 0 0 0 0.25rem rgba(13,110,253,.25);
-    outline: none;
-  }
-</style>
-
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-  const selectAll = document.getElementById('select-all');
-  const bulkActions = document.getElementById('bulk-action-buttons');
-  const exportBtn = document.getElementById('export-selected');
-  const form = document.getElementById('filter-form');
-  const searchInput = document.getElementById('search-input');
-  const statusSelect = document.getElementById('status-select');
-  const prioritySelect = document.getElementById('priority-select');
-  const exportEmailsInput = document.getElementById('export-emails');
-
-  function toggleBulkActions() {
-    const anyChecked = document.querySelectorAll('.record-checkbox:checked').length > 0;
-    bulkActions.style.display = anyChecked ? 'block' : 'none';
-  }
-
-  selectAll.addEventListener('change', () => {
-    const checkboxes = document.querySelectorAll('.record-checkbox');
-    checkboxes.forEach(cb => cb.checked = selectAll.checked);
-    toggleBulkActions();
-  });
-
-  document.querySelectorAll('.record-checkbox').forEach(cb => {
-    cb.addEventListener('change', () => {
-      const allCheckboxes = document.querySelectorAll('.record-checkbox');
-      const checkedBoxes = document.querySelectorAll('.record-checkbox:checked');
-
-      selectAll.checked = checkedBoxes.length === allCheckboxes.length;
-      toggleBulkActions();
-    });
-  });
-
-  // Click on row navigates to detail (except if clicked on checkbox or button)
-  document.querySelectorAll('tbody tr[data-href]').forEach(row => {
-    row.addEventListener('click', e => {
-      if (
-        e.target.type !== 'checkbox' &&
-        !e.target.closest('a') &&
-        !e.target.closest('button')
-      ) {
-        window.location.href = row.getAttribute('data-href');
-      }
-    });
-
-    row.addEventListener('keydown', e => {
-      if (e.key === 'Enter') {
-        window.location.href = row.getAttribute('data-href');
-      }
-    });
-  });
-
-  // Filter form submits on filter change or enter key on search
-  searchInput.addEventListener('keydown', e => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      form.submit();
-    }
-  });
-  statusSelect.addEventListener('change', () => form.submit());
-  prioritySelect.addEventListener('change', () => form.submit());
-
-  // Export selected action
-  exportBtn.addEventListener('click', e => {
-    e.preventDefault();
-    const selectedEmails = Array.from(document.querySelectorAll('.record-checkbox:checked')).map(cb => cb.value);
-    if (selectedEmails.length === 0) {
-      alert('Please select at least one project/client to export.');
-      return;
-    }
-    exportEmailsInput.value = selectedEmails.join(',');
-    document.getElementById('export-form').submit();
-  });
-});
-</script>
 
 {% endblock %}

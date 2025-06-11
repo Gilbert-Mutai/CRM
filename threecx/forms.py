@@ -2,9 +2,16 @@ from django import forms
 from .models import ThreeCX
 from core.models import Client
 
+
+# Custom field to show only client.name
+class ClientNameOnlyChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return obj.name
+
+
 class AddThreeCXForm(forms.ModelForm):
-    client = forms.ModelChoiceField(
-        queryset=Client.objects.all(),
+    client = ClientNameOnlyChoiceField(  # <-- Use custom field here
+        queryset=Client.objects.order_by('name'),
         widget=forms.Select(attrs={'class': 'form-control'}),
         empty_label="Select Client",
         label=""
@@ -36,7 +43,7 @@ class Update3CXForm(forms.ModelForm):
     class Meta:
         model = ThreeCX
         fields = [
-            'client',          
+            'client',
             'sip_provider',
             'fqdn',
             'license_type',

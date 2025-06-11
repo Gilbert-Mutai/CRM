@@ -1,54 +1,86 @@
 from django import forms
-from core.models import Client
-from django.conf import settings
 from django.contrib.auth import get_user_model
-User = get_user_model()
+from core.models import Client
 from .models import Project
 
-class AddProjectForm(forms.ModelForm):
-    customer_name = forms.ModelChoiceField(
-        queryset=Client.objects.all(),
+User = get_user_model()
+
+
+# Custom field to display only the client name in dropdowns
+class ClientNameOnlyChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return obj.name
+
+
+# Custom field to display full name for engineers
+class EngineerNameOnlyChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        full_name = f"{obj.first_name} {obj.last_name}".strip()
+        return full_name if full_name else obj.username or obj.email
+
+
+# Shared Base Form
+class BaseProjectForm(forms.ModelForm):
+    customer_name = ClientNameOnlyChoiceField(
+        queryset=Client.objects.order_by('name'),
         widget=forms.Select(attrs={'class': 'form-control'}),
         empty_label="Select Client",
         label=""
     )
 
+    project_title = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Project Title'
+        }),
+        label=""
+    )
+
     status = forms.ChoiceField(
-        choices=Project.STATUS_CHOICES,
+        choices=[('', 'Project Status')] + list(Project.STATUS_CHOICES),
         widget=forms.Select(attrs={'class': 'form-control'}),
         label=""
     )
 
     job_completion_certificate = forms.ChoiceField(
-        choices=Project.CERTIFICATE_CHOICES,
+        choices=[('', 'Certificate Status')] + list(Project.CERTIFICATE_CHOICES),
         widget=forms.Select(attrs={'class': 'form-control'}),
         label=""
     )
 
-    engineer = forms.ModelChoiceField(
+    engineer = EngineerNameOnlyChoiceField(
         queryset=User.objects.filter(groups__name='Engineers'),
+        empty_label="Engineer",
         widget=forms.Select(attrs={'class': 'form-control'}),
-        label="",
         required=False,
+        label=""
     )
 
     date_of_completion = forms.DateTimeField(
         widget=forms.DateTimeInput(attrs={
             'class': 'form-control',
-            'type': 'datetime-local'  # HTML5 datetime picker
+            'type': 'datetime-local'
         }),
         required=False,
         label=""
     )
 
     comment = forms.CharField(
-        widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'rows': 3,
+            'placeholder': 'Comment'
+        }),
         required=False,
         label=""
     )
 
     service_description = forms.CharField(
-        widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'rows': 4,
+            'placeholder': 'Service Description'
+        }),
         label=""
     )
 
@@ -56,6 +88,7 @@ class AddProjectForm(forms.ModelForm):
         model = Project
         fields = [
             'customer_name',
+            'project_title',
             'service_description',
             'status',
             'date_of_completion',
@@ -65,24 +98,16 @@ class AddProjectForm(forms.ModelForm):
         ]
 
 
-class UpdateProjectForm(forms.ModelForm):
-    class Meta:
-        model = Project
-        fields = [
-            'customer_name',
-            'service_description',
-            'status',
-            'date_of_completion',
-            'job_completion_certificate',
-            'engineer',
-            'comment',
-        ]
-        widgets = {
-            'customer_name': forms.Select(attrs={'class': 'form-control'}),
-            'service_description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
-            'status': forms.Select(attrs={'class': 'form-control'}),
-            'date_of_completion': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
-            'job_completion_certificate': forms.Select(attrs={'class': 'form-control'}),
-            'engineer': forms.Select(attrs={'class': 'form-control'}),
-            'comment': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
-        }
+# Add Project Form (inherits all logic from base)
+class AddProjectForm(BaseProjectForm):
+    pass
+
+
+# Update Project Form (inherits and modifies if needed)
+class UpdateProjectForm(BaseProjectForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Explicitly remove labels (redundant but ensures no override from elsewhere)
+        for field in self.fields.values():
+            field.label = ""

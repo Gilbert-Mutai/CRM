@@ -4,11 +4,6 @@ import csv
 from io import StringIO
 from django.http import HttpResponse
 
-
-def get_all_projects():
-    return Project.objects.all().order_by('-date_of_request')
-
-
 def get_project_by_id(pk):
     return get_object_or_404(Project, id=pk)
 
