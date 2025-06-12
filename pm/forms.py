@@ -6,13 +6,13 @@ from .models import Project
 User = get_user_model()
 
 
-# Custom field to display only the client name in dropdowns
+# Custom field to display only the client name
 class ClientNameOnlyChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return obj.name
 
 
-# Custom field to display full name for engineers
+# Custom field to display engineer's full name
 class EngineerNameOnlyChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         full_name = f"{obj.first_name} {obj.last_name}".strip()
@@ -23,7 +23,10 @@ class EngineerNameOnlyChoiceField(forms.ModelChoiceField):
 class BaseProjectForm(forms.ModelForm):
     customer_name = ClientNameOnlyChoiceField(
         queryset=Client.objects.order_by('name'),
-        widget=forms.Select(attrs={'class': 'form-control'}),
+        widget=forms.Select(attrs={
+            'class': 'form-control',
+            'id': 'id_customer_name'  # Needed for Select2 targeting
+        }),
         empty_label="Select Client",
         label=""
     )
@@ -36,22 +39,38 @@ class BaseProjectForm(forms.ModelForm):
         label=""
     )
 
+    service_description = forms.CharField(
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'rows': 4,
+            'placeholder': 'Service Description'
+        }),
+        label=""
+    )
+
     status = forms.ChoiceField(
         choices=[('', 'Project Status')] + list(Project.STATUS_CHOICES),
-        widget=forms.Select(attrs={'class': 'form-control'}),
+        widget=forms.Select(attrs={
+            'class': 'form-control'
+        }),
         label=""
     )
 
     job_completion_certificate = forms.ChoiceField(
         choices=[('', 'Certificate Status')] + list(Project.CERTIFICATE_CHOICES),
-        widget=forms.Select(attrs={'class': 'form-control'}),
+        widget=forms.Select(attrs={
+            'class': 'form-control'
+        }),
         label=""
     )
 
     engineer = EngineerNameOnlyChoiceField(
         queryset=User.objects.filter(groups__name='Engineers'),
-        empty_label="Engineer",
-        widget=forms.Select(attrs={'class': 'form-control'}),
+        empty_label="Select Engineer",
+        widget=forms.Select(attrs={
+            'class': 'form-control',
+            'id': 'id_engineer' 
+        }),
         required=False,
         label=""
     )
@@ -75,15 +94,6 @@ class BaseProjectForm(forms.ModelForm):
         label=""
     )
 
-    service_description = forms.CharField(
-        widget=forms.Textarea(attrs={
-            'class': 'form-control',
-            'rows': 4,
-            'placeholder': 'Service Description'
-        }),
-        label=""
-    )
-
     class Meta:
         model = Project
         fields = [
@@ -98,16 +108,14 @@ class BaseProjectForm(forms.ModelForm):
         ]
 
 
-# Add Project Form (inherits all logic from base)
 class AddProjectForm(BaseProjectForm):
     pass
 
 
-# Update Project Form (inherits and modifies if needed)
 class UpdateProjectForm(BaseProjectForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Explicitly remove labels (redundant but ensures no override from elsewhere)
+        # Hide all labels (if needed)
         for field in self.fields.values():
             field.label = ""

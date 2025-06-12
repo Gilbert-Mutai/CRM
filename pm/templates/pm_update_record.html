@@ -11,6 +11,24 @@
     <button type="submit" class="btn btn-primary">Update</button>
     <a href="{% url 'pm_record' project.pk %}" class="btn btn-secondary ms-2">Cancel</a>
   </form>
+
+  {% comment %} Search on Dropdown {% endcomment %}
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+  $(document).ready(function() {
+    $('#id_customer_name').select2({
+      placeholder: 'Select Client',
+      allowClear: true
+    });
+
+    $('#id_engineer').select2({
+      placeholder: 'Select Engineer',
+      allowClear: true
+    });
+  });
+</script>
+
+    
 </div>
 
 {% endblock %}
