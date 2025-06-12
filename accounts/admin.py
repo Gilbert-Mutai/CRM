@@ -3,8 +3,6 @@ from django.contrib.auth.admin import UserAdmin
 from .models import CustomUser
 from .forms import SignUpForm
 
-# Register your models here.
-
 class CustomUserAdmin(UserAdmin):
     model = CustomUser
     add_form = SignUpForm
@@ -12,19 +10,25 @@ class CustomUserAdmin(UserAdmin):
     list_display = ('email', 'first_name', 'last_name', 'is_staff')
     ordering = ('email',)
     search_fields = ('email',)
+
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
         ('Personal Info', {'fields': ('first_name', 'last_name')}),
-        ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
+        ('Permissions', {'fields': (
+            'is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions'
+        )}),
         ('Important Dates', {'fields': ('last_login',)}),
     )
+
+    # 👇 THIS is where we add 'groups' to the add form
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('email', 'password1', 'password2'),
+            'fields': (
+                'email', 'password1', 'password2', 'first_name', 'last_name',
+                'is_active', 'is_staff', 'is_superuser', 'groups'
+            ),
         }),
     )
-    
-# Register the CustomUser with CustomUserAdmin
-admin.site.register(CustomUser, CustomUserAdmin)
 
+admin.site.register(CustomUser, CustomUserAdmin)
