@@ -5,7 +5,7 @@ from django.core.validators import RegexValidator
 
 class Client(models.Model):
     INDIVIDUAL = 'Individual'
-    COMPANY = 'Individual'
+    COMPANY = 'Company'
     CLIENT_TYPE_CHOICES = [
         (INDIVIDUAL, 'Individual'),
         (COMPANY, 'Company'),

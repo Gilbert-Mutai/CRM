@@ -10,6 +10,9 @@ from django.views.decorators.http import require_POST
 from django.core.paginator import Paginator
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
+from core.forms import NotificationForm
+from core.constants import SIGNATURE_BLOCKS as SIGNATURES
+
 
 def threecx_records(request):
     query = request.GET.get('search', '')
@@ -47,7 +50,7 @@ def threecx_records(request):
 
     context = {
         'records': page_obj.object_list,
-        'page_obj': page_obj,  # the paginated page
+        'page_obj': page_obj,
         'page_size': page_size,
         'search_query': query,
         'selected_sip': sip_filter,
@@ -120,69 +123,49 @@ def update_threecx_record(request, pk):
         'form': form,
         'customer_record': current_record
     })
+    
 
 @login_required
-def send_notification(request):
-    # STEP 1: GET → show form pre-filled with emails from querystring
+def send_notification_threecx(request):
     if request.method == "GET":
         emails_param = request.GET.get('emails', '')
         emails = [e for e in emails_param.split(',') if e]
         if not emails:
             messages.error(request, "No email addresses provided.")
             return redirect('threecx_records')
-        return render(request, 'threecx_email_notification.html', {'emails': emails})
+        form = NotificationForm(initial={'bcc_emails': ','.join(emails)})
+        return render(request, 'threecx_email_notification.html', {'form': form, 'emails': emails})
 
-    # STEP 2: POST from list page (has 'emails' field) → validate & show form
-    if request.method == "POST" and 'emails' in request.POST:
-        raw_emails = request.POST.get('emails', '')
-        valid_emails, invalid_emails = validate_emails(raw_emails)
+    if request.method == "POST":
+        form = NotificationForm(request.POST)
+        if form.is_valid():
+            subject = form.cleaned_data['subject']
+            body = form.cleaned_data['body']
+            signature_key = form.cleaned_data['signature']
+            valid_emails = form.cleaned_data['valid_emails']
+            invalid_emails = form.cleaned_data['invalid_emails']
 
-        if invalid_emails:
-            messages.warning(
-                request,
-                f"Ignoring invalid email(s): {', '.join(invalid_emails)}"
+            if invalid_emails:
+                messages.warning(request, f"Ignoring invalid email(s): {', '.join(invalid_emails)}")
+
+            signature_block = SIGNATURES.get(signature_key, signature_key)
+            full_body = f"{body}<br><br>--<br>{signature_block}"
+
+            msg = EmailMultiAlternatives(
+                subject=subject,
+                body=full_body,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                bcc=valid_emails,
             )
+            msg.attach_alternative(full_body, "text/html")
+            msg.send(fail_silently=False)
 
-        if not valid_emails:
-            messages.error(request, "No valid email addresses found.")
+            messages.success(request, f"Notification sent to {len(valid_emails)} recipient(s).")
             return redirect('threecx_records')
 
-        return render(request, 'threecx_email_notification.html', {'emails': valid_emails})
+        emails = request.POST.get('bcc_emails', '').split(',')
+        return render(request, 'threecx_email_notification.html', {'form': form, 'emails': emails})
 
-    # STEP 3: POST from send form (has 'bcc_emails') → send and redirect
-    if request.method == "POST" and 'bcc_emails' in request.POST:
-        bcc_raw = request.POST.get('bcc_emails', '')
-        valid_emails, invalid_emails = validate_emails(bcc_raw)
-
-        if invalid_emails:
-            messages.warning(
-                request,
-                f"Ignoring invalid Bcc email(s): {', '.join(invalid_emails)}"
-            )
-
-        if not valid_emails:
-            messages.error(request, "No valid Bcc email addresses to send.")
-            return redirect('threecx_records')
-
-        subject = request.POST.get('subject', '').strip()
-        body = request.POST.get('body', '').strip()
-        signature = request.POST.get('signature', '').strip()
-
-        full_body = f"{body}<br><br>Regards,<br><strong>{signature}</strong>"
-
-        msg = EmailMultiAlternatives(
-            subject=subject,
-            body=full_body,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            bcc=valid_emails,
-        )
-        msg.attach_alternative(full_body, "text/html")
-        msg.send(fail_silently=False)
-
-        messages.success(request, f"Notification sent to {len(valid_emails)} recipient(s).")
-        return redirect('threecx_records')
-
-    # Fallback
     return redirect('threecx_records')
 
 @require_POST

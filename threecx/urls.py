@@ -1,5 +1,4 @@
-from django.urls import path,include
-from django.contrib.auth import views as auth_views
+from django.urls import path
 from . import views
 
 
@@ -9,9 +8,8 @@ urlpatterns = [
     path('record/<int:pk>/', views.threecx_record_details, name='threecx_record'),
     path('delete/<int:pk>/', views.delete_threecx_record, name='delete_threecx_record'),
     path('add/', views.add_threecx_record, name='add_threecx_record'),
-    path('update/<int:pk>/', views.update_threecx_record, name='update_threecx_record'),
-    
-    path('send-notification/', views.send_notification, name='send_notification'),
+    path('update/<int:pk>/', views.update_threecx_record, name='update_threecx_record'), 
+    path('send-notification/', views.send_notification_threecx, name='send_notification_threecx'),
     path('export/', views.export_selected_records, name='export_selected_records'),
 
     

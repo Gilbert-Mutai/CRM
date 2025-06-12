@@ -3,14 +3,14 @@
 
 {% block content %}
 <div class="container py-5">
-    <h1 class="mb-4 text-dark">Access Center</h1>
+    <h3 class="mb-4 text-dark">Access Center</h3>
 
     {% if user.is_authenticated %}
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
             {% for section in client_sections %}
                 <div class="col">
-                    <div class="card text-bg-dark h-100 shadow rounded-4 border-0 card-hover">
-
+                    {% comment %} <div class="card text-bg-dark h-100 shadow rounded-4 border-0 card-hover"> {% endcomment %}
+                    <div class="card h-100 shadow rounded-4 border-0 card-hover mycard-bg">
                         <div class="card-body">
                             <h5 class="card-title">
                                 <i class="bi bi-{{ section.icon }} text-{{ section.btn_class }} me-2"></i>{{ section.title }}

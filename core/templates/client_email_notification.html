@@ -1,10 +1,11 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block content %}
 
 <h4>Send Notification</h4>
-<form id="sendEmailForm" method="post">
+  <form id="sendEmailForm" method="post">
   {% csrf_token %}
-  <input type="hidden" name="bcc_emails" value="{{ emails|join:',' }}">
+  {{ form.bcc_emails }}
 
   <div class="mb-3">
     <label>Bcc:</label>
@@ -12,22 +13,15 @@
   </div>
 
   <div class="mb-3">
-    <label>Subject:</label>
-    <input type="text" name="subject" class="form-control" required>
+    {{ form.subject }}
   </div>
 
   <div class="mb-3">
-    <label>Send as:</label>
-    <select name="signature" class="form-select">
-      <option value="Angani Support">Angani Support</option>
-      <option value="Angani Infrastructure">Angani Infrastructure</option>
-      <option value="Angani Service Delivery">Angani Service Delivery</option>
-    </select>
+    {{ form.signature }}
   </div>
 
   <div class="mb-3">
-    <label>Body:</label>
-    <textarea name="body" id="editor" class="form-control" required></textarea>
+    {{ form.body }}
   </div>
 
   <button type="submit" class="btn btn-outline-primary">Send</button>
@@ -56,6 +50,7 @@
 </div>
 
 <!-- Load CKEditor -->
+ {% comment %} <script src="{% static 'ckeditor/ckeditor.js' %}"></script> {% endcomment %}
 <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
 
 <script>
