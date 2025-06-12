@@ -12,6 +12,18 @@
 </form>
 
 
+   {% comment %} Search on Dropdown {% endcomment %}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+      <script>
+      $(document).ready(function() {
+        $('#id_client').select2({
+          placeholder: 'Select Client',
+          allowClear: true
+        });
+      });
+    </script>
+
+
 </div>
 
 {% endblock %}

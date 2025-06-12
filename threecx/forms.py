@@ -11,11 +11,14 @@ class ClientNameOnlyChoiceField(forms.ModelChoiceField):
 # Shared base form for ThreeCX
 class BaseThreeCXForm(forms.ModelForm):
     client = ClientNameOnlyChoiceField(
-        queryset=Client.objects.order_by('name'),
-        widget=forms.Select(attrs={'class': 'form-control'}),
-        empty_label="Select Client",
-        label=""
-    )
+    queryset=Client.objects.order_by('name'),
+    widget=forms.Select(attrs={
+        'class': 'form-control',
+        'id': 'id_client' 
+    }),
+    empty_label="Select Client",
+    label=""
+)
 
     sip_provider = forms.ChoiceField(
         choices=ThreeCX.SIP_PROVIDERS,
