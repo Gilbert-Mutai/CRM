@@ -2,15 +2,15 @@ from django import forms
 from .models import ThreeCX
 from core.models import Client
 
-
-# Custom field to show only client.name
+# Custom field to display only the client name
 class ClientNameOnlyChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return obj.name
 
 
-class AddThreeCXForm(forms.ModelForm):
-    client = ClientNameOnlyChoiceField(  # <-- Use custom field here
+# Shared base form for ThreeCX
+class BaseThreeCXForm(forms.ModelForm):
+    client = ClientNameOnlyChoiceField(
         queryset=Client.objects.order_by('name'),
         widget=forms.Select(attrs={'class': 'form-control'}),
         empty_label="Select Client",
@@ -24,7 +24,10 @@ class AddThreeCXForm(forms.ModelForm):
     )
 
     fqdn = forms.CharField(
-        widget=forms.TextInput(attrs={"placeholder": "FQDN", "class": "form-control"}),
+        widget=forms.TextInput(attrs={
+            "placeholder": "FQDN",
+            "class": "form-control"
+        }),
         label=""
     )
 
@@ -39,18 +42,17 @@ class AddThreeCXForm(forms.ModelForm):
         fields = ['client', 'fqdn', 'sip_provider', 'license_type']
 
 
-class Update3CXForm(forms.ModelForm):
-    class Meta:
-        model = ThreeCX
-        fields = [
-            'client',
-            'sip_provider',
-            'fqdn',
-            'license_type',
-        ]
-        widgets = {
-            'client': forms.Select(attrs={'class': 'form-control'}),
-            'sip_provider': forms.Select(attrs={'class': 'form-control'}),
-            'fqdn': forms.TextInput(attrs={'class': 'form-control'}),
-            'license_type': forms.Select(attrs={'class': 'form-control'}),
-        }
+# Add form inherits from base
+class AddThreeCXForm(BaseThreeCXForm):
+    pass
+
+
+# Update form inherits from base and modifies if needed
+class UpdateThreeCXForm(BaseThreeCXForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Optionally ensure labels are hidden
+        for field in self.fields.values():
+            field.label = ""
+

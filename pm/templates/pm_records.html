@@ -111,7 +111,7 @@
       {% comment %} <th scope="col">Completion Date</th>
       <th scope="col">Completion Certificate</th> {% endcomment %}
       <th scope="col">Engineer</th>
-      <th scope="col">Comment</th>
+      {% comment %} <th scope="col">Comment</th> {% endcomment %}
       <th scope="col">Details</th>
     </tr>
     </thead>
@@ -129,7 +129,7 @@
           {% comment %} <td>{{ project.date_of_completion|date:"Y-m-d" }}</td> {% endcomment %}
           {% comment %} <td>{{ project.get_job_completion_certificate_display }}</td> {% endcomment %}
           <td>{{ project.engineer.get_full_name }}</td>
-          <td>{{ project.comment|default:"-" }}</td>
+          {% comment %} <td>{{ project.comment|default:"-" }}</td> {% endcomment %}
           <td>
             <a href="{% url 'pm_record' project.id %}" class="btn btn-sm btn-outline-primary" title="View Project">View</a>
           </td>

@@ -315,7 +315,7 @@ searchInput.addEventListener('input', () => {
       // Prepare query parameters for sending notification view
       const params = new URLSearchParams();
       params.append('emails', emailsToSend.join(','));
-      window.location.href = '{% url "send_notification_3cx" %}?' + params.toString();
+      window.location.href = '{% url "send_notification_threecx" %}?' + params.toString();
     }
   });
 

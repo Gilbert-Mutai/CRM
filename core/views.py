@@ -1,15 +1,15 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
-from django.urls import reverse
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.db.models import Q
 from django.core.paginator import Paginator
-from .utils import validate_emails, generate_csv_for_selected_emails
+from .utils import generate_csv_for_selected_emails
 from django.views.decorators.http import require_POST
 from .models import Client
-from .forms import AddClientForm, ClientUpdateForm
+from .forms import AddClientForm, ClientUpdateForm,NotificationForm
+from core.constants import SIGNATURE_BLOCKS as SIGNATURES
 
 def home(request):
     return render(request, 'home.html')
@@ -65,7 +65,7 @@ def client_records(request):
         del get_params['page']
 
     context = {
-        'clients': page_obj,  # <-- pass page object here
+        'clients': page_obj, 
         'page_size': page_size,
         'search_query': query,
         'client_types': client_types,
@@ -135,31 +135,6 @@ def delete_client_record(request, pk):
     messages.error(request, "Invalid request. Deletion only allowed via POST.")
     return redirect('client_record', pk=pk)
 
-# Signature block mapping
-SIGNATURES = {
-    "Angani Support": """
-        Support, Angani Ltd<br>
-        Website: <a href="https://www.angani.co">www.angani.co</a><br>
-        Mob: +254207650028<br>
-        West Point Building, 1st Floor,<br>
-        Mpaka Road, Nairobi
-    """,
-    "Angani Infrastructure": """
-        Infrastructure Team, Angani Ltd<br>
-        Website: <a href="https://www.angani.co">www.angani.co</a><br>
-        Mob: +254207650028<br>
-        West Point Building, 1st Floor,<br>
-        Mpaka Road, Nairobi
-    """,
-    "Angani Service Delivery": """
-        Service Delivery, Angani Ltd<br>
-        Website: <a href="https://www.angani.co">www.angani.co</a><br>
-        Mob: +254207650028<br>
-        West Point Building, 1st Floor,<br>
-        Mpaka Road, Nairobi
-    """,
-}
-
 @login_required
 def send_notification_client(request):
     if request.method == "GET":
@@ -168,54 +143,41 @@ def send_notification_client(request):
         if not emails:
             messages.error(request, "No email addresses provided.")
             return redirect('client_records')
-        return render(request, 'client_email_notification.html', {'emails': emails})
+        form = NotificationForm(initial={'bcc_emails': ','.join(emails)})
+        return render(request, 'client_email_notification.html', {'form': form, 'emails': emails})
 
-    if request.method == "POST" and 'emails' in request.POST:
-        raw_emails = request.POST.get('emails', '')
-        valid_emails, invalid_emails = validate_emails(raw_emails)
+    if request.method == "POST":
+        form = NotificationForm(request.POST)
+        if form.is_valid():
+            subject = form.cleaned_data['subject']
+            body = form.cleaned_data['body']
+            signature_key = form.cleaned_data['signature']
+            valid_emails = form.cleaned_data['valid_emails']
+            invalid_emails = form.cleaned_data['invalid_emails']
 
-        if invalid_emails:
-            messages.warning(request, f"Ignoring invalid email(s): {', '.join(invalid_emails)}")
+            if invalid_emails:
+                messages.warning(request, f"Ignoring invalid email(s): {', '.join(invalid_emails)}")
 
-        if not valid_emails:
-            messages.error(request, "No valid email addresses found.")
+            signature_block = SIGNATURES.get(signature_key, signature_key)
+            full_body = f"{body}<br><br>--<br>{signature_block}"
+
+            msg = EmailMultiAlternatives(
+                subject=subject,
+                body=full_body,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                bcc=valid_emails,
+            )
+            msg.attach_alternative(full_body, "text/html")
+            msg.send(fail_silently=False)
+
+            messages.success(request, f"Notification sent to {len(valid_emails)} recipient(s).")
             return redirect('client_records')
-
-        return render(request, 'client_email_notification.html', {'emails': valid_emails})
-
-    if request.method == "POST" and 'bcc_emails' in request.POST:
-        bcc_raw = request.POST.get('bcc_emails', '')
-        valid_emails, invalid_emails = validate_emails(bcc_raw)
-
-        if invalid_emails:
-            messages.warning(request, f"Ignoring invalid Bcc email(s): {', '.join(invalid_emails)}")
-
-        if not valid_emails:
-            messages.error(request, "No valid Bcc email addresses to send.")
-            return redirect('client_records')
-
-        subject = request.POST.get('subject', '').strip()
-        body = request.POST.get('body', '').strip()
-        signature_key = request.POST.get('signature', '').strip()
-
-        # Use expanded signature block if available
-        signature_block = SIGNATURES.get(signature_key, signature_key)
-        full_body = f"{body}<br><br>--<br>{signature_block}"
-
-        msg = EmailMultiAlternatives(
-            subject=subject,
-            body=full_body,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            bcc=valid_emails,
-        )
-        msg.attach_alternative(full_body, "text/html")
-        msg.send(fail_silently=False)
-
-        messages.success(request, f"Notification sent to {len(valid_emails)} recipient(s).")
-        return redirect('client_records')
+        else:
+            # Retain visible email list in form reshow
+            emails = request.POST.get('bcc_emails', '').split(',')
+            return render(request, 'client_email_notification.html', {'form': form, 'emails': emails})
 
     return redirect('client_records')
-
 
 @require_POST
 @login_required

@@ -9,7 +9,7 @@ urlpatterns = [
     path('delete/<int:pk>/', views.delete_threecx_record, name='delete_threecx_record'),
     path('add/', views.add_threecx_record, name='add_threecx_record'),
     path('update/<int:pk>/', views.update_threecx_record, name='update_threecx_record'), 
-    path('send-notification/', views.send_notification_3cx, name='send_notification_3cx'),
+    path('send-notification/', views.send_notification_threecx, name='send_notification_threecx'),
     path('export/', views.export_selected_records, name='export_selected_records'),
 
     

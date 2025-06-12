@@ -7,12 +7,17 @@ body.home-bg {
     color: #F4F6F8;
 }
 
+.mycard-bg{
+    background-color: #2D3E50;
+    color: #F4F6F8;
+
+}
+
 body {
     background-color: #F4F6F8; /* Default for all other pages */
     margin: 0;
     padding: 0;
     font-family: 'Inter', sans-serif;
-    /* color: #1b1b1b; */
 }
 
 /* Wrapper that uses Flexbox to push footer to bottom */
@@ -190,7 +195,7 @@ tr[data-href]:hover {
 
 
 .card-hover:hover {
-    background-color: rgba(255, 255, 255, 0.05);
+    /* background-color: rgba(255, 255, 255, 0.05); */
     transition: background-color 0.3s ease, transform 0.3s ease;
     transform: scale(1.02);
     cursor: pointer;

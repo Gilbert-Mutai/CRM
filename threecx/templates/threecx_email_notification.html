@@ -4,7 +4,7 @@
 <h4>Send Notification</h4>
 <form id="sendEmailForm" method="post">
   {% csrf_token %}
-  <input type="hidden" name="bcc_emails" value="{{ emails|join:',' }}">
+  {{ form.bcc_emails }}
 
   <div class="mb-3">
     <label>Bcc:</label>
@@ -12,22 +12,15 @@
   </div>
 
   <div class="mb-3">
-    <label>Subject:</label>
-    <input type="text" name="subject" class="form-control" required>
+    {{ form.subject }}
   </div>
 
   <div class="mb-3">
-    <label>Send as:</label>
-    <select name="signature" class="form-select">
-      <option value="Angani Support">Angani Support</option>
-      <option value="Angani Infrastructure">Angani Infrastructure</option>
-      <option value="Angani Service Delivery">Angani Service Delivery</option>
-    </select>
+    {{ form.signature }}
   </div>
 
   <div class="mb-3">
-    <label>Body:</label>
-    <textarea name="body" id="editor" class="form-control" required></textarea>
+    {{ form.body }}
   </div>
 
   <button type="submit" class="btn btn-outline-primary">Send</button>
@@ -36,28 +29,26 @@
   </a>
 </form>
 
-<!-- Confirmation Modal -->
+<!-- Confirm Modal -->
 <div class="modal fade" id="confirmSendModal" tabindex="-1" aria-labelledby="confirmSendModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-primary">
       <div class="modal-header">
         <h5 class="modal-title" id="confirmSendModalLabel">Confirm Send</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        Are you sure you want to send this notification email?
+        Are you sure you want to send this notification?
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button id="confirmSendBtn" type="button" class="btn btn-primary">Yes, Send</button>
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary btn-sm" id="confirmSendBtn">Yes, Send</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Load CKEditor -->
 <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
-
 <script>
   CKEDITOR.replace('editor', {
     height: 300,
@@ -78,18 +69,18 @@
     const confirmSendBtn = document.getElementById('confirmSendBtn');
 
     form.addEventListener('submit', function (event) {
-      event.preventDefault();  // Stop the form from submitting
+      event.preventDefault();
       modal.show();
     });
 
     confirmSendBtn.addEventListener('click', function () {
-      // Update textarea with CKEditor content before submit
-      for (const instance in CKEDITOR.instances) {
-        CKEDITOR.instances[instance].updateElement();
-      }
-      form.submit();  // Submit form after confirmation
-    });
-  });
+  for (const instance in CKEDITOR.instances) {
+    CKEDITOR.instances[instance].updateElement();
+  }
+  confirmSendBtn.disabled = true;
+  form.submit();
+});
+
 </script>
 
 {% endblock %}
