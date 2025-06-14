@@ -201,12 +201,27 @@ tr[data-href]:hover {
     cursor: pointer;
 }
 
-th {
+/* th {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 150px;
-}
+}  */
+
+    table th {
+    /* width: 220px;  */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* vertical-align: middle; */
+  }
+
+  table td {
+    word-wrap: break-word;
+    word-break: break-word;
+  }  
+
+
 
 
 

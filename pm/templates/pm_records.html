@@ -105,11 +105,11 @@
       </th>
       <th scope="col">Customer Name</th>
       <th scope="col">Project Title</th>
-      <th scope="col">Service Description</th>
+      {% comment %} <th scope="col">Service Description</th> {% endcomment %}
       <th class="col">Date of Request</th>
-      <th scope="col">Status</th>
-      {% comment %} <th scope="col">Completion Date</th>
-      <th scope="col">Completion Certificate</th> {% endcomment %}
+      <th scope="col">Project Status</th>
+      {% comment %} <th scope="col">Completion Date</th> {% endcomment %}
+      <th scope="col">Certificate</th>
       <th scope="col">Engineer</th>
       {% comment %} <th scope="col">Comment</th> {% endcomment %}
       <th scope="col">Details</th>
@@ -123,11 +123,11 @@
           </td>
           <td>{{ project.customer_name.name }}</td>
           <td>{{ project.project_title }}</td>
-          <td>{{ project.service_description|truncatechars:50 }}</td>
+          {% comment %} <td>{{ project.service_description|truncatechars:50 }}</td> {% endcomment %}
           <td>{{ project.date_of_request|date:"Y-m-d" }}</td>
           <td>{{ project.get_status_display }}</td>
           {% comment %} <td>{{ project.date_of_completion|date:"Y-m-d" }}</td> {% endcomment %}
-          {% comment %} <td>{{ project.get_job_completion_certificate_display }}</td> {% endcomment %}
+         <td>{{ project.get_job_completion_certificate_display }}</td>
           <td>{{ project.engineer.get_full_name }}</td>
           {% comment %} <td>{{ project.comment|default:"-" }}</td> {% endcomment %}
           <td>

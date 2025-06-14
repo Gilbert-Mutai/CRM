@@ -4,56 +4,128 @@
 <h2 class="text-center mb-4">Project Details</h2>
 
 <div class="table-responsive" style="max-width: 800px; margin: auto;">
-  <table class="table table-bordered table-hover align-middle">
-    <tbody>
+   <table class="table table-bordered table-hover align-middle" style="table-layout: fixed; width: 100%;">
+  <colgroup>
+    <col style="width: 35%; min-width: 180px;">
+    <col style="width: 65%;">
+  </colgroup>
+
+  <tbody>
       <tr>
-        <th scope="row"><i class="bi bi-person me-2 text-secondary"></i>Customer Name</th>
+        <th><i class="bi bi-person me-2 text-secondary"></i>Customer Name</th>
         <td>{{ project.customer_name.name }}</td>
       </tr>
       <tr>
-        <th scope="row"><i class="bi bi-kanban me-2 text-secondary"></i>Project Title</th>
+        <th><i class="bi bi-kanban me-2 text-secondary"></i>Project Title</th>
         <td>{{ project.project_title }}</td>
       </tr>
+
+      <!-- Service Description -->
       <tr>
-        <th scope="row"><i class="bi bi-card-text me-2 text-secondary"></i>Service Description</th>
-        <td>{{ project.service_description|truncatechars:50 }}</td>
-      </tr>
-      <tr>
-        <th scope="row"><i class="bi bi-calendar-event me-2 text-secondary"></i>Date of Request</th>
-        <td>{{ project.date_of_request|date:"M d, Y H:i" }}</td>
-      </tr>
-      <tr>
-        <th scope="row"><i class="bi bi-info-circle me-2 text-secondary"></i>Status</th>
-        <td>{{ project.get_status_display }}</td>
-      </tr>
-      <tr>
-        <th scope="row"><i class="bi bi-calendar-check me-2 text-secondary"></i>Completion Date</th>
-        <td>{{ project.date_of_completion|date:"M d, Y H:i" }}</td>
-      </tr>
-      <tr>
-        <th scope="row"><i class="bi bi-award me-2 text-secondary"></i>Completion Certificate</th>
-        <td>{{ project.get_job_completion_certificate_display }}</td>
-      </tr>
-      <tr>
-        <th scope="row"><i class="bi bi-person-badge me-2 text-secondary"></i>Engineer</th>
-        <td>{{ project.engineer.get_full_name }}</td>
-      </tr>
-      <tr>
-        <th scope="row"><i class="bi bi-chat-left-text me-2 text-secondary"></i>Comment</th>
-        <td>{{ project.comment|default:"-" }}</td>
-      </tr>
-      <tr>
-        <th scope="row"><i class="bi bi-calendar-plus me-2 text-muted"></i>Created On</th>
+        <th><i class="bi bi-card-text me-2 text-secondary"></i>Service Description</th>
         <td>
-          {{ project.created_at|date:"M d, Y H:i" }}
-            by <strong>{{ project.created_by.get_full_name|default:project.created_by.email }}</strong>
+          {% if user == project.engineer or user.is_staff %}
+            <div id="description-view">{{ project.service_description|truncatechars:50 }}</div>
+            <textarea id="description-input" class="form-control d-none" rows="3">{{ project.service_description }}</textarea>
+            <div class="mt-2 d-none" id="description-actions">
+              <button class="btn btn-sm btn-primary" id="description-save">Save</button>
+              <button class="btn btn-sm btn-secondary" id="description-cancel">Cancel</button>
+            </div>
+            <small id="description-success-msg" class="text-success d-none">✓ Description updated</small>
+          {% else %}
+            {{ project.service_description|truncatechars:50 }}
+          {% endif %}
         </td>
       </tr>
+
       <tr>
-        <th scope="row"><i class="bi bi-pencil me-2 text-muted"></i>Last Updated</th>
+        <th><i class="bi bi-calendar-event me-2 text-secondary"></i>Date of Request</th>
+        <td>{{ project.date_of_request|date:"M d, Y H:i" }}</td>
+      </tr>
+
+      <!-- Status -->
+      <tr>
+        <th><i class="bi bi-info-circle me-2 text-secondary"></i>Status</th>
         <td>
-          {{ project.updated_at|date:"M d, Y H:i" }}
-            by <strong>{{ project.updated_by.get_full_name|default:project.updated_by.email }}</strong>
+          {% if user == project.engineer or user.is_staff %}
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="statusToggle"
+                     {% if project.status == 'Completed' %}checked{% endif %}
+                     data-project-id="{{ project.id }}">
+              <label class="form-check-label" for="statusToggle">{{ project.get_status_display }}</label>
+            </div>
+          {% else %}
+            {{ project.get_status_display }}
+          {% endif %}
+        </td>
+      </tr>
+
+      <!-- Completion Date -->
+      <tr>
+        <th><i class="bi bi-calendar-check me-2 text-secondary"></i>Completion Date</th>
+        <td id="completion-date-cell">{{ project.date_of_completion|date:"M d, Y H:i" }}</td>
+      </tr>
+
+      <!-- Completion Certificate -->
+      <tr>
+        <th><i class="bi bi-award me-2 text-secondary"></i>Completion Certificate</th>
+        <td id="certificate-cell">
+          {% if user == project.engineer or user.is_staff %}
+            {% if project.status == 'Completed' %}
+              <div class="d-flex align-items-center gap-2">
+                <div class="form-check form-switch" id="certificate-toggle-wrapper">
+                  <input class="form-check-input" type="checkbox" id="certificateToggle"
+                         data-project-id="{{ project.id }}"
+                         {% if project.job_completion_certificate == 'Shared' %}checked{% endif %}>
+                </div>
+                <span id="certificate-status-label">{{ project.get_job_completion_certificate_display }}</span>
+                <button id="download-btn" data-url="{% url 'download_completion_certificate' project.id %}" class="btn btn-sm btn-outline-secondary">
+                  <i class="bi bi-download"></i>
+                </button>
+              </div>
+            {% else %}
+              -
+            {% endif %}
+          {% else %}
+            {% if project.status == 'Completed' %}{{ project.get_job_completion_certificate_display }}{% else %}-{% endif %}
+          {% endif %}
+        </td>
+      </tr>
+
+      <!-- Engineer -->
+      <tr>
+        <th><i class="bi bi-person-badge me-2 text-secondary"></i>Engineer</th>
+        <td>
+          {% if user.is_staff %}
+            <select id="engineer-select" class="form-select" data-project-id="{{ project.id }}">
+              {% for engineer in engineers %}
+                <option value="{{ engineer.id }}" {% if engineer.id == project.engineer.id %}selected{% endif %}>
+                  {{ engineer.get_full_name }}
+                </option>
+              {% endfor %}
+            </select>
+            <small id="engineer-success-msg" class="text-success d-none ms-1">✓ Engineer updated</small>
+          {% else %}
+            {{ project.engineer.get_full_name }}
+          {% endif %}
+        </td>
+      </tr>
+
+      <!-- Comment -->
+      <tr>
+        <th><i class="bi bi-chat-left-text me-2 text-secondary"></i>Comment</th>
+        <td>
+          {% if user == project.engineer or user.is_staff %}
+            <div id="comment-view">{{ project.comment|truncatechars:50 }}</div>
+            <textarea id="comment-input" class="form-control d-none" rows="3">{{ project.comment }}</textarea>
+            <div class="mt-2 d-none" id="comment-actions">
+              <button class="btn btn-sm btn-primary" id="comment-save">Save</button>
+              <button class="btn btn-sm btn-secondary" id="comment-cancel">Cancel</button>
+            </div>
+            <small id="comment-success-msg" class="text-success d-none">✓ Comment updated</small>
+          {% else %}
+            {{ project.comment|truncatechars:50 }}
+          {% endif %}
         </td>
       </tr>
     </tbody>
@@ -65,7 +137,7 @@
   <a href="{% url 'pm_records' %}" class="btn btn-outline-secondary">
     <i class="bi bi-arrow-left-circle me-1"></i>Go Back
   </a>
-
+  {% if user.is_staff %}
   <a href="#" 
      class="btn btn-outline-danger" 
      data-bs-toggle="modal" 
@@ -78,6 +150,7 @@
   <a href="{% url 'update_pm_record' project.id %}" class="btn btn-outline-primary">
     <i class="bi bi-pencil-square me-1"></i>Update
   </a>
+   {% endif %}
 </div>
 
 <!-- Delete Confirmation Modal -->
@@ -102,6 +175,7 @@
   </div>
 </div>
 
+
 <!-- JS Logic -->
 <script>
   document.addEventListener('DOMContentLoaded', () => {
@@ -118,6 +192,196 @@
       deleteForm.action = url;
     });
   });
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  // === STATUS TOGGLE ===
+  const toggle = document.getElementById("statusToggle");
+  if (toggle) {
+    toggle.addEventListener("change", function () {
+      const status = this.checked ? "Completed" : "Pending";
+      fetch("{% url 'toggle_project_status' project.id %}", {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": "{{ csrf_token }}",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ status })
+      })
+      .then(response => response.json())
+      .then(data => {
+        document.querySelector("label[for='statusToggle']").textContent = data.status_display;
+        document.getElementById("completion-date-cell").textContent = data.completion_date || "-";
+
+        const certCell = document.getElementById("certificate-cell");
+        if (status === "Completed") {
+          certCell.innerHTML = `
+            <div class="d-flex align-items-center gap-2">
+              <div class="form-check form-switch" id="certificate-toggle-wrapper">
+                <input class="form-check-input" type="checkbox" id="certificateToggle"
+                       data-project-id="{{ project.id }}">
+              </div>
+              <span id="certificate-status-label">Pending</span>
+              <button id="download-btn" data-url="{% url 'download_completion_certificate' project.id %}" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-download"></i>
+              </button>
+            </div>
+          `;
+          setupCertificateToggle(); // rebind
+        } else {
+          certCell.innerHTML = "-";
+        }
+      });
+    });
+  }
+
+  // === CERTIFICATE TOGGLE ===
+  function setupCertificateToggle() {
+    const certToggle = document.getElementById("certificateToggle");
+    const certLabel = document.getElementById("certificate-status-label");
+    if (certToggle && certLabel) {
+      certToggle.addEventListener("change", function () {
+        const newStatus = this.checked ? "Shared" : "Pending";
+        fetch("{% url 'toggle_certificate_status' project.id %}", {
+          method: "POST",
+          headers: {
+            "X-CSRFToken": "{{ csrf_token }}",
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ certificate_status: newStatus })
+        })
+        .then(res => res.json())
+        .then(data => {
+          certLabel.textContent = data.certificate_status_display;
+        });
+      });
+    }
+
+    const downloadBtn = document.getElementById("download-btn");
+    if (downloadBtn) {
+      downloadBtn.addEventListener("click", function () {
+        const url = this.getAttribute("data-url");
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", "certificate.pdf");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      });
+    }
+  }
+  setupCertificateToggle();
+
+  // === ENGINEER SELECT ===
+  const engineerSelect = document.getElementById("engineer-select");
+  if (engineerSelect) {
+    engineerSelect.addEventListener("change", function () {
+      fetch("{% url 'update_project_engineer' project.id %}", {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": "{{ csrf_token }}",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ engineer_id: this.value })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          const msg = document.getElementById("engineer-success-msg");
+          msg.classList.remove("d-none");
+          setTimeout(() => msg.classList.add("d-none"), 2000);
+        }
+      });
+    });
+  }
+
+  // === EDITABLE DESCRIPTION ===
+  const descriptionView = document.getElementById("description-view");
+  const descriptionInput = document.getElementById("description-input");
+  const descriptionActions = document.getElementById("description-actions");
+  const descriptionSave = document.getElementById("description-save");
+  const descriptionCancel = document.getElementById("description-cancel");
+  const descriptionSuccessMsg = document.getElementById("description-success-msg");
+
+  if (descriptionView) {
+    descriptionView.addEventListener("click", () => {
+      descriptionView.classList.add("d-none");
+      descriptionInput.classList.remove("d-none");
+      descriptionActions.classList.remove("d-none");
+    });
+
+    descriptionCancel.addEventListener("click", () => {
+      descriptionView.classList.remove("d-none");
+      descriptionInput.classList.add("d-none");
+      descriptionActions.classList.add("d-none");
+    });
+
+    descriptionSave.addEventListener("click", () => {
+      fetch("{% url 'update_project_description' project.id %}", {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": "{{ csrf_token }}",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ service_description: descriptionInput.value })
+      })
+      .then(res => res.json())
+      .then(data => {
+        const truncated = data.service_description.length > 50 ? data.service_description.slice(0, 50) + "…" : data.service_description;
+        descriptionView.textContent = truncated;
+        descriptionView.classList.remove("d-none");
+        descriptionInput.classList.add("d-none");
+        descriptionActions.classList.add("d-none");
+        descriptionSuccessMsg.classList.remove("d-none");
+        setTimeout(() => descriptionSuccessMsg.classList.add("d-none"), 2000);
+      });
+    });
+  }
+
+  // === EDITABLE COMMENT ===
+  const commentView = document.getElementById("comment-view");
+  const commentInput = document.getElementById("comment-input");
+  const commentActions = document.getElementById("comment-actions");
+  const commentSave = document.getElementById("comment-save");
+  const commentCancel = document.getElementById("comment-cancel");
+  const commentSuccessMsg = document.getElementById("comment-success-msg");
+
+  if (commentView) {
+    commentView.addEventListener("click", () => {
+      commentView.classList.add("d-none");
+      commentInput.classList.remove("d-none");
+      commentActions.classList.remove("d-none");
+    });
+
+    commentCancel.addEventListener("click", () => {
+      commentView.classList.remove("d-none");
+      commentInput.classList.add("d-none");
+      commentActions.classList.add("d-none");
+    });
+
+    commentSave.addEventListener("click", () => {
+      fetch("{% url 'update_project_comment' project.id %}", {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": "{{ csrf_token }}",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ comment: commentInput.value })
+      })
+      .then(res => res.json())
+      .then(data => {
+        const truncated = data.comment.length > 50 ? data.comment.slice(0, 50) + "…" : data.comment;
+        commentView.textContent = truncated;
+        commentView.classList.remove("d-none");
+        commentInput.classList.add("d-none");
+        commentActions.classList.add("d-none");
+        commentSuccessMsg.classList.remove("d-none");
+        setTimeout(() => commentSuccessMsg.classList.add("d-none"), 2000);
+      });
+    });
+  }
+});
 </script>
 
 {% endblock %}

@@ -44,28 +44,29 @@
   </table>
 </div>
 
-<!-- Action Buttons -->
+  <!-- Action Buttons -->
 <div class="d-flex justify-content-center gap-2 mt-4">
   <a href="{% url 'client_records' %}" class="btn btn-outline-secondary">
     <i class="bi bi-arrow-left-circle me-1"></i>Go Back
   </a>
 
-  <form id="delete-form" action="{% url 'delete_client_record' client_record.id %}" method="post" style="display:inline;">
-  {% csrf_token %}
-  <button 
-    type="button" 
-    class="btn btn-outline-danger"
-    onclick="confirmAction(this)"
-    data-message="Are you sure you want to delete this client? This action cannot be undone.">
-    <i class="bi bi-trash me-1"></i>Delete
-  </button>
-</form>
+  {% if user.is_staff %}
+    <form id="delete-form" action="{% url 'delete_client_record' client_record.id %}" method="post" style="display:inline;">
+      {% csrf_token %}
+      <button 
+        type="button" 
+        class="btn btn-outline-danger"
+        onclick="confirmAction(this)"
+        data-message="Are you sure you want to delete this client? This action cannot be undone.">
+        <i class="bi bi-trash me-1"></i>Delete
+      </button>
+    </form>
 
-  <a href="{% url 'update_client_record' client_record.id %}" class="btn btn-outline-primary">
-    <i class="bi bi-pencil-square me-1"></i>Update
-  </a>
+    <a href="{% url 'update_client_record' client_record.id %}" class="btn btn-outline-primary">
+      <i class="bi bi-pencil-square me-1"></i>Update
+    </a>
+  {% endif %}
 </div>
-
 
 <!-- Delete Confirmation Modal -->
 <div class="modal fade" id="confirmActionModal" tabindex="-1" aria-labelledby="confirmActionLabel" aria-hidden="true">
