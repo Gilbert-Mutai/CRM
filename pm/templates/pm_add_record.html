@@ -6,30 +6,29 @@
 
   <form method="POST" action="{% url 'add_pm_record' %}">
     {% csrf_token %}
-    
     {{ form.as_p }}
 
-    <div class="mt-4">
+    <div class="mt-4 d-flex gap-2">
       <button type="submit" class="btn btn-outline-primary">Add Record</button>
       <a href="{% url 'pm_records' %}" class="btn btn-outline-secondary">Back</a>
     </div>
   </form>
-     {% comment %} Search on Dropdown {% endcomment %}
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-      <script>
-    $(document).ready(function() {
-      $('#id_customer_name').select2({
-        placeholder: 'Select Client',
-        allowClear: true
-      });
-
-      $('#id_engineer').select2({
-        placeholder: 'Select Engineer',
-        allowClear: true
-      });
-    });
-  </script>
-
 </div>
+
+<!-- Enhanced Dropdowns Using Select2 -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+  $(document).ready(function () {
+    $('#id_customer_name').select2({
+      placeholder: 'Select Client',
+      allowClear: true
+    });
+
+    $('#id_engineer').select2({
+      placeholder: 'Select Engineer',
+      allowClear: true
+    });
+  });
+</script>
 
 {% endblock %}

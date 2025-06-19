@@ -5,7 +5,7 @@ from io import StringIO
 from django.http import HttpResponse
 
 def get_project_by_id(pk):
-    return get_object_or_404(Project, id=pk)
+    return Project.objects.select_related('engineer', 'customer_name').get(pk=pk)
 
 
 def delete_project(pk):

@@ -1,15 +1,17 @@
 {% extends 'base.html' %}
 {% block content %}
 
+<!-- ========== Page Title ========== -->
 <h2 class="text-center mb-4">3CX Customer Details</h2>
 
+<!-- ========== Customer Details Table ========== -->
 <div class="table-responsive" style="max-width: 600px; margin: auto;">
   <table class="table table-bordered table-hover align-middle">
     <tbody>
-      <!-- Customer Info -->
+      <!-- Client Basic Info -->
       <tr>
         <th scope="row"><i class="bi bi-building me-2 text-secondary"></i>Name</th>
-        <td>{{ customer_record.client.name}}</td>
+        <td>{{ customer_record.client.name }}</td>
       </tr>
       <tr>
         <th scope="row"><i class="bi bi-envelope-fill me-2 text-secondary"></i>Email</th>
@@ -19,6 +21,8 @@
         <th scope="row"><i class="bi bi-telephone-fill me-2 text-secondary"></i>Phone Number</th>
         <td>{{ customer_record.client.phone_number }}</td>
       </tr>
+
+      <!-- 3CX Details -->
       <tr>
         <th scope="row"><i class="bi bi-globe me-2 text-secondary"></i>FQDN</th>
         <td>{{ customer_record.fqdn }}</td>
@@ -31,6 +35,8 @@
         <th scope="row"><i class="bi bi-award-fill me-2 text-secondary"></i>License Type</th>
         <td>{{ customer_record.get_license_type_display }}</td>
       </tr>
+
+      <!-- Timestamps -->
       <tr>
         <th scope="row"><i class="bi bi-calendar-plus me-2 text-muted"></i>Created On</th>
         <td>
@@ -53,29 +59,32 @@
   </table>
 </div>
 
-<!-- Action Buttons -->
+<!-- ========== Action Buttons ========== -->
 <div class="d-flex justify-content-center gap-2 mt-4">
   <a href="{% url 'threecx_records' %}" class="btn btn-outline-secondary">
     <i class="bi bi-arrow-left-circle me-1"></i>Go Back
   </a>
 
-  <a href="#" 
-   class="btn btn-outline-danger" 
-   data-bs-toggle="modal" 
-   data-bs-target="#confirmActionModal"
-   data-url="{% url 'delete_threecx_record' customer_record.id %}" 
-   data-message="Are you sure you want to delete this record? This action cannot be undone.">
-  <i class="bi bi-trash me-1"></i>Delete
-  </a>
+  {% if user.is_staff %}
+    <!-- Delete Button (Triggers Modal) -->
+    <a href="#" 
+       class="btn btn-outline-danger" 
+       data-bs-toggle="modal" 
+       data-bs-target="#confirmActionModal"
+       data-url="{% url 'delete_threecx_record' customer_record.id %}" 
+       data-message="Are you sure you want to delete this record? This action cannot be undone.">
+      <i class="bi bi-trash me-1"></i>Delete
+    </a>
 
-
-  <a href="{% url 'update_threecx_record' customer_record.id %}" class="btn btn-outline-primary">
-    <i class="bi bi-pencil-square me-1"></i>Update
-  </a>
+    <!-- Update Button -->
+    <a href="{% url 'update_threecx_record' customer_record.id %}" class="btn btn-outline-primary">
+      <i class="bi bi-pencil-square me-1"></i>Update
+    </a>
+  {% endif %}
 </div>
 
-<!-- Delete Confirmation Modal -->
-  <div class="modal fade" id="confirmActionModal" tabindex="-1" aria-labelledby="confirmActionLabel" aria-hidden="true">
+<!-- ========== Delete Confirmation Modal ========== -->
+<div class="modal fade" id="confirmActionModal" tabindex="-1" aria-labelledby="confirmActionLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header bg-warning text-dark">
@@ -96,24 +105,24 @@
   </div>
 </div>
 
+{% endblock %}
 
-<!-- JS Logic -->
+{% block extra_js %}
+<!-- ========== Modal Setup Script ========== -->
 <script>
   document.addEventListener('DOMContentLoaded', () => {
-  const modal = document.getElementById('confirmActionModal');
-  const deleteForm = document.getElementById('deleteForm');
-  const confirmMessage = document.getElementById('confirmMessage');
+    const modal = document.getElementById('confirmActionModal');
+    const deleteForm = document.getElementById('deleteForm');
+    const confirmMessage = document.getElementById('confirmMessage');
 
-  modal.addEventListener('show.bs.modal', event => {
-    const button = event.relatedTarget;  
-    const url = button.getAttribute('data-url');
-    const message = button.getAttribute('data-message');
+    modal.addEventListener('show.bs.modal', event => {
+      const button = event.relatedTarget;
+      const url = button.getAttribute('data-url');
+      const message = button.getAttribute('data-message');
 
-    confirmMessage.textContent = message;
-    deleteForm.action = url;
+      confirmMessage.textContent = message;
+      deleteForm.action = url;
+    });
   });
-});
-
 </script>
-
 {% endblock %}

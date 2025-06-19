@@ -3,36 +3,46 @@ from .models import ThreeCX
 
 @admin.register(ThreeCX)
 class ThreeCXAdmin(admin.ModelAdmin):
+    # Displayed columns in list view
     list_display = (
         'get_client_name', 'get_client_email', 'get_client_phone',
         'sip_provider', 'fqdn', 'license_type',
         'created_at', 'last_updated'
     )
+
+    # Filter options in the sidebar
     list_filter = ('sip_provider', 'license_type')
+
+    # Searchable fields
     search_fields = ('client__name', 'client__email', 'client__phone_number')
+
+    # Read-only timestamp fields
     readonly_fields = ('created_at', 'last_updated')
 
+    # Field layout in the form view
     fieldsets = (
         (None, {
             'fields': ('client', 'sip_provider', 'fqdn', 'license_type')
         }),
         ('Timestamps', {
-            'fields': ('created_at', 'last_updated')
+            'fields': ('created_at', 'last_updated'),
         }),
     )
 
+    # Custom display methods
+    @admin.display(description='Client Name')
     def get_client_name(self, obj):
         return obj.client.name
-    get_client_name.short_description = 'Client Name'
 
+    @admin.display(description='Email Address')
     def get_client_email(self, obj):
         return obj.client.email
-    get_client_email.short_description = 'Email Address'
 
+    @admin.display(description='Phone Number')
     def get_client_phone(self, obj):
         return obj.client.phone_number
-    get_client_phone.short_description = 'Phone Number'
 
+    # Automatically track creator and updater
     def save_model(self, request, obj, form, change):
         if not obj.pk:
             obj.created_by = request.user
