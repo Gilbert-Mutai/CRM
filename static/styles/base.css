@@ -1,17 +1,6 @@
-.custom-navbar-border {
-  border-bottom: 0.5px solid white;
-}
-
-body.home-bg {
-    background-color: #2D3E50; /* Dark for homepage */
-    color: #F4F6F8;
-}
-
-.mycard-bg{
-    background-color: #2D3E50;
-    color: #F4F6F8;
-
-}
+/* ===========================
+   1. Base Elements & Resets
+   =========================== */
 
 body {
     background-color: #F4F6F8; /* Default for all other pages */
@@ -20,14 +9,40 @@ body {
     font-family: 'Inter', sans-serif;
 }
 
-/* Wrapper that uses Flexbox to push footer to bottom */
+body.home-bg {
+    background-color: #2D3E50; /* Dark background for homepage */
+    color: #F4F6F8;
+}
+
+/* ===========================
+   2. Reusable Utility Classes
+   =========================== */
+
+.custom-navbar-border {
+    border-bottom: 0.5px solid white;
+}
+
+.mycard-bg {
+    background-color: #2D3E50;
+    color: #F4F6F8;
+}
+
+.card-hover:hover {
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    transform: scale(1.02);
+    cursor: pointer;
+}
+
+/* ===========================
+   3. Page Layout
+   =========================== */
+
 .page-wrapper {
     display: flex;
     flex-direction: column;
-    min-height: 90vh;
+    min-height: 90vh; /* Push footer to bottom */
 }
 
-/* Main content expands to take available space */
 .homepage-container {
     flex: 1;
     display: flex;
@@ -37,6 +52,18 @@ body {
     text-align: center;
     padding: 5px;
 }
+
+.footer {
+    background-color: #1B2A38;
+    text-align: center;
+    padding: 15px 0;
+    font-size: 0.9rem;
+    color: #cccccc;
+}
+
+/* ===========================
+   4. Typography & Branding
+   =========================== */
 
 .logo {
     width: 200px;
@@ -54,6 +81,10 @@ h1 {
     color: #f0f0f0;
 }
 
+/* ===========================
+   5. Buttons
+   =========================== */
+
 .btn-proceed {
     background-color: #00ADEF;
     color: white;
@@ -61,7 +92,7 @@ h1 {
     padding: 12px 24px;
     border-radius: 8px;
     font-size: 1.1rem;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     transition: background 0.3s ease;
 }
 
@@ -69,13 +100,32 @@ h1 {
     background-color: #0096d1;
 }
 
-.footer {
-    background-color: #1B2A38;
-    text-align: center;
-    padding: 15px 0;
-    font-size: 0.9rem;
-    color: #cccccc;
+/* ===========================
+   6. Table Styling
+   =========================== */
+
+table th {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* width: 220px; */
 }
+
+table td {
+    word-wrap: break-word;
+    word-break: break-word;
+}
+
+/* Row highlight for clickable rows */
+tr[data-href]:hover {
+    background-color: #eef5ff;
+    transition: background-color 0.2s ease-in-out;
+    cursor: pointer;
+}
+
+/* ===========================
+   7. Alerts & Notifications
+   =========================== */
 
 .alert {
     position: fixed;
@@ -90,49 +140,49 @@ h1 {
     opacity: 0;
 }
 
-tr[data-href]:hover {
-    background-color: #eef5ff;
-    transition: background-color 0.2s ease-in-out;
-    cursor: pointer;
-}
+/* ===========================
+   8. Bulk Actions Visibility
+   =========================== */
 
 .bulk-actions {
-  /* keep it inline but hidden with opacity 0 */
-  visibility: hidden;
-  opacity: 0;
-  transition: opacity 0.3s ease;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
 .bulk-actions.visible {
-  visibility: visible;
-  opacity: 1;
+    visibility: visible;
+    opacity: 1;
 }
 
-/* Dark style for user dropdown menu */
+/* ===========================
+   9. Dark Dropdown Styling
+   =========================== */
+
 .dark-dropdown {
-    background-color: #222;    
-    color: #ddd;                   /* Light text */
-    border: none;                  /* Remove border if desired */
+    background-color: #222;
+    color: #ddd;
+    border: none;
 }
 
-/* Dropdown item style */
 .dark-dropdown .dropdown-item {
-    color: #ddd;                  /* Light text */
+    color: #ddd;
 }
 
-/* Hover and focus states */
 .dark-dropdown .dropdown-item:hover,
 .dark-dropdown .dropdown-item:focus {
-    background-color: #444;       /* Slightly lighter dark */
-    color: #fff;                  /* Brighter text on hover */
+    background-color: #444;
+    color: #fff;
 }
 
-/* Divider style */
 .dark-dropdown .dropdown-divider {
-    border-top: 1px solid #444;   /* Dark divider */
+    border-top: 1px solid #444;
 }
 
-/* --- Search & Filter Input Styling to match page background --- */
+/* ===========================
+   10. Search & Filter Inputs
+   =========================== */
+
 #filter-form input[type="text"],
 #filter-form select {
     background-color: #F4F6F8;
@@ -142,89 +192,52 @@ tr[data-href]:hover {
 }
 
 #filter-form input[type="text"]::placeholder {
-    color: #6c757d; 
+    color: #6c757d;
 }
 
 #filter-form input[type="text"]:focus,
 #filter-form select:focus {
     background-color: #F4F6F8;
     border-color: #86b7fe;
-    box-shadow: 0 0 0 0.25rem rgba(13,110,253,.25);
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
     outline: none;
 }
 
+/* ===========================
+   11. Full Page Loader
+   =========================== */
 
-/* Full-page loader overlay */
 .loader-overlay {
-  position: fixed;
-  top: 0; 
-  left: 0;
-  width: 100%; 
-  height: 100%;
-  background: rgba(255, 255, 255, 0.8);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-  visibility: hidden;
-  opacity: 0;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
-/* Rotating spinner */
-.loader {
-  border: 6px solid #f3f3f3;
-  border-top: 6px solid #3498db; /* blue color */
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  animation: spin 1s linear infinite;
-}
-
-/* Spinner animation */
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/* Show loader */
 .loader-overlay.visible {
-  visibility: visible;
-  opacity: 1;
+    visibility: visible;
+    opacity: 1;
 }
 
-
-.card-hover:hover {
-    /* background-color: rgba(255, 255, 255, 0.05); */
-    transition: background-color 0.3s ease, transform 0.3s ease;
-    transform: scale(1.02);
-    cursor: pointer;
+.loader {
+    border: 6px solid #f3f3f3;
+    border-top: 6px solid #3498db;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
 }
 
-/* th {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 150px;
-}  */
-
-    table th {
-    /* width: 220px;  */
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    /* vertical-align: middle; */
-  }
-
-  table td {
-    word-wrap: break-word;
-    word-break: break-word;
-  }  
-
-
-
-
-
-
-
-
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

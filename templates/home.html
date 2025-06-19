@@ -6,17 +6,26 @@
 {% block body_class %}home-bg{% endblock %}
 
 {% block content %}
+  <!-- Page Wrapper -->
   <div class="page-wrapper">
+    
+    <!-- Centered Homepage Content -->
     <div class="homepage-container">
-        <img src="{% static 'images/logo.png' %}" alt="Logo" class="logo">
-        
-        <h1>Angani Client Manager</h1>
-        <p class="subtitle">Secure and simple client data management</p>
-        <a href="{% url 'menu' %}" class="btn-proceed">Proceed</a>
+      <!-- Logo -->
+      <img src="{% static 'images/logo.png' %}" alt="Logo" class="logo">
+
+      <!-- Title and Subtitle -->
+      <h1>Angani Client Manager</h1>
+      <p class="subtitle">Secure and simple client data management</p>
+
+      <!-- Proceed Button -->
+      <a href="{% url 'menu' %}" class="btn-proceed">Proceed</a>
     </div>
 
+    <!-- Footer -->
     <footer class="footer">
-        &copy; {{ now|date:"Y" }} Angani Client Manager. All rights reserved.
+      &copy; {{ now|date:"Y" }} Angani Client Manager. All rights reserved.
     </footer>
+    
   </div>
 {% endblock %}
