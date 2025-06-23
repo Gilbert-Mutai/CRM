@@ -1,23 +1,19 @@
 {% extends 'base.html' %}
 {% block content %}
-
-<div class="col-md-6 offset-md-3">
-  <h2 class="mb-4">Add Project Record</h2>
-
-  <form method="POST" action="{% url 'add_pm_record' %}">
-    {% csrf_token %}
-    {{ form.as_p }}
-
-    <div class="mt-4 d-flex gap-2">
-      <button type="submit" class="btn btn-outline-primary">Add Record</button>
-      <a href="{% url 'pm_records' %}" class="btn btn-outline-secondary">Back</a>
+    <div class="col-md-6 offset-md-3">
+        <h2 class="mb-4">Add Project Record</h2>
+        <form method="POST" action="{% url 'add_pm_record' %}">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn btn-outline-primary">Add Record</button>
+                <a href="{% url 'pm_records' %}" class="btn btn-outline-secondary">Back</a>
+            </div>
+        </form>
     </div>
-  </form>
-</div>
-
-<!-- Enhanced Dropdowns Using Select2 -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
+    <!-- Enhanced Dropdowns Using Select2 -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
   $(document).ready(function () {
     $('#id_customer_name').select2({
       placeholder: 'Select Client',
@@ -29,6 +25,5 @@
       allowClear: true
     });
   });
-</script>
-
+    </script>
 {% endblock %}

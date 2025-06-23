@@ -1,17 +1,13 @@
 {% extends 'base.html' %}
 {% block content %}
-
-<div class="col-md-6 offset-md-3">
-  <h2 class="mb-4">Update Client Record</h2>
-
-    <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Update</button>
-    <a href="{% url 'client_record' client_record.pk %}" class="btn btn-secondary">Cancel</a>
-</form>
-
-
-</div>
-
+    <div class="col-md-6 offset-md-3">
+        <h2 class="mb-4">Update Client Record</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Update</button>
+            <a href="{% url 'client_record' client_record.pk %}"
+               class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
 {% endblock %}

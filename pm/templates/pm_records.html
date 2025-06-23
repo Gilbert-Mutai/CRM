@@ -1,146 +1,221 @@
 {% extends 'base.html' %}
 {% block content %}
-
-  <!-- Heading and Action Buttons -->
 <div class="d-flex justify-content-between align-items-center mb-3">
-  <h4 class="mb-0">Project Records</h4>
-  <div class="d-flex gap-2">
-    <a href="{% url 'menu' %}" class="btn btn-outline-secondary btn-sm" title="Back to Menu">
-      <i class="bi bi-arrow-left"></i> Back
-    </a>
-    <a href="{% url 'add_pm_record' %}" id="add-record-btn" class="btn btn-outline-primary btn-sm" title="Add New Project">
-      <i class="bi bi-plus-lg"></i> Add Project
-    </a>
-  </div>
+    <h4 class="mb-0">Project Records</h4>
+    <div class="d-flex gap-2">
+        <a href="{% url 'menu' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left"></i> Back
+        </a>
+        <a href="{% url 'add_pm_record' %}" class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-plus-lg"></i> Add Project
+        </a>
+    </div>
 </div>
 
-<!-- Combined Filters and Bulk Actions -->
 <form method="get" class="mb-3" id="filter-form">
-  <div class="row g-2 align-items-center">
-    <!-- Search -->
-    <div class="col-auto" style="min-width: 220px;">
-      <input
-        type="text"
-        name="search"
-        class="form-control form-control-sm"
-        placeholder="Search"
-        value="{{ search_query }}"
-        id="search-input"
-        autocomplete="off"
-      />
-    </div>
+    <div class="row g-2 align-items-center">
+        <!-- Search -->
+        <div class="col-auto" style="min-width: 220px;">
+            <input type="text" name="search" class="form-control form-control-sm" placeholder="Search"
+                   value="{{ search_query }}" id="search-input" autocomplete="off" />
+        </div>
 
-    <!-- Status Filter -->
-    <div class="col-auto" style="min-width: 160px;">
-      <select name="status" class="form-select form-select-sm" id="status-select">
-        <option value="">Project Status</option>
-        {% for value, label in status_choices.items %}
-          <option value="{{ value }}" {% if value == selected_status %}selected{% endif %}>{{ label }}</option>
-        {% endfor %}
-      </select>
-    </div>
+        <!-- Filters -->
+        <div class="col-auto" style="min-width: 150px;">
+            <select name="status" class="form-select form-select-sm" id="status-select">
+                <option value="">Project Status</option>
+                {% for value, label in status_choices.items %}
+                    <option value="{{ value }}" {% if value == selected_status %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
 
-    <!-- Engineer Filter -->
-    <div class="col-auto" style="min-width: 160px;">
-      <select name="engineer" class="form-select form-select-sm" id="engineer-select">
-        <option value="">Engineer</option>
-        {% for id, name in engineers %}
-          <option value="{{ id }}" {% if id|stringformat:"s" == selected_engineer %}selected{% endif %}>{{ name }}</option>
-        {% endfor %}
-      </select>
-    </div>
+        <div class="col-auto" style="min-width: 160px;">
+            <select name="engineer" class="form-select form-select-sm" id="engineer-select">
+                <option value="">Engineer</option>
+                {% for id, name in engineers %}
+                    <option value="{{ id }}" {% if id|stringformat:"s" == selected_engineer %}selected{% endif %}>{{ name }}</option>
+                {% endfor %}
+            </select>
+        </div>
 
-    <!-- Year Filter -->
-    <div class="col-auto" style="min-width: 130px;">
-      <select name="year" class="form-select form-select-sm" id="year-select">
-        <option value="">Year</option>
-        {% for year in available_years %}
-          <option value="{{ year }}" {% if year|stringformat:"s" == selected_year %}selected{% endif %}>{{ year }}</option>
-        {% endfor %}
-      </select>
-    </div>
+        <div class="col-auto" style="min-width: 130px;">
+            <select name="year" class="form-select form-select-sm" id="year-select">
+                <option value="">Year</option>
+                {% for year in available_years %}
+                    <option value="{{ year }}" {% if year|stringformat:"s" == selected_year %}selected{% endif %}>{{ year }}</option>
+                {% endfor %}
+            </select>
+        </div>
 
-    <!-- Month Filter -->
-    <div class="col-auto" style="min-width: 150px;">
-      <select name="month" class="form-select form-select-sm" id="month-select">
-        <option value="">Month</option>
-        {% for value, label in months %}
-          <option value="{{ value }}" {% if value|stringformat:"s" == selected_month %}selected{% endif %}>{{ label }}</option>
-        {% endfor %}
-      </select>
-    </div>
+        <div class="col-auto" style="min-width: 150px;">
+            <select name="month" class="form-select form-select-sm" id="month-select">
+                <option value="">Month</option>
+                {% for value, label in months %}
+                    <option value="{{ value }}" {% if value|stringformat:"s" == selected_month %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
 
-    <!-- Completion Certificate Filter -->
-    <div class="col-auto" style="min-width: 180px;">
-      <select name="certificate" class="form-select form-select-sm" id="certificate-select">
-        <option value="">Certificate Status</option>
-        {% for value, label in certificate_choices.items %}
-          <option value="{{ value }}" {% if value == selected_certificate %}selected{% endif %}>{{ label }}</option>
-        {% endfor %}
-      </select>
-    </div>
+        <div class="col-auto" style="min-width: 180px;">
+            <select name="certificate" class="form-select form-select-sm" id="certificate-select">
+                <option value="">Certificate Status</option>
+                {% for value, label in certificate_choices.items %}
+                    <option value="{{ value }}" {% if value == selected_certificate %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
 
-    <!-- Bulk Action Buttons -->
-    <div class="col-auto ms-auto">
-      <div id="bulk-action-buttons" style="display: none;">
-        <a href="#" id="export-selected" class="btn btn-sm btn-success">Export</a>
-      </div>
+        <!-- Bulk Actions -->
+        <div class="col-auto ms-auto">
+            <div id="bulk-action-buttons" style="display: none;">
+                <a href="#" id="export-selected" class="btn btn-sm btn-success">Export</a>
+            </div>
+        </div>
     </div>
-  </div>
 </form>
 
-<!-- Hidden export form -->
 <form id="export-form" method="post" action="{% url 'export_selected_pm_records' %}">
-  {% csrf_token %}
-  <input type="hidden" name="emails" id="export-emails" value="">
+    {% csrf_token %}
+    <input type="hidden" name="emails" id="export-emails" value="">
 </form>
 
 <!-- Table -->
 <div class="table-responsive">
-  <table class="table table-striped table-hover table-bordered" role="grid">
-    <thead class="table-primary">
-    <tr>
-      <th scope="col">
-        <input type="checkbox" id="select-all" title="Select All" aria-label="Select All Projects" />
-      </th>
-      <th scope="col">Customer Name</th>
-      <th scope="col">Project Title</th>
-      {% comment %} <th scope="col">Service Description</th> {% endcomment %}
-      <th class="col">Date of Request</th>
-      <th scope="col">Project Status</th>
-      {% comment %} <th scope="col">Completion Date</th> {% endcomment %}
-      <th scope="col">Certificate</th>
-      <th scope="col">Engineer</th>
-      {% comment %} <th scope="col">Comment</th> {% endcomment %}
-      <th scope="col">Details</th>
-    </tr>
-    </thead>
-    <tbody>
-      {% for project in projects %}
-        <tr data-href="{% url 'pm_record' project.id %}" tabindex="0" role="row" aria-label="Project {{ project.customer_name }}">
-          <td>
-            <input type="checkbox" class="record-checkbox" value="{{ project.customer_name.email }}" aria-label="Select {{ project.customer_name }}" />
-          </td>
-          <td>{{ project.customer_name.name }}</td>
-          <td>{{ project.project_title }}</td>
-          {% comment %} <td>{{ project.service_description|truncatechars:50 }}</td> {% endcomment %}
-          <td>{{ project.date_of_request|date:"Y-m-d" }}</td>
-          <td>{{ project.get_status_display }}</td>
-          {% comment %} <td>{{ project.date_of_completion|date:"Y-m-d" }}</td> {% endcomment %}
-         <td>{{ project.get_job_completion_certificate_display }}</td>
-          <td>{{ project.engineer.get_full_name }}</td>
-          {% comment %} <td>{{ project.comment|default:"-" }}</td> {% endcomment %}
-          <td>
-            <a href="{% url 'pm_record' project.id %}" class="btn btn-sm btn-outline-primary" title="View Project">View</a>
-          </td>
-        </tr>
-      {% empty %}
-        <tr>
-          <td colspan="11" class="text-center">No projects found.</td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+    <table class="table table-striped table-hover table-bordered">
+        <thead class="table-primary">
+            <tr>
+                <th><input type="checkbox" id="select-all" title="Select All"></th>
+                <th>Customer Name</th>
+                <th>Project Title</th>
+                <th>Date of Request</th>
+                <th>Status</th>
+                <th>Certificate</th>
+                <th>Engineer</th>
+                <th>Details</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for project in page_obj %}
+                <tr data-href="{% url 'pm_record' project.id %}" tabindex="0">
+                    <td><input type="checkbox" class="record-checkbox" value="{{ project.customer_name.email }}"></td>
+                    <td>{{ project.customer_name.name }}</td>
+                    <td>{{ project.project_title }}</td>
+                    <td>{{ project.date_of_request|date:"Y-m-d" }}</td>
+                    <td>{{ project.get_status_display }}</td>
+                    <td>{{ project.get_job_completion_certificate_display }}</td>
+                    <td>{{ project.engineer.get_full_name }}</td>
+                    <td>
+                        <a href="{% url 'pm_record' project.id %}" class="btn btn-sm btn-outline-primary">View</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center">No projects found.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 
+<!-- Pagination (Always visible) -->
+<div class="d-flex justify-content-between align-items-center mt-3">
+  <!-- Page size selector -->
+  <form method="get" id="page-size-form" class="d-inline">
+    {% for key, value in request.GET.items %}
+      {% if key != "page" and key != "page_size" %}
+        <input type="hidden" name="{{ key }}" value="{{ value }}">
+      {% endif %}
+    {% endfor %}
+    <label for="page-size-select" class="form-label me-2">Show</label>
+    <select name="page_size" id="page-size-select" class="form-select form-select-sm d-inline w-auto">
+      <option value="20" {% if page_size == 20 %}selected{% endif %}>20</option>
+      <option value="50" {% if page_size == 50 %}selected{% endif %}>50</option>
+      <option value="100" {% if page_size == 100 %}selected{% endif %}>100</option>
+    </select>
+  </form>
+
+  <!-- Pagination buttons -->
+  <nav aria-label="Page navigation">
+    <ul class="pagination pagination-sm mb-0">
+      {% if page_obj.has_previous %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ page_obj.previous_page_number }}&{{ querystring }}" aria-label="Previous">&laquo;</a>
+        </li>
+      {% else %}
+        <li class="page-item disabled">
+          <span class="page-link" aria-disabled="true">&laquo;</span>
+        </li>
+      {% endif %}
+
+      <li class="page-item disabled">
+        <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+      </li>
+
+      {% if page_obj.has_next %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ page_obj.next_page_number }}&{{ querystring }}" aria-label="Next">&raquo;</a>
+        </li>
+      {% else %}
+        <li class="page-item disabled">
+          <span class="page-link" aria-disabled="true">&raquo;</span>
+        </li>
+      {% endif %}
+    </ul>
+  </nav>
+</div>
+
+<script>
+  // Auto-submit filters
+  ['status-select', 'engineer-select', 'year-select', 'month-select', 'certificate-select'].forEach(id => {
+    document.getElementById(id).addEventListener('change', () => {
+      document.getElementById('filter-form').submit();
+    });
+  });
+
+  // Debounced search
+  function debounce(func, wait) {
+    let timeout;
+    return function(...args) {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+  }
+
+  document.getElementById('search-input').addEventListener('input', debounce(() => {
+    document.getElementById('filter-form').submit();
+  }, 500));
+
+  // Pagination size change
+  document.getElementById('page-size-select').addEventListener('change', () => {
+    document.getElementById('page-size-form').submit();
+  });
+
+  // Bulk Action Visibility
+  function updateBulkActionsVisibility() {
+    const count = document.querySelectorAll('.record-checkbox:checked').length;
+    document.getElementById('bulk-action-buttons').style.display = count > 0 ? 'block' : 'none';
+  }
+
+  document.getElementById('select-all').addEventListener('change', function() {
+    document.querySelectorAll('.record-checkbox').forEach(cb => cb.checked = this.checked);
+    updateBulkActionsVisibility();
+  });
+
+  document.querySelectorAll('.record-checkbox').forEach(cb => {
+    cb.addEventListener('change', updateBulkActionsVisibility);
+  });
+
+  // Export
+  document.getElementById('export-selected').addEventListener('click', function(e) {
+    e.preventDefault();
+    const selectedEmails = Array.from(document.querySelectorAll('.record-checkbox:checked')).map(cb => cb.value).join(',');
+    if (!selectedEmails) {
+      alert("Please select at least one record to export.");
+      return;
+    }
+    document.getElementById('export-emails').value = selectedEmails;
+    document.getElementById('export-form').submit();
+  });
+</script>
 {% endblock %}

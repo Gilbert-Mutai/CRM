@@ -2,5 +2,5 @@ from django.apps import AppConfig
 
 
 class NovaConfig(AppConfig):
-    default_auto_field = 'django.db.models.BigAutoField'
-    name = 'nova'
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "nova"

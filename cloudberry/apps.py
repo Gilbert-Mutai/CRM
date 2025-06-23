@@ -2,5 +2,5 @@ from django.apps import AppConfig
 
 
 class CloudberryConfig(AppConfig):
-    default_auto_field = 'django.db.models.BigAutoField'
-    name = 'cloudberry'
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "cloudberry"

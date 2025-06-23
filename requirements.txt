@@ -11,6 +11,7 @@ colorama==0.4.4
 command-not-found==0.3
 configobj==5.0.6
 cryptography==3.4.8
+cssbeautifier==1.15.4
 cupshelpers==1.0
 dbus-python==1.2.18
 defer==1.0.6
@@ -21,7 +22,9 @@ django-cors-headers==4.4.0
 django-environ==0.12.0
 django-jazzmin==3.0.1
 djangorestframework==3.15.2
+djlint==1.36.4
 duplicity==0.8.21
+EditorConfig==0.17.1
 Faker==37.3.0
 fasteners==0.14.1
 future==0.18.2
@@ -29,6 +32,8 @@ httplib2==0.20.2
 idna==3.3
 importlib-metadata==4.6.4
 jeepney==0.7.1
+jsbeautifier==1.15.4
+json5==0.12.0
 keyring==23.5.0
 language-selector==0.1
 launchpadlib==1.10.16
@@ -47,6 +52,7 @@ netifaces==0.11.0
 oauthlib==3.2.0
 olefile==0.46
 paramiko==2.9.3
+pathspec==0.12.1
 pexpect==4.8.0
 Pillow==9.0.1
 protobuf==3.12.4
@@ -71,7 +77,8 @@ python-dotenv==1.0.1
 pytz==2022.1
 pyxattr==0.7.2
 pyxdg==0.27
-PyYAML==5.4.1
+PyYAML==6.0.2
+regex==2024.11.6
 reportlab==3.6.8
 requests==2.25.1
 SecretStorage==3.3.1
@@ -79,6 +86,8 @@ six==1.16.0
 sqlparse==0.5.1
 systemd-python==234
 terminator==2.1.1
+tomli==2.2.1
+tqdm==4.67.1
 typing_extensions==4.12.2
 tzdata==2025.2
 ubuntu-drivers-common==0.0.0

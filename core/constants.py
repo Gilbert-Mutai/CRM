@@ -1,8 +1,8 @@
 # Signature dropdown options (for forms)
 SIGNATURE_CHOICES = [
-    ('Angani Support', 'Angani Support'),
-    ('Angani Infrastructure', 'Angani Infrastructure'),
-    ('Angani Service Delivery', 'Angani Service Delivery'),
+    ("Angani Support", "Angani Support"),
+    ("Angani Infrastructure", "Angani Infrastructure"),
+    ("Angani Service Delivery", "Angani Service Delivery"),
 ]
 
 # Signature HTML blocks for emails

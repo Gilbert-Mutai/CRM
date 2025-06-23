@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Welcome Email</title>
-  <style>
+    <head>
+        <meta charset="UTF-8">
+        <title>Welcome Email</title>
+        <style>
     body {
       font-family: 'Helvetica Neue', sans-serif;
       background-color: #f4f4f4;
@@ -19,7 +19,7 @@
       box-shadow: 0 0 10px rgba(0,0,0,0.05);
     }
     .header {
-      background-color: #276221;
+      background-color: #2D3E50;
       color: white;
       padding: 20px;
       text-align: center;
@@ -49,24 +49,23 @@
       font-size: 14px;
       padding: 20px;
     }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="header">
-      <h1>Welcome to Angani Client Manager</h1>
-    </div>
-    <div class="content">
-      <p>Hello {{user_name}},</p>
-      <p>Please note that your account for <strong>Angani Client Manager</strong> has been created! We’re excited to have you on board.</p>
-      <p>To get started, please clink on the button below to set your password:</p>
-      <a href="{{cta_link}}" class="button">Set New Password</a>
-      <p>If you have any questions, feel free to reply to this email — we’re here to help!</p>
-    </div>
-    <div class="footer">
-    &copy; {{ current_year }} Angani Client Manager. All rights reserved.
-    </div>
-
-  </div>
-</body>
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>Welcome to Angani Client Manager</h1>
+            </div>
+            <div class="content">
+                <p>Hello {{ user_name }},</p>
+                <p>
+                    Please note that your account for <strong>Angani Client Manager</strong> has been created! We’re excited to have you on board.
+                </p>
+                <p>To get started, please clink on the button below to set your password:</p>
+                <a href="{{ cta_link }}" class="button">Set New Password</a>
+                <p>If you have any questions, feel free to reply to this email — we’re here to help!</p>
+            </div>
+            <div class="footer">&copy; {{ current_year }} Angani Client Manager. All rights reserved.</div>
+        </div>
+    </body>
 </html>

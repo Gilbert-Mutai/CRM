@@ -22,89 +22,82 @@ class EngineerNameOnlyChoiceField(forms.ModelChoiceField):
 # Shared Base Form
 class BaseProjectForm(forms.ModelForm):
     customer_name = ClientNameOnlyChoiceField(
-        queryset=Client.objects.order_by('name'),
-        widget=forms.Select(attrs={
-            'class': 'form-control',
-            'id': 'id_customer_name'  # Needed for Select2 targeting
-        }),
+        queryset=Client.objects.order_by("name"),
+        widget=forms.Select(
+            attrs={
+                "class": "form-control",
+                "id": "id_customer_name",  # Needed for Select2 targeting
+            }
+        ),
         empty_label="Select Client",
-        label=""
+        label="",
     )
 
     project_title = forms.CharField(
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Project Title'
-        }),
-        label=""
+        widget=forms.TextInput(
+            attrs={"class": "form-control", "placeholder": "Project Title"}
+        ),
+        label="",
     )
 
     service_description = forms.CharField(
-        widget=forms.Textarea(attrs={
-            'class': 'form-control',
-            'rows': 4,
-            'placeholder': 'Service Description'
-        }),
-        label=""
+        widget=forms.Textarea(
+            attrs={
+                "class": "form-control",
+                "rows": 4,
+                "placeholder": "Service Description",
+            }
+        ),
+        label="",
     )
 
     status = forms.ChoiceField(
-        choices=[('', 'Project Status')] + list(Project.STATUS_CHOICES),
-        widget=forms.Select(attrs={
-            'class': 'form-control'
-        }),
-        label=""
+        choices=[("", "Project Status")] + list(Project.STATUS_CHOICES),
+        widget=forms.Select(attrs={"class": "form-control"}),
+        label="",
     )
 
     job_completion_certificate = forms.ChoiceField(
-        choices=[('', 'Certificate Status')] + list(Project.CERTIFICATE_CHOICES),
-        widget=forms.Select(attrs={
-            'class': 'form-control'
-        }),
-        label=""
+        choices=[("", "Certificate Status")] + list(Project.CERTIFICATE_CHOICES),
+        widget=forms.Select(attrs={"class": "form-control"}),
+        label="",
     )
 
     engineer = EngineerNameOnlyChoiceField(
-        queryset=User.objects.filter(groups__name='Engineers'),
+        queryset=User.objects.filter(groups__name="Engineers"),
         empty_label="Select Engineer",
-        widget=forms.Select(attrs={
-            'class': 'form-control',
-            'id': 'id_engineer' 
-        }),
+        widget=forms.Select(attrs={"class": "form-control", "id": "id_engineer"}),
         required=False,
-        label=""
+        label="",
     )
 
     date_of_completion = forms.DateTimeField(
-        widget=forms.DateTimeInput(attrs={
-            'class': 'form-control',
-            'type': 'datetime-local'
-        }),
+        widget=forms.DateTimeInput(
+            attrs={"class": "form-control", "type": "datetime-local"}
+        ),
         required=False,
-        label=""
+        label="",
     )
 
     comment = forms.CharField(
-        widget=forms.Textarea(attrs={
-            'class': 'form-control',
-            'rows': 3,
-            'placeholder': 'Comment'
-        }),
+        widget=forms.Textarea(
+            attrs={"class": "form-control", "rows": 3, "placeholder": "Comment"}
+        ),
         required=False,
-        label=""
+        label="",
     )
 
     class Meta:
         model = Project
         fields = [
-            'customer_name',
-            'project_title',
-            'service_description',
-            'status',
-            'date_of_completion',
-            'job_completion_certificate',
-            'engineer',
-            'comment',
+            "customer_name",
+            "project_title",
+            "service_description",
+            "status",
+            "date_of_completion",
+            "job_completion_certificate",
+            "engineer",
+            "comment",
         ]
 
 

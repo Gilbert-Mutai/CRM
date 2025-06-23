@@ -1,50 +1,36 @@
 {% extends 'base.html' %}
-
 {% load static %}
-
 {% block content %}
-
-<div class="col-md-6 offset-md-3">
-
-  <div class="text-center">
-    <!-- Logo at the top -->
-    <div class="mb-4">
-      <img src="{% static 'images/logo.png' %}" alt="Logo" width="120" height="120">
-    </div>
-  </div>
-
-  <br>
-
-  <form method="POST" action="">
-    {% csrf_token %}
-
-    <div class="container" style="max-width: 350px;">
-
-      <!-- Non-field errors -->
-      {% if form.non_field_errors %}
-        <div class="alert alert-danger">
-          {{ form.non_field_errors }}
+    <div class="col-md-6 offset-md-3">
+        <div class="text-center">
+            <!-- Logo at the top -->
+            <div class="mb-4">
+                <img src="{% static 'images/logo.png' %}"
+                     alt="Logo"
+                     width="120"
+                     height="120">
+            </div>
         </div>
-      {% endif %}
-
-      <!-- Render individual fields with errors -->
-      {% for field in form %}
-        <div class="mb-3">
-          {{ field.label_tag }}
-          {{ field }}
-          {% for error in field.errors %}
-            <small class="text-danger">{{ error }}</small>
-          {% endfor %}
-        </div>
-      {% endfor %}
-
-      <div class="text-center">
-        <button type="submit" class="btn btn-outline-primary rounded-pill" style="width: 200px;">Add User</button>
-      </div>
-
+        <br>
+        <form method="POST" action="">
+            {% csrf_token %}
+            <div class="container" style="max-width: 350px;">
+                <!-- Non-field errors -->
+                {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
+                <!-- Render individual fields with errors -->
+                {% for field in form %}
+                    <div class="mb-3">
+                        {{ field.label_tag }}
+                        {{ field }}
+                        {% for error in field.errors %}<small class="text-danger">{{ error }}</small>{% endfor %}
+                    </div>
+                {% endfor %}
+                <div class="text-center">
+                    <button type="submit"
+                            class="btn btn-outline-primary rounded-pill"
+                            style="width: 200px">Add User</button>
+                </div>
+            </div>
+        </form>
     </div>
-  </form>
-
-</div>
-
 {% endblock %}
