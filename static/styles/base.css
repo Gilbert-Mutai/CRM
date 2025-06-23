@@ -3,15 +3,15 @@
    =========================== */
 
 body {
-    background-color: #F4F6F8; /* Default for all other pages */
-    margin: 0;
-    padding: 0;
-    font-family: 'Inter', sans-serif;
+  background-color: #f4f6f8; /* Default for all other pages */
+  margin: 0;
+  padding: 0;
+  font-family: "Inter", sans-serif;
 }
 
 body.home-bg {
-    background-color: #2D3E50; /* Dark background for homepage */
-    color: #F4F6F8;
+  background-color: #2d3e50; /* Dark background for homepage */
+  color: #f4f6f8;
 }
 
 /* ===========================
@@ -19,18 +19,18 @@ body.home-bg {
    =========================== */
 
 .custom-navbar-border {
-    border-bottom: 0.5px solid white;
+  border-bottom: 0.5px solid white;
 }
 
 .mycard-bg {
-    background-color: #2D3E50;
-    color: #F4F6F8;
+  background-color: #2d3e50;
+  color: #f4f6f8;
 }
 
 .card-hover:hover {
-    transition: background-color 0.3s ease, transform 0.3s ease;
-    transform: scale(1.02);
-    cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  transform: scale(1.02);
+  cursor: pointer;
 }
 
 /* ===========================
@@ -38,27 +38,27 @@ body.home-bg {
    =========================== */
 
 .page-wrapper {
-    display: flex;
-    flex-direction: column;
-    min-height: 90vh; /* Push footer to bottom */
+  display: flex;
+  flex-direction: column;
+  min-height: 90vh; /* Push footer to bottom */
 }
 
 .homepage-container {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 5px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 5px;
 }
 
 .footer {
-    background-color: #1B2A38;
-    text-align: center;
-    padding: 15px 0;
-    font-size: 0.9rem;
-    color: #cccccc;
+  background-color: #1b2a38;
+  text-align: center;
+  padding: 15px 0;
+  font-size: 0.9rem;
+  color: #cccccc;
 }
 
 /* ===========================
@@ -66,19 +66,19 @@ body.home-bg {
    =========================== */
 
 .logo {
-    width: 200px;
-    margin-bottom: 30px;
+  width: 200px;
+  margin-bottom: 30px;
 }
 
 h1 {
-    font-size: 3rem;
-    margin-bottom: 10px;
+  font-size: 3rem;
+  margin-bottom: 10px;
 }
 
 .subtitle {
-    font-size: 1.2rem;
-    margin-bottom: 30px;
-    color: #f0f0f0;
+  font-size: 1.2rem;
+  margin-bottom: 30px;
+  color: #f0f0f0;
 }
 
 /* ===========================
@@ -86,18 +86,18 @@ h1 {
    =========================== */
 
 .btn-proceed {
-    background-color: #00ADEF;
-    color: white;
-    text-decoration: none;
-    padding: 12px 24px;
-    border-radius: 8px;
-    font-size: 1.1rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: background 0.3s ease;
+  background-color: #00adef;
+  color: white;
+  text-decoration: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: background 0.3s ease;
 }
 
 .btn-proceed:hover {
-    background-color: #0096d1;
+  background-color: #0096d1;
 }
 
 /* ===========================
@@ -105,22 +105,22 @@ h1 {
    =========================== */
 
 table th {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    /* width: 220px; */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  /* width: 220px; */
 }
 
 table td {
-    word-wrap: break-word;
-    word-break: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
 }
 
 /* Row highlight for clickable rows */
 tr[data-href]:hover {
-    background-color: #eef5ff;
-    transition: background-color 0.2s ease-in-out;
-    cursor: pointer;
+  background-color: #eef5ff;
+  transition: background-color 0.2s ease-in-out;
+  cursor: pointer;
 }
 
 /* ===========================
@@ -128,16 +128,16 @@ tr[data-href]:hover {
    =========================== */
 
 .alert {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 1050;
-    min-width: 250px;
-    transition: opacity 0.5s ease;
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1050;
+  min-width: 250px;
+  transition: opacity 0.5s ease;
 }
 
 .alert.hide {
-    opacity: 0;
+  opacity: 0;
 }
 
 /* ===========================
@@ -145,14 +145,14 @@ tr[data-href]:hover {
    =========================== */
 
 .bulk-actions {
-    visibility: hidden;
-    opacity: 0;
-    transition: opacity 0.3s ease;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .bulk-actions.visible {
-    visibility: visible;
-    opacity: 1;
+  visibility: visible;
+  opacity: 1;
 }
 
 /* ===========================
@@ -160,23 +160,23 @@ tr[data-href]:hover {
    =========================== */
 
 .dark-dropdown {
-    background-color: #222;
-    color: #ddd;
-    border: none;
+  background-color: #222;
+  color: #ddd;
+  border: none;
 }
 
 .dark-dropdown .dropdown-item {
-    color: #ddd;
+  color: #ddd;
 }
 
 .dark-dropdown .dropdown-item:hover,
 .dark-dropdown .dropdown-item:focus {
-    background-color: #444;
-    color: #fff;
+  background-color: #444;
+  color: #fff;
 }
 
 .dark-dropdown .dropdown-divider {
-    border-top: 1px solid #444;
+  border-top: 1px solid #444;
 }
 
 /* ===========================
@@ -185,22 +185,22 @@ tr[data-href]:hover {
 
 #filter-form input[type="text"],
 #filter-form select {
-    background-color: #F4F6F8;
-    border: 1px solid #ced4da;
-    color: #1b1b1b;
-    box-shadow: none;
+  background-color: #f4f6f8;
+  border: 1px solid #ced4da;
+  color: #1b1b1b;
+  box-shadow: none;
 }
 
 #filter-form input[type="text"]::placeholder {
-    color: #6c757d;
+  color: #6c757d;
 }
 
 #filter-form input[type="text"]:focus,
 #filter-form select:focus {
-    background-color: #F4F6F8;
-    border-color: #86b7fe;
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-    outline: none;
+  background-color: #f4f6f8;
+  border-color: #86b7fe;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+  outline: none;
 }
 
 /* ===========================
@@ -208,36 +208,40 @@ tr[data-href]:hover {
    =========================== */
 
 .loader-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(255, 255, 255, 0.8);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-    visibility: hidden;
-    opacity: 0;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
 .loader-overlay.visible {
-    visibility: visible;
-    opacity: 1;
+  visibility: visible;
+  opacity: 1;
 }
 
 .loader {
-    border: 6px solid #f3f3f3;
-    border-top: 6px solid #3498db;
-    border-radius: 50%;
-    width: 50px;
-    height: 50px;
-    animation: spin 1s linear infinite;
+  border: 6px solid #f3f3f3;
+  border-top: 6px solid #3498db;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }

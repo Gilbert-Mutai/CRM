@@ -1,29 +1,23 @@
 {% extends 'base.html' %}
 {% block content %}
-
-<!-- ========== Add 3CX Record Form ========== -->
-<div class="col-md-6 offset-md-3">
-  <h2 class="mb-4">Add 3CX Record</h2>
-
-  <form method="POST" action="{% url 'add_threecx_record' %}">
-    {% csrf_token %}
-    {{ form.as_p }}
-
-    <!-- Form Actions -->
-    <div class="mt-4 d-flex gap-2">
-      <button type="submit" class="btn btn-outline-primary">Add Record</button>
-      <a href="{% url 'threecx_records' %}" class="btn btn-outline-secondary">Back</a>
+    <!-- ========== Add 3CX Record Form ========== -->
+    <div class="col-md-6 offset-md-3">
+        <h2 class="mb-4">Add 3CX Record</h2>
+        <form method="POST" action="{% url 'add_threecx_record' %}">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <!-- Form Actions -->
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn btn-outline-primary">Add Record</button>
+                <a href="{% url 'threecx_records' %}" class="btn btn-outline-secondary">Back</a>
+            </div>
+        </form>
     </div>
-  </form>
-</div>
-
 {% endblock %}
-
-
 {% block extra_js %}
-  <!-- ========== jQuery & Select2 Script for Client Dropdown ========== -->
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script>
+    <!-- ========== jQuery & Select2 Script for Client Dropdown ========== -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
     $(document).ready(function () {
       $('#id_client').select2({
         placeholder: 'Select Client',
@@ -31,5 +25,5 @@
         width: '100%'
       });
     });
-  </script>
+    </script>
 {% endblock %}

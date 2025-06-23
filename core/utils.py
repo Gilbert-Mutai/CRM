@@ -5,12 +5,13 @@ from django.core.validators import validate_email as django_validate_email
 from django.core.exceptions import ValidationError
 from .models import Client
 
+
 def validate_emails(raw_emails):
     """
     Takes a comma-separated string of emails.
     Returns a tuple of (valid_emails, invalid_emails).
     """
-    raw_list = [e.strip() for e in raw_emails.split(',') if e.strip()]
+    raw_list = [e.strip() for e in raw_emails.split(",") if e.strip()]
     valid = []
     invalid = []
 
@@ -34,26 +35,21 @@ def generate_csv_for_selected_emails(emails):
     writer = csv.writer(buffer)
 
     # Write header
-    writer.writerow([
-        "Name",
-        "Client Type",
-        "Contact Person",
-        "Email",
-        "Phone Number"
-    ])
+    writer.writerow(["Name", "Client Type", "Contact Person", "Email", "Phone Number"])
 
     # Write client data
     for client in clients:
-        writer.writerow([
-            client.name,
-            client.client_type,
-            client.contact_person,
-            client.email,
-            client.phone_number
-        ])
+        writer.writerow(
+            [
+                client.name,
+                client.client_type,
+                client.contact_person,
+                client.email,
+                client.phone_number,
+            ]
+        )
 
     buffer.seek(0)
-    response = HttpResponse(buffer.getvalue(), content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename=Client_List.csv'
+    response = HttpResponse(buffer.getvalue(), content_type="text/csv")
+    response["Content-Disposition"] = "attachment; filename=Client_List.csv"
     return response
-
