@@ -24,43 +24,26 @@ class BaseProjectForm(forms.ModelForm):
     customer_name = ClientNameOnlyChoiceField(
         queryset=Client.objects.order_by("name"),
         widget=forms.Select(
-            attrs={
-                "class": "form-control",
-                "id": "id_customer_name",  # Needed for Select2 targeting
-            }
+            attrs={"class": "form-control", "id": "id_customer_name"}
         ),
-        empty_label="Select Client",
-        label="",
     )
 
     project_title = forms.CharField(
-        widget=forms.TextInput(
-            attrs={"class": "form-control", "placeholder": "Project Title"}
-        ),
-        label="",
+        widget=forms.TextInput(attrs={"class": "form-control"}),
     )
 
     service_description = forms.CharField(
-        widget=forms.Textarea(
-            attrs={
-                "class": "form-control",
-                "rows": 4,
-                "placeholder": "Service Description",
-            }
-        ),
-        label="",
-    )
-
-    status = forms.ChoiceField(
-        choices=[("", "Project Status")] + list(Project.STATUS_CHOICES),
-        widget=forms.Select(attrs={"class": "form-control"}),
-        label="",
+        widget=forms.Textarea(attrs={"class": "form-control", "rows": 4}),
     )
 
     job_completion_certificate = forms.ChoiceField(
-        choices=[("", "Certificate Status")] + list(Project.CERTIFICATE_CHOICES),
+        choices=Project.CERTIFICATE_CHOICES,
         widget=forms.Select(attrs={"class": "form-control"}),
-        label="",
+    )
+
+    status = forms.ChoiceField(
+        choices=Project.STATUS_CHOICES,
+        widget=forms.Select(attrs={"class": "form-control"}),
     )
 
     engineer = EngineerNameOnlyChoiceField(
@@ -68,23 +51,11 @@ class BaseProjectForm(forms.ModelForm):
         empty_label="Select Engineer",
         widget=forms.Select(attrs={"class": "form-control", "id": "id_engineer"}),
         required=False,
-        label="",
-    )
-
-    date_of_completion = forms.DateTimeField(
-        widget=forms.DateTimeInput(
-            attrs={"class": "form-control", "type": "datetime-local"}
-        ),
-        required=False,
-        label="",
     )
 
     comment = forms.CharField(
-        widget=forms.Textarea(
-            attrs={"class": "form-control", "rows": 3, "placeholder": "Comment"}
-        ),
+        widget=forms.Textarea(attrs={"class": "form-control", "rows": 3}),
         required=False,
-        label="",
     )
 
     class Meta:
@@ -94,7 +65,6 @@ class BaseProjectForm(forms.ModelForm):
             "project_title",
             "service_description",
             "status",
-            "date_of_completion",
             "job_completion_certificate",
             "engineer",
             "comment",
@@ -102,13 +72,48 @@ class BaseProjectForm(forms.ModelForm):
 
 
 class AddProjectForm(BaseProjectForm):
-    pass
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Use placeholders and remove labels
+        placeholder_map = {
+            "customer_name": "Select Client",
+            "project_title": "Project Title",
+            "service_description": "Service Description",
+            "engineer": "Select Engineer",
+            "comment": "Comment",
+        }
+
+        for name, field in self.fields.items():
+            if name in placeholder_map:
+                field.label = ""
+                field.widget.attrs["placeholder"] = placeholder_map[name]
+
+        # Set and disable default status and certificate
+        self.fields["status"].initial = Project.STATUS_PENDING
+        self.fields["status"].disabled = True
+        self.fields["status"].label = "Project Status"
+
+        self.fields["job_completion_certificate"].initial = Project.CERT_PENDING
+        self.fields["job_completion_certificate"].disabled = True
+        self.fields["job_completion_certificate"].label = "Certificate Status"
 
 
 class UpdateProjectForm(BaseProjectForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Hide all labels (if needed)
-        for field in self.fields.values():
-            field.label = ""
+        # Labels (no colons)
+        label_map = {
+            "customer_name": "Client",
+            "project_title": "Project Title",
+            "service_description": "Service Description",
+            "status": "Status",
+            "job_completion_certificate": "Certificate",
+            "engineer": "Engineer",
+            "comment": "Comment",
+        }
+
+        for name, field in self.fields.items():
+            field.label = label_map.get(name, name.replace("_", " ").capitalize())
+            field.widget.attrs.pop("placeholder", None)

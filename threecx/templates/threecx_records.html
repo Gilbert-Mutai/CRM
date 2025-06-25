@@ -86,6 +86,7 @@
                     <th scope="col">SIP Provider</th>
                     <th scope="col">FQDN</th>
                     <th scope="col">License Type</th>
+                    <th scope="col">SC</th>
                     <th scope="col">Details</th>
                 </tr>
             </thead>
@@ -107,6 +108,7 @@
                         <td>{{ record.get_sip_provider_display }}</td>
                         <td>{{ record.fqdn }}</td>
                         <td>{{ record.get_license_type_display }}</td>
+                        <td>{{ record.simultaneous_calls }} SC</td>
                         <td>
                             <a href="{% url 'threecx_record' record.id %}"
                                class="btn btn-sm btn-outline-primary"
