@@ -2,49 +2,32 @@ from django import forms
 from .models import Client
 from core.utils import validate_emails
 from core.constants import SIGNATURE_CHOICES
+from django.core.validators import RegexValidator
+
+# Label mapping for update form
+LABEL_MAP = {
+    "name": "Full Name or Company",
+    "contact_person": "Contact Person (for Company)",
+    "email": "Email Address",
+    "phone_number": "Phone Number",
+    "client_type": "Client Type",
+}
+
+# Placeholder mapping for add form
+PLACEHOLDER_MAP = {
+    "name": "Full Name or Company",
+    "contact_person": "Contact Person (for Company)",
+    "email": "Email Address",
+    "phone_number": "Phone Number",
+    "client_type": "Select Client Type",
+}
 
 
-# Base form shared between Add and Update
 class BaseClientForm(forms.ModelForm):
-    client_type = forms.ChoiceField(
-        choices=Client.CLIENT_TYPE_CHOICES,
-        widget=forms.Select(attrs={"class": "form-control"}),
-        label="",
-    )
-
-    name = forms.CharField(
-        required=True,
-        widget=forms.TextInput(
-            attrs={"placeholder": "Full Name or Company", "class": "form-control"}
-        ),
-        label="",
-    )
-
-    contact_person = forms.CharField(
-        required=False,
-        widget=forms.TextInput(
-            attrs={
-                "placeholder": "Contact Person (for Company)",
-                "class": "form-control",
-            }
-        ),
-        label="",
-    )
-
-    email = forms.EmailField(
-        required=True,
-        widget=forms.EmailInput(
-            attrs={"placeholder": "Email Address", "class": "form-control"}
-        ),
-        label="",
-    )
-
     phone_number = forms.CharField(
         required=True,
-        widget=forms.TextInput(
-            attrs={"placeholder": "Phone Number", "class": "form-control"}
-        ),
-        label="",
+        validators=[RegexValidator(r'^\+?\d{7,15}$', 'Enter a valid phone number.')],
+        widget=forms.TextInput(attrs={"class": "form-control"}),
     )
 
     class Meta:
@@ -52,21 +35,28 @@ class BaseClientForm(forms.ModelForm):
         fields = ["client_type", "name", "contact_person", "email", "phone_number"]
 
 
-# Add form
 class AddClientForm(BaseClientForm):
-    pass
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Use placeholders, remove labels
+        for field_name, field in self.fields.items():
+            field.label = ""
+            if hasattr(field.widget, 'attrs'):
+                field.widget.attrs["placeholder"] = PLACEHOLDER_MAP.get(field_name, field_name.replace('_', ' ').capitalize())
+            field.widget.attrs["class"] = "form-control"
 
 
-# Update form with optional adjustments
 class ClientUpdateForm(BaseClientForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Optional: explicitly remove labels again if needed
-        for field in self.fields.values():
-            field.label = ""
 
-
-# Send notifications form
+        # Use labels, remove placeholders
+        for field_name, field in self.fields.items():
+            field.label = LABEL_MAP.get(field_name, field_name.replace('_', ' ').capitalize())
+            if hasattr(field.widget, 'attrs'):
+                field.widget.attrs.pop("placeholder", None)
+            field.widget.attrs["class"] = "form-control"
 
 
 class NotificationForm(forms.Form):

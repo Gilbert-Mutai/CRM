@@ -5,7 +5,6 @@ from django.views.decorators.http import require_POST
 from django.db.models import Q
 from django.db.models.functions import ExtractYear, ExtractMonth
 from django.core.paginator import Paginator
-from django.utils.http import urlencode
 
 from .forms import AddProjectForm, UpdateProjectForm
 from .models import Project
@@ -45,23 +44,29 @@ def pm_records(request):
 
     projects = Project.objects.all().order_by("-date_of_request")
 
+    # Apply search on customer name and project title
     if query:
         projects = projects.filter(
             Q(customer_name__name__icontains=query) | Q(project_title__icontains=query)
         )
 
+    # Filter by engineer
     if engineer_filter:
         projects = projects.filter(engineer__id=engineer_filter)
 
+    # Filter by status
     if status_filter:
         projects = projects.filter(status=status_filter)
 
+    # Filter by certificate
     if certificate_filter:
         projects = projects.filter(job_completion_certificate=certificate_filter)
 
+    # Filter by year
     if year_filter:
         projects = projects.filter(date_of_request__year=year_filter)
 
+    # Filter by month
     if month_filter:
         projects = projects.filter(date_of_request__month=month_filter)
 
@@ -78,16 +83,9 @@ def pm_records(request):
     page_number = request.GET.get("page", 1)
     page_obj = paginator.get_page(page_number)
 
-    # Exclude 'page' from querystring
-    get_params = request.GET.copy()
-    get_params.pop("page", None)
-    querystring = get_params.urlencode()
-
     # Engineer choices
-    engineers = Project.objects.values_list(
-        "engineer__id", "engineer__first_name", "engineer__last_name"
-    ).distinct()
-    engineers_choices = [(e[0], f"{e[1]} {e[2]}") for e in engineers if e[0]]
+    engineers = User.objects.filter(project__isnull=False).distinct()
+    engineers_choices = [(e.id, e.get_full_name()) for e in engineers]
 
     # Available years for filter
     available_years = (
@@ -105,19 +103,21 @@ def pm_records(request):
         .order_by("month")
     )
     import calendar
+
     months = [(m, calendar.month_name[m]) for m in raw_months if m]
 
     context = {
         "projects": page_obj.object_list,
         "page_obj": page_obj,
         "page_size": page_size,
-        "querystring": querystring,
+        # Filters
         "search_query": query,
         "selected_engineer": engineer_filter,
         "selected_status": status_filter,
         "selected_certificate": certificate_filter,
         "selected_year": year_filter,
         "selected_month": month_filter,
+        # Dropdown choices
         "engineers": engineers_choices,
         "status_choices": dict(Project.STATUS_CHOICES),
         "certificate_choices": dict(Project.CERTIFICATE_CHOICES),
@@ -126,7 +126,6 @@ def pm_records(request):
     }
 
     return render(request, "pm_records.html", context)
-
 
 
 @login_required
@@ -189,17 +188,16 @@ def delete_pm_record(request, pk):
     messages.success(request, "Project deleted successfully.")
     return redirect("pm_records")
 
-
 @require_POST
 @login_required
 def export_selected_pm_records(request):
-    project_ids = request.POST.getlist("project_ids")
+    raw_ids = request.POST.get("ids", "")
+    project_ids = [int(id.strip()) for id in raw_ids.split(",") if id.strip().isdigit()]
     return generate_csv_for_selected_projects(project_ids)
 
 
+
 # Advanced Logics
-
-
 @csrf_exempt
 @login_required
 def toggle_project_status(request, pk):

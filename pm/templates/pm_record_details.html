@@ -139,7 +139,10 @@
                     </th>
                     <td>
                         {% if user == project.engineer or user.is_staff %}
-                            <div id="comment-view">{{ project.comment|truncatechars:50 }}</div>
+                            <div id="comment-view">
+                            {{ project.comment|default:"Click to add comment" }}
+                            </div>
+
                             <textarea id="comment-input" class="form-control d-none" rows="3">{{ project.comment }}</textarea>
                             <div class="mt-2 d-none" id="comment-actions">
                                 <button class="btn btn-sm btn-primary" id="comment-save">Save</button>

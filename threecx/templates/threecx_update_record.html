@@ -1,23 +1,71 @@
 {% extends 'base.html' %}
+
 {% block content %}
-    <div class="col-md-6 offset-md-3">
-        <h2 class="mb-4">Update 3CX Record</h2>
-        <form method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="btn btn-primary">Update</button>
-            <a href="{% url 'threecx_record' customer_record.pk %}"
-               class="btn btn-secondary">Cancel</a>
-        </form>
-        {% comment %} Search on Dropdown {% endcomment %}
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <script>
-      $(document).ready(function() {
-        $('#id_client').select2({
-          placeholder: 'Select Client',
-          allowClear: true
+<div class="col-md-6 offset-md-3">
+    <h2 class="mb-4">Update 3CX Record</h2>
+
+    <form method="post" action="{% url 'update_threecx_record' customer_record.pk %}">
+        {% csrf_token %}
+
+        <!-- Render each field with labels -->
+        <div class="mb-3">
+            <label for="{{ form.client.id_for_label }}">Client</label>
+            {{ form.client }}
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.fqdn.id_for_label }}">FQDN</label>
+            {{ form.fqdn }}
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.sip_provider.id_for_label }}">SIP Provider</label>
+            {{ form.sip_provider }}
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.license_type.id_for_label }}">License Type</label>
+            {{ form.license_type }}
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.simultaneous_calls.id_for_label }}">Simultaneous Calls</label>
+            {{ form.simultaneous_calls }}
+        </div>
+
+        <!-- Form actions -->
+        <div class="mt-4 d-flex gap-2">
+            <button type="submit" class="btn btn-outline-primary">Update</button>
+            <a href="{% url 'threecx_record' customer_record.pk %}" class="btn btn-outline-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- jQuery + Select2 -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function () {
+    $('#id_client').select2({
+        placeholder: 'Select Client',
+        allowClear: true,
+        width: '100%'
+    });
+
+    // SC validation
+    const allowedSC = [4, 8, 16, 24, 32, 48, 64, 96, 128, 256];
+    const scInput = document.getElementById("sc-counter");
+
+    if (scInput) {
+        scInput.addEventListener("change", () => {
+            const value = parseInt(scInput.value, 10);
+            if (!allowedSC.includes(value)) {
+                alert("Please choose a valid Simultaneous Calls value.");
+                scInput.value = {{ customer_record.simultaneous_calls }};
+            }
         });
-      });
-        </script>
-    </div>
+    }
+});
+</script>
 {% endblock %}

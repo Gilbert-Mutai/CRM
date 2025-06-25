@@ -3,17 +3,17 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h4 class="mb-0">Project Records</h4>
     <div class="d-flex gap-2">
-        <a href="{% url 'menu' %}" class="btn btn-outline-secondary btn-sm">
-            <i class="bi bi-arrow-left"></i> Back
+        <a href="{% url 'menu' %}" class="btn btn-outline-secondary btn-sm" title="Back">
+            <i class="bi bi-arrow-left" title="Back"></i> Back
         </a>
-        <a href="{% url 'add_pm_record' %}" class="btn btn-outline-primary btn-sm">
-            <i class="bi bi-plus-lg"></i> Add Project
+        <a href="{% url 'add_pm_record' %}" class="btn btn-outline-primary btn-sm" title="Add Project">
+            <i class="bi bi-plus-lg" title="Add Project"></i> Add Project
         </a>
     </div>
 </div>
 
 <form method="get" class="mb-3" id="filter-form">
-    <div class="row g-2 align-items-center">
+    <div class="row gy-2 gx-2 align-items-center flex-wrap">
         <!-- Search -->
         <div class="col-auto" style="min-width: 220px;">
             <input type="text" name="search" class="form-control form-control-sm" placeholder="Search"
@@ -77,7 +77,7 @@
 
 <form id="export-form" method="post" action="{% url 'export_selected_pm_records' %}">
     {% csrf_token %}
-    <input type="hidden" name="emails" id="export-emails" value="">
+    <input type="hidden" name="ids" id="export-ids" value="">
 </form>
 
 <!-- Table -->
@@ -97,8 +97,8 @@
         </thead>
         <tbody>
             {% for project in page_obj %}
-                <tr data-href="{% url 'pm_record' project.id %}" tabindex="0">
-                    <td><input type="checkbox" class="record-checkbox" value="{{ project.customer_name.email }}"></td>
+                <tr data-href="{% url 'pm_record' project.id %}" tabindex="0" style="cursor:pointer;">
+                    <td><input type="checkbox" class="record-checkbox" value="{{ project.id }}" onclick="event.stopPropagation();"></td>
                     <td>{{ project.customer_name.name }}</td>
                     <td>{{ project.project_title }}</td>
                     <td>{{ project.date_of_request|date:"Y-m-d" }}</td>
@@ -106,7 +106,7 @@
                     <td>{{ project.get_job_completion_certificate_display }}</td>
                     <td>{{ project.engineer.get_full_name }}</td>
                     <td>
-                        <a href="{% url 'pm_record' project.id %}" class="btn btn-sm btn-outline-primary">View</a>
+                        <a href="{% url 'pm_record' project.id %}" class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation();">View</a>
                     </td>
                 </tr>
             {% empty %}
@@ -118,9 +118,8 @@
     </table>
 </div>
 
-<!-- Pagination (Always visible) -->
+<!-- Pagination -->
 <div class="d-flex justify-content-between align-items-center mt-3">
-  <!-- Page size selector -->
   <form method="get" id="page-size-form" class="d-inline">
     {% for key, value in request.GET.items %}
       {% if key != "page" and key != "page_size" %}
@@ -135,7 +134,6 @@
     </select>
   </form>
 
-  <!-- Pagination buttons -->
   <nav aria-label="Page navigation">
     <ul class="pagination pagination-sm mb-0">
       {% if page_obj.has_previous %}
@@ -209,13 +207,22 @@
   // Export
   document.getElementById('export-selected').addEventListener('click', function(e) {
     e.preventDefault();
-    const selectedEmails = Array.from(document.querySelectorAll('.record-checkbox:checked')).map(cb => cb.value).join(',');
-    if (!selectedEmails) {
+    const selectedIds = Array.from(document.querySelectorAll('.record-checkbox:checked')).map(cb => cb.value).join(',');
+    if (!selectedIds) {
       alert("Please select at least one record to export.");
       return;
     }
-    document.getElementById('export-emails').value = selectedEmails;
+    document.getElementById('export-ids').value = selectedIds;
     document.getElementById('export-form').submit();
+  });
+
+  // Clickable rows (except input or link)
+  document.querySelectorAll('tr[data-href]').forEach(row => {
+    row.addEventListener('click', (e) => {
+      if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'A' && !e.target.closest('a')) {
+        window.location = row.getAttribute('data-href');
+      }
+    });
   });
 </script>
 {% endblock %}
