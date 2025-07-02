@@ -1,37 +1,42 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from django.views.decorators.http import require_POST
-from django.db.models import Q
-from django.db.models.functions import ExtractYear, ExtractMonth
-from django.core.paginator import Paginator
+# Standard library
+import json
+import os
+from io import BytesIO
 
+# Django core
+from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth import get_user_model
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import Group
+from django.core.paginator import Paginator
+from django.db.models import Q
+from django.db.models.functions import ExtractMonth, ExtractYear
+from django.http import HttpResponse, JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+
+# App-specific
 from .forms import AddProjectForm, UpdateProjectForm
 from .models import Project
 from .utils import (
-    get_project_by_id,
     delete_project,
-    has_form_changed,
     generate_csv_for_selected_projects,
+    get_project_by_id,
+    has_form_changed,
 )
-from django.http import HttpResponse
 
-# Advanced
-
-from django.views.decorators.csrf import csrf_exempt
-from django.utils import timezone
-from django.http import JsonResponse
-import json
-
-from django.contrib.auth import get_user_model
-from django.contrib.auth.models import Group
-
-User = get_user_model()
-
-
+# ReportLab for PDF generation
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.units import inch
 from reportlab.pdfgen import canvas
-from io import BytesIO
+from reportlab.platypus import Table, TableStyle
 
+# Get custom user model
+User = get_user_model()
 
 @login_required
 def pm_records(request):
@@ -287,29 +292,140 @@ def update_project_description(request, pk):
     return JsonResponse({"service_description": new_desc})
 
 
+from io import BytesIO
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.conf import settings
+from reportlab.pdfgen import canvas
+from reportlab.platypus import Table, TableStyle, Paragraph, SimpleDocTemplate, Spacer, Image
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import inch
+import os
+
 @login_required
 def download_completion_certificate(request, pk):
     project = get_object_or_404(Project, pk=pk)
 
     buffer = BytesIO()
-    p = canvas.Canvas(buffer)
-    p.drawString(
-        100, 750, f"Completion Certificate for Project: {project.project_title}"
-    )
-    p.drawString(100, 730, f"Customer: {project.customer_name.name}")
-    p.drawString(100, 710, f"Engineer: {project.engineer.get_full_name()}")
-    p.drawString(
-        100, 690, f"Completed On: {project.date_of_completion.strftime('%Y-%m-%d')}"
-    )
-    p.showPage()
-    p.save()
+    doc = SimpleDocTemplate(buffer, pagesize=A4, topMargin=50, bottomMargin=50, leftMargin=50, rightMargin=50)
+    elements = []
 
+    styles = getSampleStyleSheet()
+    
+    justified_style = ParagraphStyle(
+        name="Justify",
+        parent=styles["Normal"],
+        alignment=4,  # Justify
+        fontSize=10,
+        leading=14,
+    )
+
+    bold_center_style = ParagraphStyle(
+        name="CenterTitle",
+        parent=styles["Heading1"],
+        fontSize=16,
+        alignment=1,  # Center
+        spaceAfter=10,
+    )
+
+    label_style = ParagraphStyle(
+        name="BoldLabel",
+        parent=styles["Normal"],
+        fontName="Helvetica-Bold",
+        fontSize=10,
+    )
+
+    value_style = ParagraphStyle(
+        name="NormalValue",
+        parent=styles["Normal"],
+        fontSize=10,
+    )
+
+    # Logo
+    logo_path = os.path.join(settings.BASE_DIR, "static/images/logo.png")
+    if os.path.exists(logo_path):
+        img = Image(logo_path, width=1.2 * inch, height=1.2 * inch)
+        elements.append(img)
+        elements.append(Spacer(1, 10))
+
+    # Title
+    elements.append(Paragraph("Job Completion Certificate", bold_center_style))
+    elements.append(Spacer(1, 10))
+
+    # Fields
+    customer = project.customer_name.name if project.customer_name else "N/A"
+    service = project.service_description or "N/A"
+    date_provisioned = (
+        project.date_of_completion.strftime("%d %B %Y")
+        if project.date_of_completion else "Not Set"
+    )
+    engineer = project.engineer.get_full_name() if project.engineer else "N/A"
+
+    data = [
+        [Paragraph("Client (Company) Name:", label_style), Paragraph(customer, value_style)],
+        [Paragraph("Service Provided:", label_style), Paragraph(service, value_style)],
+        [Paragraph("Date Provisioned:", label_style), Paragraph(date_provisioned, value_style)],
+        [Paragraph("Engineer's Name:", label_style), Paragraph(engineer, value_style)],
+    ]
+
+    table = Table(data, colWidths=[180, 350])
+    table.setStyle(TableStyle([
+        ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+    ]))
+
+    elements.append(table)
+    elements.append(Spacer(1, 15))
+
+    # Certification text (Justified)
+    cert_text = (
+        "This is to certify that Angani Limited has provisioned and commissioned the service named above as per the "
+        "agreed standards and requirements. We confirm that the service is up and running as per requirement."
+    )
+    elements.append(Paragraph(cert_text, justified_style))
+    elements.append(Spacer(1, 30))
+
+    # Sign-off section
+    signoff_data = [
+        [Paragraph("<b>CUSTOMER SIGN OFF</b>", styles["Normal"]), Paragraph("<b>ANGANI SIGN OFF</b>", styles["Normal"])],
+        [
+            Paragraph("<b>Name:</b> __________________________", styles["Normal"]),
+            Paragraph(f"<b>Name:</b> {engineer}", styles["Normal"]),
+        ],
+        [
+            Paragraph("<b>Designation:</b> ____________________", styles["Normal"]),
+            Paragraph("<b>Designation:</b> Support Engineer", styles["Normal"]),
+        ],
+        [
+            Paragraph("<b>Date:</b> ___________________________", styles["Normal"]),
+            Paragraph(f"<b>Date:</b> {date_provisioned}", styles["Normal"]),
+        ],
+        [
+            Paragraph("<b>Signature:</b> _______________________", styles["Normal"]),
+            Paragraph("<b>Signature:</b> A.S", styles["Normal"]),
+        ],
+    ]
+
+    signoff_table = Table(signoff_data, colWidths=[270, 270])
+    signoff_table.setStyle(TableStyle([
+        ("FONTSIZE", (0, 0), (-1, -1), 10),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
+    ]))
+    elements.append(signoff_table)
+
+    # Build
+    doc.build(elements)
     buffer.seek(0)
 
+    safe_customer_name = customer.replace(" ", "_")
+    filename = f"Job Completion Certificate - {safe_customer_name}.pdf"
+
     response = HttpResponse(buffer, content_type="application/pdf")
-    response["Content-Disposition"] = (
-        'attachment; filename="completion_certificate.pdf"'
-    )
+    response["Content-Disposition"] = f'attachment; filename="{filename}"'
     return response
 
 

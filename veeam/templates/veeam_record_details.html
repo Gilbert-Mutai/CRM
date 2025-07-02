@@ -1,79 +1,68 @@
 {% extends 'base.html' %}
-
 {% block content %}
-<!-- ========== Page Title ========== -->
-<h2 class="text-center mb-2">3CX Client Details</h2>
+<h2 class="text-center mb-4">Veeam Job Details</h2>
 
-<!-- ========== Customer Details Card ========== -->
-<div class="details-card table-responsive" style="max-width: 600px; margin: auto;">
+<!-- ========== Veeam Details Card ========== -->
+<div class="details-card table-responsive" style="max-width: 800px; margin: auto;">
     <table class="table table-bordered table-hover align-middle">
         <tbody>
-            <!-- Client Basic Info -->
             <tr>
-                <th scope="row">
-                    <i class="bi bi-building me-2 text-secondary"></i>Company/Username
-                </th>
+                <th><i class="bi bi-building me-2 text-secondary"></i>Company/Username</th>
                 <td>{{ customer_record.client.name }}</td>
             </tr>
             <tr>
-                <th scope="row">
-                    <i class="bi bi-person-lines-fill me-2 text-secondary"></i>Contact Person
-                </th>
+                <th><i class="bi bi-person-lines-fill me-2 text-secondary"></i>Contact Person</th>
                 <td>{{ customer_record.client.contact_person }}</td>
             </tr>
             <tr>
-                <th scope="row">
-                    <i class="bi bi-envelope-fill me-2 text-secondary"></i>Email
-                </th>
+                <th><i class="bi bi-envelope-fill me-2 text-secondary"></i>Email</th>
                 <td class="email">{{ customer_record.client.email }}</td>
             </tr>
-
-            <!-- 3CX Details -->
             <tr>
-                <th scope="row">
-                    <i class="bi bi-globe me-2 text-secondary"></i>FQDN
-                </th>
-                <td>{{ customer_record.fqdn }}</td>
+                <th><i class="bi bi-geo-alt-fill me-2 text-secondary"></i>Site</th>
+                <td>{{ customer_record.site }}</td>
             </tr>
             <tr>
-                <th scope="row">
-                    <i class="bi bi-router me-2 text-secondary"></i>SIP Provider
-                </th>
-                <td>{{ customer_record.get_sip_provider_display }}</td>
+                <th><i class="bi bi-pc-display-horizontal me-2 text-secondary"></i>Computer</th>
+                <td>{{ customer_record.computer_name }}</td>
             </tr>
             <tr>
-                <th scope="row">
-                    <i class="bi bi-award-fill me-2 text-secondary"></i>License Type
-                </th>
-                <td>{{ customer_record.get_license_type_display }}</td>
+                <th><i class="bi bi-hdd-network-fill me-2 text-secondary"></i>OS</th>
+                <td>{{ customer_record.os }}</td>
             </tr>
             <tr>
-                <th scope="row">
-                    <i class="bi bi-sliders2-vertical me-2 text-secondary"></i>Simultaneous Calls
-                </th>
-                <td>{{ customer_record.simultaneous_calls }} SC</td>
+                <th><i class="bi bi-person-gear me-2 text-secondary"></i>Managed By</th>
+                <td>{{ customer_record.managed_by }}</td>
             </tr>
-
-            <!-- Timestamps -->
             <tr>
-                <th scope="row">
-                    <i class="bi bi-calendar-plus me-2 text-muted"></i>Created On
-                </th>
+                <th><i class="bi bi-check2-circle me-2 text-secondary"></i>Job Status</th>
                 <td>
-                    <span class="timestamp">{{ customer_record.created_at|date:"M d, Y H:i" }}</span>
-                    {% if customer_record.created_by %}
-                        by <span class="user">{{ customer_record.created_by.get_full_name|default:customer_record.created_by.email }}</span>
+                    {% if customer_record.job_status == "Running" %}
+                        <span class="badge bg-warning text-dark">Running</span>
+                    {% elif customer_record.job_status == "Success" %}
+                        <span class="badge bg-success">Success</span>
+                    {% elif customer_record.job_status == "Failed" %}
+                        <span class="badge bg-danger">Failed</span>
+                    {% else %}
+                        {{ customer_record.job_status }}
                     {% endif %}
                 </td>
             </tr>
             <tr>
-                <th scope="row">
-                    <i class="bi bi-calendar-check me-2 text-muted"></i>Last Updated
-                </th>
+                <th><i class="bi bi-calendar-plus me-2 text-muted"></i>Created On</th>
+                <td>
+                    <span class="timestamp">{{ customer_record.created_at|date:"M d, Y H:i" }}</span>
+                    {% if customer_record.created_by %}
+                        by <strong class="user">{{ customer_record.created_by.get_full_name|default:customer_record.created_by.email }}</strong>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th><i class="bi bi-calendar-check me-2 text-muted"></i>Last Updated</th>
                 <td>
                     <span class="timestamp">{{ customer_record.last_updated|date:"M d, Y H:i" }}</span>
                     {% if customer_record.updated_by %}
-                        by <span class="user">{{ customer_record.updated_by.get_full_name|default:customer_record.updated_by.email }}</span>
+                        by <strong class="user">{{ customer_record.updated_by.get_full_name|default:customer_record.updated_by.email }}</strong>
                     {% endif %}
                 </td>
             </tr>
@@ -83,7 +72,7 @@
 
 <!-- ========== Action Buttons ========== -->
 <div class="d-flex justify-content-center gap-2 mt-4">
-    <a href="{% url 'threecx_records' %}" class="btn btn-outline-secondary">
+    <a href="{% url 'veeam_records' %}" class="btn btn-outline-secondary">
         <i class="bi bi-arrow-left-circle me-1"></i>Go Back
     </a>
     {% if user.is_staff %}
@@ -91,11 +80,11 @@
            class="btn btn-outline-danger"
            data-bs-toggle="modal"
            data-bs-target="#confirmActionModal"
-           data-url="{% url 'delete_threecx_record' customer_record.id %}"
+           data-url="{% url 'delete_veeam_record' customer_record.id %}"
            data-message="Are you sure you want to delete this record? This action cannot be undone.">
             <i class="bi bi-trash me-1"></i>Delete
         </a>
-        <a href="{% url 'update_threecx_record' customer_record.id %}"
+        <a href="{% url 'update_veeam_record' customer_record.id %}"
            class="btn btn-outline-primary">
             <i class="bi bi-pencil-square me-1"></i>Update
         </a>
@@ -130,10 +119,7 @@
         </div>
     </div>
 </div>
-{% endblock %}
 
-{% block extra_js %}
-<!-- ========== Modal Setup Script ========== -->
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById('confirmActionModal');

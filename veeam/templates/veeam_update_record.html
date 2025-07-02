@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="col-md-8 offset-md-2">
+        <h2 class="mb-4">Update Veeam Record</h2>
+        <form method="post"
+              action="{% url 'update_veeam_record' customer_record.pk %}">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="{{ form.client.id_for_label }}">Client</label>
+                {{ form.client }}
+            </div>
+            <div class="mb-3">
+                <label for="{{ form.contact_person.id_for_label }}">Contact Person</label>
+                {{ form.contact_person }}
+            </div>
+            <div class="mb-3">
+                <label for="{{ form.email.id_for_label }}">Email</label>
+                {{ form.email }}
+            </div>
+            <div class="mb-3">
+                <label for="{{ form.site.id_for_label }}">Site</label>
+                {{ form.site }}
+            </div>
+            <div class="mb-3">
+                <label for="{{ form.computer_name.id_for_label }}">Computer Name</label>
+                {{ form.computer_name }}
+            </div>
+            <div class="mb-3">
+                <label for="{{ form.os.id_for_label }}">Operating System</label>
+                {{ form.os }}
+            </div>
+            <div class="mb-3">
+                <label for="{{ form.managed_by.id_for_label }}">Managed By</label>
+                {{ form.managed_by }}
+            </div>
+            <div class="mb-3">
+                <label for="{{ form.job_status.id_for_label }}">Job Status</label>
+                {{ form.job_status }}
+            </div>
+            <div class="mb-3">
+                <label for="{{ form.comment.id_for_label }}">Comment</label>
+                {{ form.comment }}
+            </div>
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn btn-outline-primary">Update</button>
+                <a href="{% url 'veeam_record' customer_record.pk %}"
+                   class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+{% endblock %}
+{% block extra_js %}
+    <!-- Only include if client field needs Select2 -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+$(document).ready(function () {
+    const clientSelect = document.getElementById('id_client');
+    if (clientSelect) {
+        $('#id_client').select2({
+            placeholder: 'Select Client',
+            allowClear: true,
+            width: '100%'
+        });
+    }
+});
+    </script>
+{% endblock %}

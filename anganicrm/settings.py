@@ -130,9 +130,10 @@ MESSAGE_TAGS = {
 AUTH_USER_MODEL = "accounts.CustomUser"
 
 AUTHENTICATION_BACKENDS = [
-    "threecx.backends.EmailBackend",
+    "accounts.backends.EmailBackend",
     "django.contrib.auth.backends.ModelBackend",
 ]
+
 
 # SMTP Setup
 
