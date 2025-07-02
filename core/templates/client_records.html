@@ -6,7 +6,7 @@
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h4 class="mb-0">Angani Clients</h4>
             <div class="d-flex gap-2">
-                <a href="{% url 'menu' %}"
+                <a href="{% url 'access_center' %}"
                    class="btn btn-outline-secondary btn-sm"
                    title="Back to Menu">
                     <i class="bi bi-arrow-left"></i> Back
@@ -44,6 +44,7 @@
                         {% endfor %}
                     </select>
                 </div>
+                
                 <div class="col-auto ms-auto">
                     <div id="bulk-action-buttons" style="display: none;">
                         <a href="#" class="btn btn-sm btn-success me-2" id="send-notification">Send Notification</a>
@@ -57,6 +58,7 @@
             {% csrf_token %}
             <input type="hidden" name="emails" id="export-emails" value="">
         </form>
+
         <!-- Table -->
         <div class="table-responsive">
             <table class="table table-striped table-hover table-bordered">
@@ -65,7 +67,7 @@
                         <th>
                             <input type="checkbox" id="select-all" title="Select All" />
                         </th>
-                        <th>Name</th>
+                        <th>Company/Username</th>
                         <th>Client Type</th>
                         <th>Contact Person</th>
                         <th>Email</th>

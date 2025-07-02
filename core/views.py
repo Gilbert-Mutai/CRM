@@ -17,7 +17,7 @@ def home(request):
 
 
 @login_required
-def menu(request):
+def access_center(request):
     client_sections = [
         {
             "title": "3CX",
@@ -38,6 +38,12 @@ def menu(request):
             "btn_class": "warning",
         },
         {
+            "title": "Cloudberry",
+            "url_name": "cloudberry_records",
+            "icon": "cloud",
+            "btn_class": "danger",
+        },
+        {
             "title": "Novapool 4",
             "url_name": "novapool4_records",
             "icon": "cpu",
@@ -49,12 +55,7 @@ def menu(request):
             "icon": "diagram-3",
             "btn_class": "primary",
         },
-        {
-            "title": "Cloudberry",
-            "url_name": "cloudberry_records",
-            "icon": "cloud",
-            "btn_class": "info",
-        },
+
         {
             "title": "Veeam",
             "url_name": "veeam_records",
@@ -62,13 +63,13 @@ def menu(request):
             "btn_class": "success",
         },
         {
-            "title": "Project Manager",
+            "title": "Project",
             "url_name": "pm_records",
             "icon": "kanban",
-            "btn_class": "info",
+            "btn_class": "danger",
         },
     ]
-    return render(request, "menu.html", {"client_sections": client_sections})
+    return render(request, "access_center.html", {"client_sections": client_sections})
 
 
 @login_required

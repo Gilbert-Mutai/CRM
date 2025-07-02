@@ -24,7 +24,7 @@ def login_user(request):
         if user is not None:
             login(request, user)
             messages.success(request, "You have logged in successfully!")
-            return redirect("menu")
+            return redirect("access_center")
         else:
             messages.error(request, "Invalid email or password. Please try again.")
             return redirect("login")

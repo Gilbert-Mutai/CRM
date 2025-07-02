@@ -102,3 +102,4 @@ xdg==5
 xkit==0.0.0
 yt-dlp==2025.3.31
 zipp==1.0.0
+reportlab==3.6.8

@@ -15,6 +15,33 @@ body.home-bg {
 }
 
 /* ===========================
+   12. Headings Styling
+   =========================== */
+
+/* Default for light background pages */
+h2 {
+  color: #0077b6; /* Deep sky blue for strong section headers */
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+h4 {
+  color: #6c757d; /* Muted gray for subheadings */
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Override for dark background (e.g., homepage) */
+body.home-bg h2 {
+  color: #00adef; /* Bright blue for contrast */
+}
+
+body.home-bg h4 {
+  color: #cccccc; /* Light gray for readability on dark */
+}
+
+
+/* ===========================
    2. Reusable Utility Classes
    =========================== */
 
@@ -40,7 +67,7 @@ body.home-bg {
 .page-wrapper {
   display: flex;
   flex-direction: column;
-  min-height: 90vh; /* Push footer to bottom */
+  min-height: 60vh; 
 }
 
 .homepage-container {
@@ -236,6 +263,81 @@ tr[data-href]:hover {
   height: 50px;
   animation: spin 1s linear infinite;
 }
+
+/* =====Details Card ===== */
+
+.details-card {
+  background-color: #f9fbfd; /* Light card background */
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.details-card th {
+  color: #2d3e50; /* Label color */
+  font-weight: 600;
+}
+
+.details-card td {
+  color: #1b1e21; /* Value color */
+}
+
+.details-card .email {
+  color: #0077b6;
+  font-weight: 500;
+}
+
+.details-card .timestamp {
+  color: #6c757d;
+  font-style: italic;
+}
+
+.details-card .user {
+  color: #0077b6;
+  font-weight: bold;
+}
+
+/* Optional hover effect */
+.navbar-nav .nav-link:hover {
+  color: #0dcaf0 !important; /* Bootstrap info color */
+}
+
+.dropdown-menu-dark .dropdown-item:hover {
+  background-color: #212529;
+  color: #0dcaf0;
+}
+
+.footer {
+    position: fixed;
+    bottom: 10px;
+    width: 100%;
+    text-align: center;
+    font-size: 0.9rem;
+    color: #adb5bd;
+}
+
+.card-hover:hover {
+    transform: translateY(-5px);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.mycard-bg {
+    background-color: #f8f9fa; /* Light background for contrast */
+}
+
+.btn {
+    font-weight: 600;
+}
+
+.btn-outline-primary,
+.btn-outline-success,
+.btn-outline-danger,
+.btn-outline-warning,
+.btn-outline-info {
+    border-width: 2px;
+}
+
 
 @keyframes spin {
   0% {

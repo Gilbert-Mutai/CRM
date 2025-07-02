@@ -17,7 +17,6 @@ def delete_project(pk):
 def has_form_changed(form, instance=None):
     return form.has_changed()
 
-
 def generate_csv_for_selected_projects(project_ids):
     projects = Project.objects.filter(id__in=project_ids)
 
