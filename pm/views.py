@@ -3,6 +3,21 @@ import json
 import os
 from io import BytesIO
 
+# Third-party libraries
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import inch
+from reportlab.pdfgen import canvas
+from reportlab.platypus import (
+    Table,
+    TableStyle,
+    Paragraph,
+    SimpleDocTemplate,
+    Spacer,
+    Image,
+)
+
 # Django core
 from django.conf import settings
 from django.contrib import messages
@@ -18,7 +33,7 @@ from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
-# App-specific
+# Local app imports
 from .forms import AddProjectForm, UpdateProjectForm
 from .models import Project
 from .utils import (
@@ -28,13 +43,6 @@ from .utils import (
     has_form_changed,
 )
 
-# ReportLab for PDF generation
-from reportlab.lib import colors
-from reportlab.lib.pagesizes import A4
-from reportlab.lib.units import inch
-from reportlab.pdfgen import canvas
-from reportlab.platypus import Table, TableStyle
-from reportlab.platypus import Table, TableStyle, Paragraph, SimpleDocTemplate, Spacer, Image
 
 # Get custom user model
 User = get_user_model()
@@ -291,6 +299,7 @@ def update_project_description(request, pk):
     project.updated_by = request.user
     project.save()
     return JsonResponse({"service_description": new_desc})
+
 
 @login_required
 def download_completion_certificate(request, pk):
