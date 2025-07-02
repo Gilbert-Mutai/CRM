@@ -34,6 +34,7 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import inch
 from reportlab.pdfgen import canvas
 from reportlab.platypus import Table, TableStyle
+from reportlab.platypus import Table, TableStyle, Paragraph, SimpleDocTemplate, Spacer, Image
 
 # Get custom user model
 User = get_user_model()
@@ -290,20 +291,6 @@ def update_project_description(request, pk):
     project.updated_by = request.user
     project.save()
     return JsonResponse({"service_description": new_desc})
-
-
-from io import BytesIO
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
-from django.contrib.auth.decorators import login_required
-from django.conf import settings
-from reportlab.pdfgen import canvas
-from reportlab.platypus import Table, TableStyle, Paragraph, SimpleDocTemplate, Spacer, Image
-from reportlab.lib import colors
-from reportlab.lib.pagesizes import A4
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.units import inch
-import os
 
 @login_required
 def download_completion_certificate(request, pk):
