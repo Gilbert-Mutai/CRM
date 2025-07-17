@@ -3,7 +3,6 @@ from . import views
 
 
 urlpatterns = [
-    # 3CX Records
     path("records/", views.veeam_records, name="veeam_records"),
     path("record/<int:pk>/", views.veeam_record_details, name="veeam_record"),
     path("delete/<int:pk>/", views.delete_veeam_record, name="delete_veeam_record"),

@@ -15,12 +15,12 @@ class BaseThreeCXForm(forms.ModelForm):
     client = ClientNameOnlyChoiceField(
         queryset=Client.objects.order_by("name"),
         widget=forms.Select(attrs={"class": "form-control", "id": "id_client"}),
-        empty_label="Select Client"
+        empty_label="Select Client",
     )
 
     sip_provider = forms.ChoiceField(
         choices=ThreeCX.SIP_PROVIDERS,
-        widget=forms.Select(attrs={"class": "form-control"})
+        widget=forms.Select(attrs={"class": "form-control"}),
     )
 
     fqdn = forms.CharField(
@@ -29,22 +29,30 @@ class BaseThreeCXForm(forms.ModelForm):
 
     license_type = forms.ChoiceField(
         choices=ThreeCX.LICENSE_TYPES,
-        widget=forms.Select(attrs={"class": "form-control"})
+        widget=forms.Select(attrs={"class": "form-control"}),
     )
 
     simultaneous_calls = forms.IntegerField(
-        widget=forms.NumberInput(attrs={
-            "class": "form-control",
-            "id": "sc-counter",
-            "min": min(SC_VALUES),
-            "max": max(SC_VALUES),
-        }),
-        initial=4
+        widget=forms.NumberInput(
+            attrs={
+                "class": "form-control",
+                "id": "sc-counter",
+                "min": min(SC_VALUES),
+                "max": max(SC_VALUES),
+            }
+        ),
+        initial=4,
     )
 
     class Meta:
         model = ThreeCX
-        fields = ["client", "fqdn", "sip_provider", "license_type", "simultaneous_calls"]
+        fields = [
+            "client",
+            "fqdn",
+            "sip_provider",
+            "license_type",
+            "simultaneous_calls",
+        ]
 
 
 class AddThreeCXForm(BaseThreeCXForm):
@@ -59,7 +67,9 @@ class AddThreeCXForm(BaseThreeCXForm):
         self.fields["simultaneous_calls"].label = ""
 
         self.fields["fqdn"].widget.attrs["placeholder"] = "FQDN"
-        self.fields["simultaneous_calls"].widget.attrs["placeholder"] = "Simultaneous Calls"
+        self.fields["simultaneous_calls"].widget.attrs[
+            "placeholder"
+        ] = "Simultaneous Calls"
 
 
 class UpdateThreeCXForm(BaseThreeCXForm):

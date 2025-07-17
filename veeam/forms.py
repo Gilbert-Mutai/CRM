@@ -1,5 +1,5 @@
 from django import forms
-from .models import Veeam
+from .models import VeeamJob
 from core.models import Client
 
 
@@ -16,15 +16,22 @@ class BaseVeeamForm(forms.ModelForm):
     )
 
     site = forms.ChoiceField(
-        choices=Veeam.SITE_CHOICES, widget=forms.Select(attrs={"class": "form-control"})
+        choices=VeeamJob.SITE_CHOICES,
+        widget=forms.Select(attrs={"class": "form-control"}),
     )
 
     os = forms.ChoiceField(
-        choices=Veeam.OS_CHOICES, widget=forms.Select(attrs={"class": "form-control"})
+        choices=VeeamJob.OS_CHOICES,
+        widget=forms.Select(attrs={"class": "form-control"}),
     )
 
     managed_by = forms.ChoiceField(
-        choices=Veeam.MANAGED_BY_CHOICES,
+        choices=VeeamJob.MANAGED_BY_CHOICES,
+        widget=forms.Select(attrs={"class": "form-control"}),
+    )
+
+    job_status = forms.ChoiceField(
+        choices=VeeamJob.JOB_STATUS_CHOICES,
         widget=forms.Select(attrs={"class": "form-control"}),
     )
 
@@ -32,15 +39,30 @@ class BaseVeeamForm(forms.ModelForm):
         widget=forms.TextInput(attrs={"class": "form-control"})
     )
 
+    tag = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={"class": "form-control"}),
+        initial="Not set",
+    )
+
+    comment = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={"class": "form-control", "rows": 3}),
+    )
+
     class Meta:
-        model = Veeam
+        model = VeeamJob
         fields = [
             "client",
             "site",
             "computer_name",
+            "tag",
             "os",
             "managed_by",
+            "job_status",
+            "comment",
         ]
+
 
 
 class AddVeeamForm(BaseVeeamForm):
@@ -51,6 +73,7 @@ class AddVeeamForm(BaseVeeamForm):
         for field in self.fields.values():
             field.label = ""
         self.fields["computer_name"].widget.attrs["placeholder"] = "Computer Name"
+        self.fields["tag"].widget.attrs["placeholder"] = "Tag (Optional)"
 
 
 class UpdateVeeamForm(BaseVeeamForm):
@@ -61,5 +84,6 @@ class UpdateVeeamForm(BaseVeeamForm):
         self.fields["client"].label = "Client"
         self.fields["site"].label = "Site"
         self.fields["computer_name"].label = "Computer Name"
+        self.fields["tag"].label = "Tag"
         self.fields["os"].label = "Operating System"
         self.fields["managed_by"].label = "Managed By"

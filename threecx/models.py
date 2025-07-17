@@ -43,7 +43,6 @@ class ThreeCX(models.Model):
         default=4,
     )
 
-
     # Audit trail
     last_updated = models.DateTimeField(auto_now=True)
     updated_by = models.ForeignKey(

@@ -1,20 +1,25 @@
 from django.db import models
 from django.conf import settings
+from django.db.models import Q
 from core.models import Client
 
 
-class Veeam(models.Model):
-    created_at = models.DateTimeField(auto_now_add=True)
+class VeeamJob(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Created At")
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
         related_name="veeam_created_records",
+        verbose_name="Created By",
     )
 
     client = models.ForeignKey(
-        Client, on_delete=models.CASCADE, related_name="veeam_records"
+        Client,
+        on_delete=models.CASCADE,
+        related_name="veeam_records",
+        verbose_name="Client",
     )
 
     SITE_CHOICES = [
@@ -38,22 +43,33 @@ class Veeam(models.Model):
         ("Failed", "Failed"),
     ]
 
-    site = models.CharField(max_length=50, choices=SITE_CHOICES)
-    computer_name = models.CharField(max_length=100)
-    os = models.CharField(max_length=20, choices=OS_CHOICES)
-    managed_by = models.CharField(max_length=20, choices=MANAGED_BY_CHOICES)
-    job_status = models.CharField(
-        max_length=20, choices=JOB_STATUS_CHOICES, default="Running"
+    site = models.CharField(max_length=50, choices=SITE_CHOICES, verbose_name="Site")
+    computer_name = models.CharField(max_length=100, verbose_name="Computer Name")
+    tag = models.CharField(
+        max_length=100, default="Not set", blank=True, verbose_name="Tag"
     )
-    comment = models.TextField(blank=True, null=True)
+    os = models.CharField(
+        max_length=20, choices=OS_CHOICES, verbose_name="Operating System"
+    )
+    managed_by = models.CharField(
+        max_length=20, choices=MANAGED_BY_CHOICES, verbose_name="Managed By"
+    )
+    job_status = models.CharField(
+        max_length=20,
+        choices=JOB_STATUS_CHOICES,
+        default="Running",
+        verbose_name="Job Status",
+    )
+    comment = models.TextField(blank=True, null=True, verbose_name="Comment")
 
-    last_updated = models.DateTimeField(auto_now=True)
+    last_updated = models.DateTimeField(auto_now=True, verbose_name="Last Updated")
     updated_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
         related_name="veeam_updated_records",
+        verbose_name="Updated By",
     )
 
     def __str__(self):
@@ -67,3 +83,11 @@ class Veeam(models.Model):
             models.Index(fields=["managed_by"]),
             models.Index(fields=["job_status"]),
         ]
+        constraints = [
+            models.UniqueConstraint(
+                name="unique_client_computer_ci", fields=["client", "computer_name"]
+            )
+        ]
+        ordering = ["-last_updated"]
+        verbose_name = "Veeam Job"
+        verbose_name_plural = "Veeam Jobs"

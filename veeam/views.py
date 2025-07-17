@@ -8,13 +8,14 @@ from django.core.mail import EmailMultiAlternatives
 from django.conf import settings
 
 from .forms import AddVeeamForm, UpdateVeeamForm
-from .models import Veeam
+from .models import VeeamJob
+from core.models import Client
+import csv
+from django.http import HttpResponse
 from .utils import (
     get_record_by_id,
     delete_record,
-    validate_emails,
     has_form_changed,
-    generate_csv_for_selected_emails,
 )
 from core.forms import NotificationForm
 from core.constants import SIGNATURE_BLOCKS as SIGNATURES
@@ -27,13 +28,13 @@ def veeam_records(request):
     os_filter = request.GET.get("os", "")
     status_filter = request.GET.get("job_status", "")
 
-    records = Veeam.objects.all().order_by("-last_updated", "-created_at")
+    records = VeeamJob.objects.select_related("client").order_by(
+        "client__name", "client__email", "id"
+    )
 
     if query:
         records = records.filter(
-            Q(client__name__icontains=query)
-            | Q(computer_name__icontains=query)
-            | Q(email__icontains=query)
+            Q(client__name__icontains=query) | Q(computer_name__icontains=query)
         )
 
     if site_filter:
@@ -65,9 +66,9 @@ def veeam_records(request):
         "selected_site": site_filter,
         "selected_os": os_filter,
         "selected_status": status_filter,
-        "site_choices": dict(Veeam.SITE_CHOICES),
-        "os_choices": dict(Veeam.OS_CHOICES),
-        "status_choices": dict(Veeam.JOB_STATUS_CHOICES),
+        "site_choices": dict(VeeamJob.SITE_CHOICES),
+        "os_choices": dict(VeeamJob.OS_CHOICES),
+        "status_choices": dict(VeeamJob.JOB_STATUS_CHOICES),
     }
 
     return render(request, "veeam_records.html", context)
@@ -130,10 +131,21 @@ def update_veeam_record(request, pk):
 @login_required
 def send_notification_veeam(request):
     if request.method == "GET":
-        emails_param = request.GET.get("emails", "")
-        emails = [e for e in emails_param.split(",") if e]
+        company_ids_param = request.GET.get("companies", "")
+        company_ids = [
+            int(cid) for cid in company_ids_param.split(",") if cid.isdigit()
+        ]
+
+        if not company_ids:
+            messages.error(request, "No companies selected.")
+            return redirect("veeam_records")
+
+        # Get clients and emails
+        clients = Client.objects.filter(id__in=company_ids)
+        emails = [client.email for client in clients if client.email]
+
         if not emails:
-            messages.error(request, "No email addresses provided.")
+            messages.error(request, "Selected companies have no valid emails.")
             return redirect("veeam_records")
 
         form = NotificationForm(initial={"bcc_emails": ",".join(emails)})
@@ -183,5 +195,27 @@ def send_notification_veeam(request):
 @require_POST
 @login_required
 def export_selected_records(request):
-    emails = request.POST.get("emails", "").split(",")
-    return generate_csv_for_selected_emails(emails)
+    company_ids = request.POST.get("companies", "").split(",")
+    company_ids = [cid.strip() for cid in company_ids if cid.strip().isdigit()]
+    companies = Client.objects.filter(id__in=company_ids)
+
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = 'attachment; filename="Veeam_companies.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow([
+        "ID", "Company Name", "Email", "Phone", "Contact Person", "Created on", "Last Updated"
+    ])
+
+    for company in companies:
+        writer.writerow([
+            company.id,
+            company.name,
+            company.email,
+            company.phone_number if hasattr(company, 'phone_number') else "",
+            company.contact_person if hasattr(company, 'contact_person') else "",
+            company.created_at.strftime('%Y-%m-%d') if hasattr(company, 'created_at') else "",
+            company.last_updated.strftime('%Y-%m-%d') if hasattr(company, 'last_updated') else "",
+        ])
+
+    return response

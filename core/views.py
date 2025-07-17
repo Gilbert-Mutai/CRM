@@ -55,7 +55,6 @@ def access_center(request):
             "icon": "diagram-3",
             "btn_class": "primary",
         },
-
         {
             "title": "Veeam",
             "url_name": "veeam_records",
@@ -63,7 +62,7 @@ def access_center(request):
             "btn_class": "success",
         },
         {
-            "title": "Project",
+            "title": "Projects",
             "url_name": "pm_records",
             "icon": "kanban",
             "btn_class": "danger",
@@ -114,16 +113,15 @@ def client_records(request):
         del get_params["page"]
 
     context = {
-        "clients": page_obj,      
+        "clients": page_obj,
         "page_size": page_size,
         "search_query": query,
         "client_types": client_types,
         "selected_client_type": selected_client_type,
-        "querystring": get_params.urlencode(),    
+        "querystring": get_params.urlencode(),
     }
 
     return render(request, "client_records.html", context)
-
 
 
 @login_required

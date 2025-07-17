@@ -1,15 +1,16 @@
 # Updated threecx/views.py to support search and filter functionality
+from io import StringIO
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from .forms import AddThreeCXForm
+import csv
+from django.http import HttpResponse
 from .utils import (
     get_record_by_id,
     delete_record,
-    validate_emails,
     has_form_changed,
-    generate_csv_for_selected_emails,
 )
 from .models import ThreeCX
 from django.views.decorators.http import require_POST
@@ -187,9 +188,34 @@ def send_notification_threecx(request):
 
     return redirect("threecx_records")
 
-
 @require_POST
 @login_required
-def export_selected_records(request):
-    emails = request.POST.get("emails", "").split(",")
-    return generate_csv_for_selected_emails(emails)
+def export_selected_threecx_records(request):
+    ids = request.POST.get("ids", "").split(",")
+    ids = [int(i) for i in ids if i.isdigit()]
+    records = ThreeCX.objects.select_related("client").filter(id__in=ids)
+
+    # Prepare CSV
+    csv_buffer = StringIO()
+    writer = csv.writer(csv_buffer)
+    writer.writerow([
+        "Company Name", "Contact Person", "Email", "Phone Number",
+        "SIP Provider", "FQDN", "License Type", "Simultaneous Calls"
+    ])
+
+    for rec in records:
+        writer.writerow([
+            rec.client.name,
+            rec.client.contact_person,
+            rec.client.email,
+            rec.client.phone_number,
+            rec.get_sip_provider_display(),
+            rec.fqdn,
+            rec.get_license_type_display(),
+            rec.simultaneous_calls,
+        ])
+
+    # Generate response
+    response = HttpResponse(csv_buffer.getvalue(), content_type="text/csv")
+    response["Content-Disposition"] = 'attachment; filename="3cx_export.csv"'
+    return response

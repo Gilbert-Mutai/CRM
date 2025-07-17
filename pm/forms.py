@@ -23,9 +23,7 @@ class EngineerNameOnlyChoiceField(forms.ModelChoiceField):
 class BaseProjectForm(forms.ModelForm):
     customer_name = ClientNameOnlyChoiceField(
         queryset=Client.objects.order_by("name"),
-        widget=forms.Select(
-            attrs={"class": "form-control", "id": "id_customer_name"}
-        ),
+        widget=forms.Select(attrs={"class": "form-control", "id": "id_customer_name"}),
     )
 
     project_title = forms.CharField(

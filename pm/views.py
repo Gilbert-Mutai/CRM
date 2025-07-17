@@ -47,6 +47,7 @@ from .utils import (
 # Get custom user model
 User = get_user_model()
 
+
 @login_required
 def pm_records(request):
     query = request.GET.get("search", "")
@@ -202,13 +203,13 @@ def delete_pm_record(request, pk):
     messages.success(request, "Project deleted successfully.")
     return redirect("pm_records")
 
+
 @require_POST
 @login_required
 def export_selected_pm_records(request):
     raw_ids = request.POST.get("ids", "")
     project_ids = [int(id.strip()) for id in raw_ids.split(",") if id.strip().isdigit()]
     return generate_csv_for_selected_projects(project_ids)
-
 
 
 # Advanced Logics
@@ -304,13 +305,27 @@ def update_project_description(request, pk):
 @login_required
 def download_completion_certificate(request, pk):
     project = get_object_or_404(Project, pk=pk)
-
     buffer = BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=A4, topMargin=50, bottomMargin=50, leftMargin=50, rightMargin=50)
+
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=A4,
+        topMargin=50,
+        bottomMargin=50,
+        leftMargin=50,
+        rightMargin=50,
+    )
+
+    # Set PDF metadata
+    doc.title = "Job Completion Certificate"
+    doc.author = "Angani Limited"
+    doc.subject = "Provisioned Service Completion Confirmation"
+    doc.creator = "Angani Client Manager System"
+
     elements = []
 
     styles = getSampleStyleSheet()
-    
+
     justified_style = ParagraphStyle(
         name="Justify",
         parent=styles["Normal"],
@@ -356,23 +371,34 @@ def download_completion_certificate(request, pk):
     service = project.service_description or "N/A"
     date_provisioned = (
         project.date_of_completion.strftime("%d %B %Y")
-        if project.date_of_completion else "Not Set"
+        if project.date_of_completion
+        else "Not Set"
     )
     engineer = project.engineer.get_full_name() if project.engineer else "N/A"
 
     data = [
-        [Paragraph("Client (Company) Name:", label_style), Paragraph(customer, value_style)],
+        [
+            Paragraph("Client (Company) Name:", label_style),
+            Paragraph(customer, value_style),
+        ],
         [Paragraph("Service Provided:", label_style), Paragraph(service, value_style)],
-        [Paragraph("Date Provisioned:", label_style), Paragraph(date_provisioned, value_style)],
+        [
+            Paragraph("Date Provisioned:", label_style),
+            Paragraph(date_provisioned, value_style),
+        ],
         [Paragraph("Engineer's Name:", label_style), Paragraph(engineer, value_style)],
     ]
 
     table = Table(data, colWidths=[180, 350])
-    table.setStyle(TableStyle([
-        ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
-        ("VALIGN", (0, 0), (-1, -1), "TOP"),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
-    ]))
+    table.setStyle(
+        TableStyle(
+            [
+                ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+                ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+            ]
+        )
+    )
 
     elements.append(table)
     elements.append(Spacer(1, 15))
@@ -387,7 +413,10 @@ def download_completion_certificate(request, pk):
 
     # Sign-off section
     signoff_data = [
-        [Paragraph("<b>CUSTOMER SIGN OFF</b>", styles["Normal"]), Paragraph("<b>ANGANI SIGN OFF</b>", styles["Normal"])],
+        [
+            Paragraph("<b>CUSTOMER SIGN OFF</b>", styles["Normal"]),
+            Paragraph("<b>ANGANI SIGN OFF</b>", styles["Normal"]),
+        ],
         [
             Paragraph("<b>Name:</b> __________________________", styles["Normal"]),
             Paragraph(f"<b>Name:</b> {engineer}", styles["Normal"]),
@@ -407,10 +436,14 @@ def download_completion_certificate(request, pk):
     ]
 
     signoff_table = Table(signoff_data, colWidths=[270, 270])
-    signoff_table.setStyle(TableStyle([
-        ("FONTSIZE", (0, 0), (-1, -1), 10),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
-    ]))
+    signoff_table.setStyle(
+        TableStyle(
+            [
+                ("FONTSIZE", (0, 0), (-1, -1), 10),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
+            ]
+        )
+    )
     elements.append(signoff_table)
 
     # Build

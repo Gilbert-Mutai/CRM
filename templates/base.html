@@ -1,68 +1,69 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Client Manager</title>
-
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
-
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
-
-    <!-- Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-
-    <!-- Custom Styles -->
-    <link rel="stylesheet" href="{% static 'styles/base.css' %}" />
-</head>
-<body class="{% block body_class %}{% endblock %}">
-
-    <!-- Page Loader -->
-    <div id="page-loader" class="loader-overlay visible" aria-label="Loading" role="status" aria-live="polite">
-        <div class="loader"></div>
-    </div>
-
-    <!-- Navbar -->
-    {% include 'navbar.html' %}
-
-    <!-- Page Content -->
-    <div class="container my-4">
-
-        <!-- Flash Messages -->
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            {% endfor %}
-        {% endif %}
-
-        <!-- Main Content -->
-        {% block content %}{% endblock %}
-    </div>
-
-
-    <!-- Bootstrap Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-
-    <!-- Select2 -->
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
-    <!-- Page Loader Script -->
-    <script>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Client Manager</title>
+        <!-- Fonts -->
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap"
+              rel="stylesheet" />
+        <!-- Bootstrap CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css"
+              rel="stylesheet"
+              crossorigin="anonymous" />
+        <!-- Icons -->
+        <link rel="stylesheet"
+              href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
+        <link rel="stylesheet"
+              href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+        <!-- Custom Styles -->
+        <link rel="stylesheet" href="{% static 'styles/base.css' %}" />
+    </head>
+    <body class="{% block body_class %}{% endblock %}">
+        <!-- Page Loader -->
+        <div id="page-loader"
+             class="loader-overlay visible"
+             aria-label="Loading"
+             role="status"
+             aria-live="polite">
+            <div class="loader"></div>
+        </div>
+        <!-- Navbar -->
+        {% include 'navbar.html' %}
+        <!-- Page Content -->
+        <div class="container my-4">
+            <!-- Flash Messages -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show"
+                         role="alert">
+                        {{ message }}
+                        <button type="button"
+                                class="btn-close"
+                                data-bs-dismiss="alert"
+                                aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            <!-- Main Content -->
+            {% block content %}{% endblock %}
+        </div>
+        <!-- Bootstrap Bundle with Popper -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"
+                crossorigin="anonymous"></script>
+        <!-- Select2 -->
+        <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css"
+              rel="stylesheet" />
+        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+        <!-- Page Loader Script -->
+        <script>
         window.addEventListener("load", function () {
             const loader = document.getElementById("page-loader");
             if (loader) loader.classList.remove("visible");
         });
-    </script>
-
-    <!-- Page-specific JS -->
-    {% block extra_js %}{% endblock %}
-</body>
+        </script>
+        <!-- Page-specific JS -->
+        {% block extra_js %}{% endblock %}
+    </body>
 </html>
