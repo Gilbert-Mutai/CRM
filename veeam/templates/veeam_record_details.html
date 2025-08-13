@@ -1,170 +1,247 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block content %}
-    <h2 class="text-center mb-4">Veeam Job Details</h2>
-    <!-- ========== Veeam Details Card ========== -->
-    <div class="details-card table-responsive"
-         style="max-width: 800px;
-                margin: auto">
-        <table class="table table-bordered table-hover align-middle">
-            <tbody>
-                <tr>
-                    <th>
-                        <i class="bi bi-building me-2 text-secondary"></i>Company/Username
-                    </th>
-                    <td>{{ customer_record.client.name }}</td>
-                </tr>
-                <tr>
-                    <th>
-                        <i class="bi bi-person-lines-fill me-2 text-secondary"></i>Contact Person
-                    </th>
-                    <td>{{ customer_record.client.contact_person }}</td>
-                </tr>
-                <tr>
-                    <th>
-                        <i class="bi bi-envelope-fill me-2 text-secondary"></i>Email
-                    </th>
-                    <td class="email">{{ customer_record.client.email }}</td>
-                </tr>
-                <tr>
-                    <th>
-                        <i class="bi bi-geo-alt-fill me-2 text-secondary"></i>Site
-                    </th>
-                    <td>{{ customer_record.site }}</td>
-                </tr>
-                <tr>
-                    <th>
-                        <i class="bi bi-pc-display-horizontal me-2 text-secondary"></i>Computer
-                    </th>
-                    <td>{{ customer_record.computer_name }}</td>
-                </tr>
-                <tr>
-                    <th>
-                        <i class="bi bi-tag-fill me-2 text-secondary"></i>Tag
-                    </th>
-                    <td>{{ customer_record.tag|default:"Not set" }}</td>
-                </tr>
-                <tr>
-                    <th>
-                        <i class="bi bi-hdd-network-fill me-2 text-secondary"></i>OS
-                    </th>
-                    <td>{{ customer_record.os }}</td>
-                </tr>
-                <tr>
-                    <th>
-                        <i class="bi bi-person-gear me-2 text-secondary"></i>Managed By
-                    </th>
-                    <td>{{ customer_record.managed_by }}</td>
-                </tr>
-                <tr>
-                    <th>
-                        <i class="bi bi-check2-circle me-2 text-secondary"></i>Job Status
-                    </th>
-                    <td>
-                        {% if customer_record.job_status == "Running" %}
-                            <span class="badge bg-warning text-dark">Running</span>
-                        {% elif customer_record.job_status == "Success" %}
-                            <span class="badge bg-success">Success</span>
-                        {% elif customer_record.job_status == "Failed" %}
-                            <span class="badge bg-danger">Failed</span>
-                        {% else %}
-                            {{ customer_record.job_status }}
-                        {% endif %}
-                    </td>
-                </tr>
+<h2 class="text-center mb-4">Veeam Job Details</h2>
 
-                      <!-- Comment -->
-            <tr>
-                <th><i class="bi bi-chat-left-text me-2 text-secondary"></i>Comment</th>
-                <td>{{ customer_record.comment }}</td>
-            </tr>
+<div class="d-flex justify-content-start" style="max-width: 600px; margin: auto;">
+    <a href="javascript:history.back()" class="btn btn-sm btn-outline-secondary mb-3">
+        <i class="bi bi-arrow-left-circle me-1"></i>Back
+    </a>
+</div>
 
-                <tr>
-                    <th>
-                        <i class="bi bi-calendar-plus me-2 text-muted"></i>Created On
-                    </th>
-                    <td>
-                        <span class="timestamp">{{ customer_record.created_at|date:"M d, Y H:i" }}</span>
-                        {% if customer_record.created_by %}
-                            by <strong class="user">{{ customer_record.created_by.get_full_name|default:customer_record.created_by.email }}</strong>
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <th>
-                        <i class="bi bi-calendar-check me-2 text-muted"></i>Last Updated
-                    </th>
-                    <td>
-                        <span class="timestamp">{{ customer_record.last_updated|date:"M d, Y H:i" }}</span>
-                        {% if customer_record.updated_by %}
-                            by <strong class="user">{{ customer_record.updated_by.get_full_name|default:customer_record.updated_by.email }}</strong>
-                        {% endif %}
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-    <!-- ========== Action Buttons ========== -->
-    <div class="d-flex justify-content-center gap-2 mt-4">
-        <a href="{% url 'veeam_records' %}" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left-circle me-1"></i>Go Back
-        </a>
-        {% if user.is_staff %}
-            <a href="#"
-               class="btn btn-outline-danger"
-               data-bs-toggle="modal"
-               data-bs-target="#confirmActionModal"
-               data-url="{% url 'delete_veeam_record' customer_record.id %}"
-               data-message="Are you sure you want to delete this record? This action cannot be undone.">
-                <i class="bi bi-trash me-1"></i>Delete
-            </a>
-            <a href="{% url 'update_veeam_record' customer_record.id %}"
-               class="btn btn-outline-primary">
+<div class="details-card table-responsive" style="max-width: 600px; margin: auto;">
+  <table class="table table-bordered table-hover align-middle">
+    <colgroup>
+      <col style="width: 35%;">
+      <col style="width: 65%;">
+    </colgroup>
+    <tbody>
+      <tr>
+        <th><i class="bi bi-building me-2 text-secondary"></i>Company/Username</th>
+        <td>{{ customer_record.client.name }}</td>
+      </tr>
+      <tr>
+        <th><i class="bi bi-envelope-fill me-2 text-secondary"></i>Email</th>
+        <td>{{ customer_record.client.email }}</td>
+      </tr>
+      <tr>
+        <th><i class="bi bi-geo-alt-fill me-2 text-secondary"></i>Site</th>
+        <td>{{ customer_record.site }}</td>
+      </tr>
+      <tr>
+        <th><i class="bi bi-pc-display me-2 text-secondary"></i>Computer</th>
+        <td>{{ customer_record.computer_name }}</td>
+      </tr>
+
+      <!-- Tag (Inline editable) -->
+      <tr>
+        <th><i class="bi bi-tag-fill me-2 text-secondary"></i>Tag</th>
+        <td>
+          {% if user.is_staff %}
+            <div id="tag-view">{{ customer_record.tag|default:"Click to set tag"|truncatechars:50 }}</div>
+            <input type="text" id="tag-input" class="form-control d-none" value="{{ customer_record.tag }}">
+            <div class="mt-2 d-none" id="tag-actions">
+              <button class="btn btn-sm btn-primary" id="tag-save">Save</button>
+              <button class="btn btn-sm btn-secondary" id="tag-cancel">Cancel</button>
+            </div>
+            <small id="tag-success-msg" class="text-success d-none">✓ Tag updated</small>
+          {% else %}
+            {{ customer_record.tag|default:"-" }}
+          {% endif %}
+        </td>
+      </tr>
+
+      <tr>
+        <th><i class="bi bi-hdd-network-fill me-2 text-secondary"></i>OS</th>
+        <td>{{ customer_record.os }}</td>
+      </tr>
+
+      <tr>
+        <th><i class="bi bi-person-gear me-2 text-secondary"></i>Managed By</th>
+        <td>{{ customer_record.managed_by }}</td>
+      </tr>
+
+      <!-- Job Status (inline dropdown) -->
+      <tr>
+        <th><i class="bi bi-check2-circle me-2 text-secondary"></i>Job Status</th>
+        <td>
+          {% if user.is_staff %}
+            <select id="job-status-select" class="form-select form-select-sm" data-job-id="{{ customer_record.id }}">
+              {% for key, value in customer_record.JOB_STATUS_CHOICES %}
+                <option value="{{ key }}" {% if customer_record.job_status == key %}selected{% endif %}>{{ value }}</option>
+              {% endfor %}
+            </select>
+            <small id="status-success-msg" class="text-success d-none">✓ Status updated</small>
+          {% else %}
+            {{ customer_record.get_job_status_display }}
+          {% endif %}
+        </td>
+      </tr>
+
+      <!-- Comment (Inline editable) -->
+      <tr>
+        <th><i class="bi bi-chat-left-text me-2 text-secondary"></i>Comment</th>
+        <td>
+          {% if user.is_staff %}
+            <div id="comment-view">{{ customer_record.comment|default:"Click to add comment"|truncatechars:50 }}</div>
+            <textarea id="comment-input" class="form-control d-none" rows="3">{{ customer_record.comment }}</textarea>
+            <div class="mt-2 d-none" id="comment-actions">
+              <button class="btn btn-sm btn-primary" id="comment-save">Save</button>
+              <button class="btn btn-sm btn-secondary" id="comment-cancel">Cancel</button>
+            </div>
+            <small id="comment-success-msg" class="text-success d-none">✓ Comment updated</small>
+          {% else %}
+            {{ customer_record.comment|default:"-" }}
+          {% endif %}
+        </td>
+      </tr>
+
+      <tr>
+        <th><i class="bi bi-calendar-plus me-2 text-muted"></i>Created On</th>
+        <td class="text-muted">{{ customer_record.created_at|date:"M d, Y H:i" }}</td>
+      </tr>
+      <tr>
+        <th><i class="bi bi-calendar-check me-2 text-muted"></i>Last Updated</th>
+        <td class="text-muted">{{ customer_record.last_updated|date:"M d, Y H:i" }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+</div>
+<div class="d-flex justify-content-between align-items-center mb-3" style="max-width: 600px; margin: auto;">
+    <a href="javascript:history.back()" class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-arrow-left-circle me-1"></i>Back
+    </a>
+
+    <div class="d-flex gap-2">
+        {% if user.is_authenticated and user.is_staff %}
+            <a href="{% url 'update_veeam_record' customer_record.id %}" class="btn btn-sm btn-outline-primary">
                 <i class="bi bi-pencil-square me-1"></i>Update
+            </a>
+            <a href="{% url 'delete_veeam_record' customer_record.id %}" class="btn btn-sm btn-outline-danger"
+               onclick="return confirm('Are you sure you want to delete this record?');">
+                <i class="bi bi-trash me-1"></i>Delete
             </a>
         {% endif %}
     </div>
-    <!-- ========== Delete Confirmation Modal ========== -->
-    <div class="modal fade"
-         id="confirmActionModal"
-         tabindex="-1"
-         aria-labelledby="confirmActionLabel"
-         aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-warning text-dark">
-                    <h5 class="modal-title" id="confirmActionLabel">Confirm Deletion</h5>
-                    <button type="button"
-                            class="btn-close"
-                            data-bs-dismiss="modal"
-                            aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p id="confirmMessage">Are you sure?</p>
-                </div>
-                <div class="modal-footer">
-                    <form id="deleteForm" method="post" action="">
-                        {% csrf_token %}
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-danger">Yes, delete</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-    <script>
-document.addEventListener('DOMContentLoaded', () => {
-    const modal = document.getElementById('confirmActionModal');
-    const deleteForm = document.getElementById('deleteForm');
-    const confirmMessage = document.getElementById('confirmMessage');
+</div>
 
-    modal.addEventListener('show.bs.modal', event => {
-        const button = event.relatedTarget;
-        const url = button.getAttribute('data-url');
-        const message = button.getAttribute('data-message');
 
-        confirmMessage.textContent = message;
-        deleteForm.action = url;
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const csrfToken = "{{ csrf_token }}";
+  const recordId = "{{ customer_record.id }}";
+
+  // === TAG ===
+  const tagView = document.getElementById("tag-view");
+  const tagInput = document.getElementById("tag-input");
+  const tagActions = document.getElementById("tag-actions");
+  const tagSave = document.getElementById("tag-save");
+  const tagCancel = document.getElementById("tag-cancel");
+  const tagSuccessMsg = document.getElementById("tag-success-msg");
+
+  if (tagView) {
+    tagView.addEventListener("click", () => {
+      tagView.classList.add("d-none");
+      tagInput.classList.remove("d-none");
+      tagActions.classList.remove("d-none");
     });
+
+    tagCancel.addEventListener("click", () => {
+      tagInput.classList.add("d-none");
+      tagActions.classList.add("d-none");
+      tagView.classList.remove("d-none");
+    });
+
+    tagSave.addEventListener("click", () => {
+      const newTag = tagInput.value.trim();
+      fetch(`/veeam/update/tag/${recordId}/`, {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": csrfToken,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ tag: newTag })
+      })
+      .then(res => res.json())
+      .then(data => {
+        const truncated = data.tag.length > 50 ? data.tag.slice(0, 50) + "…" : data.tag;
+        tagView.textContent = truncated || "Click to set tag";
+        tagInput.classList.add("d-none");
+        tagActions.classList.add("d-none");
+        tagView.classList.remove("d-none");
+        tagSuccessMsg.classList.remove("d-none");
+        setTimeout(() => tagSuccessMsg.classList.add("d-none"), 2000);
+      });
+    });
+  }
+
+  // === COMMENT ===
+  const commentView = document.getElementById("comment-view");
+  const commentInput = document.getElementById("comment-input");
+  const commentActions = document.getElementById("comment-actions");
+  const commentSave = document.getElementById("comment-save");
+  const commentCancel = document.getElementById("comment-cancel");
+  const commentSuccessMsg = document.getElementById("comment-success-msg");
+
+  if (commentView) {
+    commentView.addEventListener("click", () => {
+      commentView.classList.add("d-none");
+      commentInput.classList.remove("d-none");
+      commentActions.classList.remove("d-none");
+    });
+
+    commentCancel.addEventListener("click", () => {
+      commentInput.classList.add("d-none");
+      commentActions.classList.add("d-none");
+      commentView.classList.remove("d-none");
+    });
+
+    commentSave.addEventListener("click", () => {
+      const newComment = commentInput.value.trim();
+      fetch(`/veeam/update/comment/${recordId}/`, {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": csrfToken,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ comment: newComment })
+      })
+      .then(res => res.json())
+      .then(data => {
+        const truncated = data.comment.length > 50 ? data.comment.slice(0, 50) + "…" : data.comment;
+        commentView.textContent = truncated || "Click to add comment";
+        commentInput.classList.add("d-none");
+        commentActions.classList.add("d-none");
+        commentView.classList.remove("d-none");
+        commentSuccessMsg.classList.remove("d-none");
+        setTimeout(() => commentSuccessMsg.classList.add("d-none"), 2000);
+      });
+    });
+  }
+
+  // === JOB STATUS ===
+  const jobStatusSelect = document.getElementById("job-status-select");
+  const statusSuccessMsg = document.getElementById("status-success-msg");
+
+  if (jobStatusSelect) {
+    jobStatusSelect.addEventListener("change", function () {
+      const newStatus = this.value;
+      fetch(`/veeam/update/status/${recordId}/`, {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": csrfToken,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ job_status: newStatus })
+      })
+      .then(res => res.json())
+      .then(data => {
+        statusSuccessMsg.classList.remove("d-none");
+        setTimeout(() => statusSuccessMsg.classList.add("d-none"), 2000);
+      });
+    });
+  }
 });
-    </script>
+</script>
 {% endblock %}
