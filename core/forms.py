@@ -26,7 +26,7 @@ PLACEHOLDER_MAP = {
 class BaseClientForm(forms.ModelForm):
     phone_number = forms.CharField(
         required=True,
-        validators=[RegexValidator(r'^\+?\d{7,15}$', 'Enter a valid phone number.')],
+        validators=[RegexValidator(r"^\+?\d{7,15}$", "Enter a valid phone number.")],
         widget=forms.TextInput(attrs={"class": "form-control"}),
     )
 
@@ -42,8 +42,10 @@ class AddClientForm(BaseClientForm):
         # Use placeholders, remove labels
         for field_name, field in self.fields.items():
             field.label = ""
-            if hasattr(field.widget, 'attrs'):
-                field.widget.attrs["placeholder"] = PLACEHOLDER_MAP.get(field_name, field_name.replace('_', ' ').capitalize())
+            if hasattr(field.widget, "attrs"):
+                field.widget.attrs["placeholder"] = PLACEHOLDER_MAP.get(
+                    field_name, field_name.replace("_", " ").capitalize()
+                )
             field.widget.attrs["class"] = "form-control"
 
 
@@ -53,8 +55,10 @@ class ClientUpdateForm(BaseClientForm):
 
         # Use labels, remove placeholders
         for field_name, field in self.fields.items():
-            field.label = LABEL_MAP.get(field_name, field_name.replace('_', ' ').capitalize())
-            if hasattr(field.widget, 'attrs'):
+            field.label = LABEL_MAP.get(
+                field_name, field_name.replace("_", " ").capitalize()
+            )
+            if hasattr(field.widget, "attrs"):
                 field.widget.attrs.pop("placeholder", None)
             field.widget.attrs["class"] = "form-control"
 

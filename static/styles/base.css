@@ -14,6 +14,75 @@ body.home-bg {
   color: #f4f6f8;
 }
 
+/* Background for login page (optional: controlled by body class) */
+body.login-bg {
+    background-color: #2d3e50;
+    margin: 0;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Full height container */
+.vh-100 {
+    height: 100vh;
+}
+
+/* Login card */
+.login-card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    padding: 2rem;
+}
+
+/* Input and button */
+.login-input {
+    border-radius: 8px;
+    padding: 0.75rem;
+    font-size: 1rem;
+}
+
+.login-btn {
+    width: 100%;
+    border-radius: 50px;
+    padding: 0.6rem;
+    font-weight: 500;
+}
+
+/* Link styling */
+.forgot-link {
+    font-size: 0.9rem;
+    color: #6c757d;
+    text-decoration: none;
+}
+
+.forgot-link:hover {
+    text-decoration: underline;
+    color:#0096d1;
+}
+
+.login-wrapper {
+    transform: translateY(-150px); /* Adjust upward offset here */
+}
+.register-wrapper {
+    transform: translateY(-40px); /* Adjust upward offset here */
+}
+
+
+/* Optional responsive fine-tuning (for small screens) */
+@media (max-height: 500px) {
+    .login-wrapper {
+        transform: translateY(-20px);
+    }
+}
+@media (max-height: 500px) {
+    .register-wrapper {
+        transform: translateY(-20px);
+    }
+}
+
+
+
 /* ===========================
    12. Headings Styling
    =========================== */

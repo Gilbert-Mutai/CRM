@@ -1,13 +1,14 @@
 from django.contrib import admin
-from .models import Veeam
+from .models import VeeamJob
 
 
-@admin.register(Veeam)
+@admin.register(VeeamJob)
 class VeeamAdmin(admin.ModelAdmin):
     list_display = (
         "client",
         "site",
         "computer_name",
+        "tag",
         "os",
         "managed_by",
         "job_status",

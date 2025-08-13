@@ -1,21 +1,30 @@
-from django.shortcuts import render, redirect
+# Standard Library
+import csv
+import json
+
+# Django Core
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q
-from django.views.decorators.http import require_POST
-from django.core.paginator import Paginator
 from django.core.mail import EmailMultiAlternatives
-from django.conf import settings
-
-from .forms import AddVeeamForm, UpdateVeeamForm
-from .models import Veeam
-from .utils import (
-    get_record_by_id,
-    delete_record,
-    validate_emails,
-    has_form_changed,
-    generate_csv_for_selected_emails,
+from django.core.paginator import Paginator
+from django.db.models import Q
+from django.http import (
+    HttpResponse,
+    JsonResponse,
+    HttpResponseBadRequest,
+    HttpResponseForbidden,
 )
+from django.shortcuts import render, redirect, get_object_or_404
+from django.views.decorators.http import require_POST
+
+# App Imports
+from .models import VeeamJob
+from .forms import AddVeeamForm, UpdateVeeamForm
+from .utils import get_record_by_id, delete_record, has_form_changed
+
+# Core App
+from core.models import Client
 from core.forms import NotificationForm
 from core.constants import SIGNATURE_BLOCKS as SIGNATURES
 
@@ -27,27 +36,24 @@ def veeam_records(request):
     os_filter = request.GET.get("os", "")
     status_filter = request.GET.get("job_status", "")
 
-    records = Veeam.objects.all().order_by("-last_updated", "-created_at")
+    records = VeeamJob.objects.select_related("client").order_by(
+        "client__name", "client__email", "id"
+    )
 
     if query:
         records = records.filter(
-            Q(client__name__icontains=query)
-            | Q(computer_name__icontains=query)
-            | Q(email__icontains=query)
+            Q(client__name__icontains=query) | Q(computer_name__icontains=query)
         )
-
     if site_filter:
         records = records.filter(site=site_filter)
-
     if os_filter:
         records = records.filter(os=os_filter)
-
     if status_filter:
         records = records.filter(job_status=status_filter)
 
-    page_size = request.GET.get("page_size", 20)
+    # Pagination
     try:
-        page_size = int(page_size)
+        page_size = int(request.GET.get("page_size", 20))
         if page_size not in [20, 50, 100]:
             page_size = 20
     except ValueError:
@@ -57,6 +63,12 @@ def veeam_records(request):
     page_number = request.GET.get("page", 1)
     page_obj = paginator.get_page(page_number)
 
+    # Maintain filters in pagination
+    querydict = request.GET.copy()
+    querydict.pop("page", None)
+    querydict.pop("page_size", None)
+    querystring = querydict.urlencode()
+
     context = {
         "records": page_obj.object_list,
         "page_obj": page_obj,
@@ -65,9 +77,10 @@ def veeam_records(request):
         "selected_site": site_filter,
         "selected_os": os_filter,
         "selected_status": status_filter,
-        "site_choices": dict(Veeam.SITE_CHOICES),
-        "os_choices": dict(Veeam.OS_CHOICES),
-        "status_choices": dict(Veeam.JOB_STATUS_CHOICES),
+        "site_choices": dict(VeeamJob.SITE_CHOICES),
+        "os_choices": dict(VeeamJob.OS_CHOICES),
+        "status_choices": dict(VeeamJob.JOB_STATUS_CHOICES),
+        "querystring": querystring,
     }
 
     return render(request, "veeam_records.html", context)
@@ -75,9 +88,10 @@ def veeam_records(request):
 
 @login_required
 def veeam_record_details(request, pk):
-    customer_record = get_record_by_id(pk)
     return render(
-        request, "veeam_record_details.html", {"customer_record": customer_record}
+        request,
+        "veeam_record_details.html",
+        {"customer_record": get_record_by_id(pk)},
     )
 
 
@@ -93,10 +107,10 @@ def add_veeam_record(request):
     if request.method == "POST":
         form = AddVeeamForm(request.POST)
         if form.is_valid():
-            new_record = form.save(commit=False)
-            new_record.created_by = request.user
-            new_record.updated_by = request.user
-            new_record.save()
+            record = form.save(commit=False)
+            record.created_by = request.user
+            record.updated_by = request.user
+            record.save()
             messages.success(request, "Record has been added!")
             return redirect("veeam_records")
     else:
@@ -107,39 +121,40 @@ def add_veeam_record(request):
 
 @login_required
 def update_veeam_record(request, pk):
-    current_record = get_record_by_id(pk)
-    form = UpdateVeeamForm(request.POST or None, instance=current_record)
+    record = get_record_by_id(pk)
+    form = UpdateVeeamForm(request.POST or None, instance=record)
 
     if form.is_valid():
-        updated_record = form.save(commit=False)
         if has_form_changed(form):
-            updated_record.updated_by = request.user
-            updated_record.save()
+            form.instance.updated_by = request.user
+            form.save()
             messages.success(request, "Record has been updated!")
         else:
             messages.warning(request, "No changes detected.")
         return redirect("veeam_record", pk=pk)
 
-    return render(
-        request,
-        "veeam_update_record.html",
-        {"form": form, "customer_record": current_record},
-    )
+    return render(request, "veeam_update_record.html", {"form": form, "customer_record": record})
 
 
 @login_required
 def send_notification_veeam(request):
     if request.method == "GET":
-        emails_param = request.GET.get("emails", "")
-        emails = [e for e in emails_param.split(",") if e]
+        ids = request.GET.get("companies", "")
+        company_ids = [int(cid) for cid in ids.split(",") if cid.isdigit()]
+
+        if not company_ids:
+            messages.error(request, "No companies selected.")
+            return redirect("veeam_records")
+
+        clients = Client.objects.filter(id__in=company_ids)
+        emails = [c.email for c in clients if c.email]
+
         if not emails:
-            messages.error(request, "No email addresses provided.")
+            messages.error(request, "Selected companies have no valid emails.")
             return redirect("veeam_records")
 
         form = NotificationForm(initial={"bcc_emails": ",".join(emails)})
-        return render(
-            request, "veeam_email_notification.html", {"form": form, "emails": emails}
-        )
+        return render(request, "veeam_email_notification.html", {"form": form, "emails": emails})
 
     elif request.method == "POST":
         form = NotificationForm(request.POST)
@@ -151,12 +166,9 @@ def send_notification_veeam(request):
             invalid_emails = form.cleaned_data["invalid_emails"]
 
             if invalid_emails:
-                messages.warning(
-                    request, f"Ignoring invalid email(s): {', '.join(invalid_emails)}"
-                )
+                messages.warning(request, f"Ignoring invalid email(s): {', '.join(invalid_emails)}")
 
-            signature_block = SIGNATURES.get(signature_key, signature_key)
-            full_body = f"{body}<br><br>--<br>{signature_block}"
+            full_body = f"{body}<br><br>--<br>{SIGNATURES.get(signature_key, signature_key)}"
 
             msg = EmailMultiAlternatives(
                 subject=subject,
@@ -167,21 +179,84 @@ def send_notification_veeam(request):
             msg.attach_alternative(full_body, "text/html")
             msg.send(fail_silently=False)
 
-            messages.success(
-                request, f"Notification sent to {len(valid_emails)} recipient(s)."
-            )
+            messages.success(request, f"Notification sent to {len(valid_emails)} recipient(s).")
             return redirect("veeam_records")
 
         emails = request.POST.get("bcc_emails", "").split(",")
-        return render(
-            request, "veeam_email_notification.html", {"form": form, "emails": emails}
-        )
+        return render(request, "veeam_email_notification.html", {"form": form, "emails": emails})
 
     return redirect("veeam_records")
 
 
-@require_POST
 @login_required
+@require_POST
 def export_selected_records(request):
-    emails = request.POST.get("emails", "").split(",")
-    return generate_csv_for_selected_emails(emails)
+    company_ids = [
+        cid.strip()
+        for cid in request.POST.get("companies", "").split(",")
+        if cid.strip().isdigit()
+    ]
+    companies = Client.objects.filter(id__in=company_ids)
+
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = 'attachment; filename="Veeam_companies.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(["ID", "Company Name", "Email", "Phone", "Contact Person", "Created on", "Last Updated"])
+
+    for c in companies:
+        writer.writerow([
+            c.id,
+            c.name,
+            c.email,
+            getattr(c, "phone_number", ""),
+            getattr(c, "contact_person", ""),
+            getattr(c, "created_at", "").strftime('%Y-%m-%d') if getattr(c, "created_at", None) else "",
+            getattr(c, "last_updated", "").strftime('%Y-%m-%d') if getattr(c, "last_updated", None) else "",
+        ])
+
+    return response
+
+
+@login_required
+@require_POST
+def update_veeam_tag(request, pk):
+    return _update_single_field(request, pk, field="tag")
+
+
+@login_required
+@require_POST
+def update_veeam_status(request, pk):
+    return _update_single_field(
+        request,
+        pk,
+        field="job_status",
+        allowed_values=dict(VeeamJob.JOB_STATUS_CHOICES),
+    )
+
+
+@login_required
+@require_POST
+def update_veeam_comment(request, pk):
+    return _update_single_field(request, pk, field="comment")
+
+
+# === Helper ===
+def _update_single_field(request, pk, field, allowed_values=None):
+    record = get_object_or_404(VeeamJob, pk=pk)
+    if not request.user.is_staff:
+        return HttpResponseForbidden("Not allowed.")
+
+    try:
+        data = json.loads(request.body)
+        new_value = data.get(field, "").strip()
+
+        if allowed_values and new_value not in allowed_values:
+            return HttpResponseBadRequest(f"Invalid {field}.")
+
+        setattr(record, field, new_value)
+        record.updated_by = request.user
+        record.save()
+        return JsonResponse({field: new_value})
+    except json.JSONDecodeError:
+        return HttpResponseBadRequest("Invalid data")
