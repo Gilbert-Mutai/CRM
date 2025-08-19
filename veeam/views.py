@@ -88,11 +88,8 @@ def veeam_records(request):
 
 @login_required
 def veeam_record_details(request, pk):
-    return render(
-        request,
-        "veeam_record_details.html",
-        {"customer_record": get_record_by_id(pk)},
-    )
+    customer_record = get_record_by_id(pk)
+    return render(request, "veeam_record_details.html", {"customer_record": customer_record})
 
 
 @login_required
