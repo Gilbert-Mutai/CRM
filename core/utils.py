@@ -51,5 +51,5 @@ def generate_csv_for_selected_emails(emails):
 
     buffer.seek(0)
     response = HttpResponse(buffer.getvalue(), content_type="text/csv")
-    response["Content-Disposition"] = "attachment; filename=Client_List.csv"
+    response["Content-Disposition"] = "attachment; filename=Angani_Clients.csv"
     return response

@@ -14,5 +14,9 @@ urlpatterns = [
         views.send_notification_threecx,
         name="send_notification_threecx",
     ),
-    path("export/", views.export_selected_threecx_records, name="export_selected_threecx_records"),
+    path(
+        "export/",
+        views.export_selected_threecx_records,
+        name="export_selected_threecx_records",
+    ),
 ]

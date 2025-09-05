@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% block content %}
+    <!-- ========== Send Notification Form ========== -->
+    <div class="col-md-8 offset-md-2">
+        <h4 class="mb-4">Send Notification</h4>
+        <form id="sendEmailForm" method="post">
+            {% csrf_token %}
+            {{ form.bcc_emails }}
+            <!-- BCC Recipients Display -->
+            <div class="mb-3">
+                <label class="form-label">Bcc:</label>
+                <input type="text"
+                       class="form-control"
+                       value="{{ emails|join:', ' }}"
+                       readonly>
+            </div>
+            <!-- Subject -->
+            <div class="mb-3">
+                {{ form.subject.label_tag }}
+                {{ form.subject }}
+            </div>
+            <!-- Signature -->
+            <div class="mb-3">
+                {{ form.signature.label_tag }}
+                {{ form.signature }}
+            </div>
+            <!-- Body -->
+            <div class="mb-3">
+                {{ form.body.label_tag }}
+                {{ form.body }}
+            </div>
+            <!-- Action Buttons -->
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-outline-primary">Send</button>
+                <a href="{% url 'domain_records' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-x-circle me-1"></i>Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+    <!-- ========== Confirmation Modal ========== -->
+    <div class="modal fade"
+         id="confirmSendModal"
+         tabindex="-1"
+         aria-labelledby="confirmSendModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-primary">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmSendModalLabel">Confirm Send</h5>
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                </div>
+                <div class="modal-body">Are you sure you want to send this notification?</div>
+                <div class="modal-footer">
+                    <button type="button"
+                            class="btn btn-outline-secondary btn-sm"
+                            data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary btn-sm" id="confirmSendBtn">Yes, Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block extra_js %}
+    <!-- ========== CKEditor Setup ========== -->
+    <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
+    <script>
+    CKEDITOR.replace('editor', {
+      height: 300,
+      removePlugins: 'sourcearea',
+      toolbar: [
+        { name: 'clipboard', items: ['Undo', 'Redo'] },
+        { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', '-', 'RemoveFormat'] },
+        { name: 'paragraph', items: ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote'] },
+        { name: 'insert', items: ['Link', 'Unlink', 'Image', 'Table'] },
+        { name: 'styles', items: ['Format'] },
+        { name: 'tools', items: ['Maximize'] }
+      ]
+    });
+    </script>
+    <!-- ========== Modal Submit Logic ========== -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const form = document.getElementById('sendEmailForm');
+      const modal = new bootstrap.Modal(document.getElementById('confirmSendModal'));
+      const confirmSendBtn = document.getElementById('confirmSendBtn');
+
+      // Intercept form submit to show modal
+      form.addEventListener('submit', function (event) {
+        event.preventDefault();
+        modal.show();
+      });
+
+      // On confirm, update CKEditor and submit form
+      confirmSendBtn.addEventListener('click', function () {
+        for (const instance in CKEDITOR.instances) {
+          CKEDITOR.instances[instance].updateElement();
+        }
+        confirmSendBtn.disabled = true;
+        form.submit();
+      });
+    });
+    </script>
+{% endblock %}

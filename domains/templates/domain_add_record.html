@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
     <div class="col-md-6 offset-md-3">
-        <h2 class="mb-4">Add 3CX Record</h2>
+        <h2 class="mb-4">Add Domain Record</h2>
         {% if form.errors %}
             <div class="alert alert-danger">
                 <ul>
@@ -15,7 +15,7 @@
                 </ul>
             </div>
         {% endif %}
-        <form method="POST" action="{% url 'add_threecx_record' %}">
+        <form method="POST" action="{% url 'add_domain_record' %}">
             {% csrf_token %}
             <div class="mb-2">
                 <label for="{{ form.client.id_for_label }}"
@@ -23,27 +23,28 @@
                 {{ form.client }}
             </div>
             <div class="mb-2">
-                <label for="{{ form.fqdn.id_for_label }}" class="form-label visually-hidden">FQDN</label>
-                {{ form.fqdn }}
+                <label for="{{ form.domain.id_for_label }}"
+                       class="form-label visually-hidden">Domain</label>
+                {{ form.domain }}
             </div>
             <div class="mb-2">
-                <label for="{{ form.sip_provider.id_for_label }}"
-                       class="form-label visually-hidden">SIP Provider</label>
-                {{ form.sip_provider }}
+                <label for="{{ form.host.id_for_label }}" class="form-label visually-hidden">Host</label>
+                {{ form.host }}
             </div>
             <div class="mb-2">
-                <label for="{{ form.license_type.id_for_label }}"
-                       class="form-label visually-hidden">License Type</label>
-                {{ form.license_type }}
+                <label for="{{ form.package.id_for_label }}"
+                       class="form-label visually-hidden">Package</label>
+                {{ form.package }}
             </div>
+            <!-- ✅ Status field added -->
             <div class="mb-2">
-                <label for="{{ form.simultaneous_calls.id_for_label }}"
-                       class="form-label visually-hidden">Simultaneous Calls</label>
-                {{ form.simultaneous_calls }}
+                <label for="{{ form.status.id_for_label }}"
+                       class="form-label visually-hidden">Status</label>
+                {{ form.status }}
             </div>
             <div class="mt-4 d-flex gap-2">
                 <button type="submit" class="btn btn-outline-primary">Add Record</button>
-                <a href="{% url 'threecx_records' %}" class="btn btn-outline-secondary">Back</a>
+                <a href="{% url 'domain_records' %}" class="btn btn-outline-secondary">Back</a>
             </div>
         </form>
     </div>
@@ -57,19 +58,6 @@ $(document).ready(function () {
         allowClear: true,
         width: '100%'
     });
-
-    const allowedSCValues = [4, 8, 16, 24, 32, 48, 64, 96, 128, 256];
-    const scInput = document.getElementById("sc-counter");
-
-    if (scInput) {
-        scInput.addEventListener("change", () => {
-            const value = parseInt(scInput.value, 10);
-            if (!allowedSCValues.includes(value)) {
-                alert("Please choose a valid Simultaneous Calls value.");
-                scInput.value = 4;
-            }
-        });
-    }
 });
     </script>
 {% endblock %}

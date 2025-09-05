@@ -89,7 +89,9 @@ def veeam_records(request):
 @login_required
 def veeam_record_details(request, pk):
     customer_record = get_record_by_id(pk)
-    return render(request, "veeam_record_details.html", {"customer_record": customer_record})
+    return render(
+        request, "veeam_record_details.html", {"customer_record": customer_record}
+    )
 
 
 @login_required
@@ -130,7 +132,9 @@ def update_veeam_record(request, pk):
             messages.warning(request, "No changes detected.")
         return redirect("veeam_record", pk=pk)
 
-    return render(request, "veeam_update_record.html", {"form": form, "customer_record": record})
+    return render(
+        request, "veeam_update_record.html", {"form": form, "customer_record": record}
+    )
 
 
 @login_required
@@ -151,7 +155,9 @@ def send_notification_veeam(request):
             return redirect("veeam_records")
 
         form = NotificationForm(initial={"bcc_emails": ",".join(emails)})
-        return render(request, "veeam_email_notification.html", {"form": form, "emails": emails})
+        return render(
+            request, "veeam_email_notification.html", {"form": form, "emails": emails}
+        )
 
     elif request.method == "POST":
         form = NotificationForm(request.POST)
@@ -163,9 +169,13 @@ def send_notification_veeam(request):
             invalid_emails = form.cleaned_data["invalid_emails"]
 
             if invalid_emails:
-                messages.warning(request, f"Ignoring invalid email(s): {', '.join(invalid_emails)}")
+                messages.warning(
+                    request, f"Ignoring invalid email(s): {', '.join(invalid_emails)}"
+                )
 
-            full_body = f"{body}<br><br>--<br>{SIGNATURES.get(signature_key, signature_key)}"
+            full_body = (
+                f"{body}<br><br>--<br>{SIGNATURES.get(signature_key, signature_key)}"
+            )
 
             msg = EmailMultiAlternatives(
                 subject=subject,
@@ -176,11 +186,15 @@ def send_notification_veeam(request):
             msg.attach_alternative(full_body, "text/html")
             msg.send(fail_silently=False)
 
-            messages.success(request, f"Notification sent to {len(valid_emails)} recipient(s).")
+            messages.success(
+                request, f"Notification sent to {len(valid_emails)} recipient(s)."
+            )
             return redirect("veeam_records")
 
         emails = request.POST.get("bcc_emails", "").split(",")
-        return render(request, "veeam_email_notification.html", {"form": form, "emails": emails})
+        return render(
+            request, "veeam_email_notification.html", {"form": form, "emails": emails}
+        )
 
     return redirect("veeam_records")
 
@@ -196,21 +210,41 @@ def export_selected_records(request):
     companies = Client.objects.filter(id__in=company_ids)
 
     response = HttpResponse(content_type="text/csv")
-    response["Content-Disposition"] = 'attachment; filename="Veeam_companies.csv"'
+    response["Content-Disposition"] = 'attachment; filename="Veeam_Backup_clients.csv"'
 
     writer = csv.writer(response)
-    writer.writerow(["ID", "Company Name", "Email", "Phone", "Contact Person", "Created on", "Last Updated"])
+    writer.writerow(
+        [
+            "ID",
+            "Company Name",
+            "Email",
+            "Phone",
+            "Contact Person",
+            "Created on",
+            "Last Updated",
+        ]
+    )
 
     for c in companies:
-        writer.writerow([
-            c.id,
-            c.name,
-            c.email,
-            getattr(c, "phone_number", ""),
-            getattr(c, "contact_person", ""),
-            getattr(c, "created_at", "").strftime('%Y-%m-%d') if getattr(c, "created_at", None) else "",
-            getattr(c, "last_updated", "").strftime('%Y-%m-%d') if getattr(c, "last_updated", None) else "",
-        ])
+        writer.writerow(
+            [
+                c.id,
+                c.name,
+                c.email,
+                getattr(c, "phone_number", ""),
+                getattr(c, "contact_person", ""),
+                (
+                    getattr(c, "created_at", "").strftime("%Y-%m-%d")
+                    if getattr(c, "created_at", None)
+                    else ""
+                ),
+                (
+                    getattr(c, "last_updated", "").strftime("%Y-%m-%d")
+                    if getattr(c, "last_updated", None)
+                    else ""
+                ),
+            ]
+        )
 
     return response
 

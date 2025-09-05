@@ -1,30 +1,40 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block body_class %}login-bg{% endblock %}
-
 {% block content %}
-<div class="vh-100 d-flex align-items-center justify-content-center">
-    <div class="login-wrapper col-11 col-sm-8 col-md-6 col-lg-4">
-        <div class="text-center mb-4">
-            <img src="{% static 'images/logo.png' %}" alt="Logo" width="100" height="100">
-        </div>
-        <div class="card login-card">
-            <form method="POST" action="{% url 'login' %}">
-                {% csrf_token %}
-                <div class="mb-3">
-                    <input type="email" class="form-control login-input" name="email" placeholder="Email Address" required>
-                </div>
-                <div class="mb-3">
-                    <input type="password" class="form-control login-input" name="password" placeholder="Password" required>
-                </div>
-                <div class="d-grid mb-3">
-                    <button type="submit" class="btn btn-outline-primary login-btn">Login</button>
-                </div>
-                <div class="text-center">
-                    <a href="{% url 'password_reset' %}" class="forgot-link">Forgot your password?</a>
-                </div>
-            </form>
+    <div class="vh-100 d-flex align-items-center justify-content-center">
+        <div class="login-wrapper col-11 col-sm-8 col-md-6 col-lg-4">
+            <div class="text-center mb-4">
+                <img src="{% static 'images/logo.png' %}"
+                     alt="Logo"
+                     width="100"
+                     height="100">
+            </div>
+            <div class="card login-card">
+                <form method="POST" action="{% url 'login' %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <input type="email"
+                               class="form-control login-input"
+                               name="email"
+                               placeholder="Email Address"
+                               required>
+                    </div>
+                    <div class="mb-3">
+                        <input type="password"
+                               class="form-control login-input"
+                               name="password"
+                               placeholder="Password"
+                               required>
+                    </div>
+                    <div class="d-grid mb-3">
+                        <button type="submit" class="btn btn-outline-primary login-btn">Login</button>
+                    </div>
+                    <div class="text-center">
+                        <a href="{% url 'password_reset' %}" class="forgot-link">Forgot your password?</a>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
-</div>
 {% endblock %}

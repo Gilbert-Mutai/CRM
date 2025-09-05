@@ -1,62 +1,55 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="col-md-6 offset-md-3">
-    <h2 class="mb-4">Update Project</h2>
-    <form method="post" novalidate>
-        {% csrf_token %}
-
-        <!-- Client -->
-        <div class="mb-3">
-            <label for="{{ form.customer_name.id_for_label }}" class="form-label">Client</label>
-            {{ form.customer_name }}
-        </div>
-
-        <!-- Project Title -->
-        <div class="mb-3">
-            <label for="{{ form.project_title.id_for_label }}" class="form-label">Project Title</label>
-            {{ form.project_title }}
-        </div>
-
-        <!-- Service Description -->
-        <div class="mb-3">
-            <label for="{{ form.service_description.id_for_label }}" class="form-label">Service Description</label>
-            {{ form.service_description }}
-        </div>
-
-        <!-- Status -->
-        <div class="mb-3">
-            <label for="{{ form.status.id_for_label }}" class="form-label">Status</label>
-            {{ form.status }}
-        </div>
-
-        <!-- Certificate -->
-        <div class="mb-3">
-            <label for="{{ form.job_completion_certificate.id_for_label }}" class="form-label">Certificate</label>
-            {{ form.job_completion_certificate }}
-        </div>
-
-        <!-- Engineer -->
-        <div class="mb-3">
-            <label for="{{ form.engineer.id_for_label }}" class="form-label">Engineer</label>
-            {{ form.engineer }}
-        </div>
-
-        <!-- Comment -->
-        <div class="mb-3">
-            <label for="{{ form.comment.id_for_label }}" class="form-label">Comment</label>
-            {{ form.comment }}
-        </div>
-
-        <!-- Actions -->
-        <div class="mt-4 d-flex gap-2">
-            <button type="submit" class="btn btn-outline-primary">Update</button>
-            <a href="{% url 'pm_record' project.pk %}" class="btn btn-outline-secondary">Cancel</a>
-        </div>
-    </form>
-
-    <!-- Enhanced Dropdowns Using Select2 -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
+    <div class="col-md-6 offset-md-3">
+        <h2 class="mb-4">Update Project</h2>
+        <form method="post" novalidate>
+            {% csrf_token %}
+            <!-- Client -->
+            <div class="mb-3">
+                <label for="{{ form.customer_name.id_for_label }}" class="form-label">Client</label>
+                {{ form.customer_name }}
+            </div>
+            <!-- Project Title -->
+            <div class="mb-3">
+                <label for="{{ form.project_title.id_for_label }}" class="form-label">Project Title</label>
+                {{ form.project_title }}
+            </div>
+            <!-- Service Description -->
+            <div class="mb-3">
+                <label for="{{ form.service_description.id_for_label }}" class="form-label">Service Description</label>
+                {{ form.service_description }}
+            </div>
+            <!-- Status -->
+            <div class="mb-3">
+                <label for="{{ form.status.id_for_label }}" class="form-label">Status</label>
+                {{ form.status }}
+            </div>
+            <!-- Certificate -->
+            <div class="mb-3">
+                <label for="{{ form.job_completion_certificate.id_for_label }}"
+                       class="form-label">Certificate</label>
+                {{ form.job_completion_certificate }}
+            </div>
+            <!-- Engineer -->
+            <div class="mb-3">
+                <label for="{{ form.engineer.id_for_label }}" class="form-label">Engineer</label>
+                {{ form.engineer }}
+            </div>
+            <!-- Comment -->
+            <div class="mb-3">
+                <label for="{{ form.comment.id_for_label }}" class="form-label">Comment</label>
+                {{ form.comment }}
+            </div>
+            <!-- Actions -->
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn btn-outline-primary">Update</button>
+                <a href="{% url 'pm_record' project.pk %}"
+                   class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+        <!-- Enhanced Dropdowns Using Select2 -->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script>
     $(document).ready(function() {
         $('#id_customer_name').select2({
             placeholder: 'Select Client',
@@ -70,6 +63,6 @@
             width: '100%'
         });
     });
-    </script>
-</div>
+        </script>
+    </div>
 {% endblock %}
