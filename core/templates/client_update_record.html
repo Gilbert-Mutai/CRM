@@ -1,53 +1,50 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="col-md-6 offset-md-3">
-    <h2 class="mb-4">Update Client</h2>
-
-    {% if form.errors %}
-      <div class="alert alert-danger">
-        <ul>
-          {% for field in form %}
-            {% for error in field.errors %}
-              <li><strong>{{ field.label }}:</strong> {{ error }}</li>
-            {% endfor %}
-          {% endfor %}
-          {% for error in form.non_field_errors %}
-            <li>{{ error }}</li>
-          {% endfor %}
-        </ul>
-      </div>
-    {% endif %}
-
-    <form method="post">
-        {% csrf_token %}
-
-        <!-- Render each field manually without colons -->
-        <div class="mb-3">
-            <label for="{{ form.client_type.id_for_label }}">Client Type</label>
-            {{ form.client_type }}
-        </div>
-        <div class="mb-3">
-            <label for="{{ form.name.id_for_label }}">Full Name or Company</label>
-            {{ form.name }}
-        </div>
-        <div class="mb-3">
-            <label for="{{ form.contact_person.id_for_label }}">Contact Person (for Company)</label>
-            {{ form.contact_person }}
-        </div>
-        <div class="mb-3">
-            <label for="{{ form.email.id_for_label }}">Email Address</label>
-            {{ form.email }}
-        </div>
-        <div class="mb-3">
-            <label for="{{ form.phone_number.id_for_label }}">Phone Number</label>
-            {{ form.phone_number }}
-        </div>
-
-        <!-- Buttons -->
-        <div class="mt-4 d-flex gap-2">
-            <button type="submit" class="btn btn-outline-primary">Update</button>
-            <a href="{% url 'client_record' form.instance.pk %}" class="btn btn-secondary">Cancel</a>
-        </div>
-    </form>
-</div>
+    <div class="col-md-6 offset-md-3">
+        <h2 class="mb-4">Update Client</h2>
+        {% if form.errors %}
+            <div class="alert alert-danger">
+                <ul>
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <li>
+                                <strong>{{ field.label }}:</strong> {{ error }}
+                            </li>
+                        {% endfor %}
+                    {% endfor %}
+                    {% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+        <form method="post">
+            {% csrf_token %}
+            <!-- Render each field manually without colons -->
+            <div class="mb-3">
+                <label for="{{ form.client_type.id_for_label }}">Client Type</label>
+                {{ form.client_type }}
+            </div>
+            <div class="mb-3">
+                <label for="{{ form.name.id_for_label }}">Full Name or Company</label>
+                {{ form.name }}
+            </div>
+            <div class="mb-3">
+                <label for="{{ form.contact_person.id_for_label }}">Contact Person (for Company)</label>
+                {{ form.contact_person }}
+            </div>
+            <div class="mb-3">
+                <label for="{{ form.email.id_for_label }}">Email Address</label>
+                {{ form.email }}
+            </div>
+            <div class="mb-3">
+                <label for="{{ form.phone_number.id_for_label }}">Phone Number</label>
+                {{ form.phone_number }}
+            </div>
+            <!-- Buttons -->
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn btn-outline-primary">Update</button>
+                <a href="{% url 'client_record' form.instance.pk %}"
+                   class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
 {% endblock %}

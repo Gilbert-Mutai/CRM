@@ -1,58 +1,39 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="col-md-6 offset-md-3">
-    <h2 class="mb-4">Add Project</h2>
-    <form method="POST">
-        {% csrf_token %}
-
-        <!-- Client -->
-        <div class="mb-3">
-            {{ form.customer_name }}
-        </div>
-
-        <!-- Project Title -->
-        <div class="mb-3">
-            {{ form.project_title }}
-        </div>
-
-        <!-- Service Description -->
-        <div class="mb-3">
-            {{ form.service_description }}
-        </div>
-
-        <!-- Status (with label for disabled field) -->
-        <div class="mb-3">
-            <label for="{{ form.status.id_for_label }}">Project Status</label>
-            {{ form.status }}
-        </div>
-
-        <!-- Certificate (with label for disabled field) -->
-        <div class="mb-3">
-            <label for="{{ form.job_completion_certificate.id_for_label }}">Certificate Status</label>
-            {{ form.job_completion_certificate }}
-        </div>
-
-        <!-- Engineer -->
-        <div class="mb-3">
-            {{ form.engineer }}
-        </div>
-
-        <!-- Comment -->
-        <div class="mb-3">
-            {{ form.comment }}
-        </div>
-
-        <!-- Actions -->
-        <div class="mt-4 d-flex gap-2">
-            <button type="submit" class="btn btn-outline-primary">Add Record</button>
-            <a href="{% url 'pm_records' %}" class="btn btn-outline-secondary">Back</a>
-        </div>
-    </form>
-</div>
-
-<!-- Select2 for dropdowns -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
+    <div class="col-md-6 offset-md-3">
+        <h2 class="mb-4">Add Project</h2>
+        <form method="POST">
+            {% csrf_token %}
+            <!-- Client -->
+            <div class="mb-3">{{ form.customer_name }}</div>
+            <!-- Project Title -->
+            <div class="mb-3">{{ form.project_title }}</div>
+            <!-- Service Description -->
+            <div class="mb-3">{{ form.service_description }}</div>
+            <!-- Status (with label for disabled field) -->
+            <div class="mb-3">
+                <label for="{{ form.status.id_for_label }}">Project Status</label>
+                {{ form.status }}
+            </div>
+            <!-- Certificate (with label for disabled field) -->
+            <div class="mb-3">
+                <label for="{{ form.job_completion_certificate.id_for_label }}">Certificate Status</label>
+                {{ form.job_completion_certificate }}
+            </div>
+            <!-- Engineer -->
+            <div class="mb-3">{{ form.engineer }}</div>
+            <!-- Comment -->
+            <div class="mb-3">{{ form.comment }}</div>
+            <!-- Actions -->
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn btn-outline-primary">Add Record</button>
+                <a href="{% url 'pm_records' %}" class="btn btn-outline-secondary">Back</a>
+            </div>
+        </form>
+    </div>
+    <!-- Select2 for dropdowns -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
 $(document).ready(function () {
     $('#id_customer_name').select2({
         placeholder: 'Select Client',
@@ -66,5 +47,5 @@ $(document).ready(function () {
         width: '100%'
     });
 });
-</script>
+    </script>
 {% endblock %}

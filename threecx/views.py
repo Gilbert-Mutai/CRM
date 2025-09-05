@@ -188,6 +188,7 @@ def send_notification_threecx(request):
 
     return redirect("threecx_records")
 
+
 @require_POST
 @login_required
 def export_selected_threecx_records(request):
@@ -198,24 +199,34 @@ def export_selected_threecx_records(request):
     # Prepare CSV
     csv_buffer = StringIO()
     writer = csv.writer(csv_buffer)
-    writer.writerow([
-        "Company Name", "Contact Person", "Email", "Phone Number",
-        "SIP Provider", "FQDN", "License Type", "Simultaneous Calls"
-    ])
+    writer.writerow(
+        [
+            "Company Name",
+            "Contact Person",
+            "Email",
+            "Phone Number",
+            "SIP Provider",
+            "FQDN",
+            "License Type",
+            "Simultaneous Calls",
+        ]
+    )
 
     for rec in records:
-        writer.writerow([
-            rec.client.name,
-            rec.client.contact_person,
-            rec.client.email,
-            rec.client.phone_number,
-            rec.get_sip_provider_display(),
-            rec.fqdn,
-            rec.get_license_type_display(),
-            rec.simultaneous_calls,
-        ])
+        writer.writerow(
+            [
+                rec.client.name,
+                rec.client.contact_person,
+                rec.client.email,
+                rec.client.phone_number,
+                rec.get_sip_provider_display(),
+                rec.fqdn,
+                rec.get_license_type_display(),
+                rec.simultaneous_calls,
+            ]
+        )
 
     # Generate response
     response = HttpResponse(csv_buffer.getvalue(), content_type="text/csv")
-    response["Content-Disposition"] = 'attachment; filename="3cx_export.csv"'
+    response["Content-Disposition"] = 'attachment; filename="3cx_Clients.csv"'
     return response

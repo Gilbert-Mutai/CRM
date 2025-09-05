@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="col-md-6 offset-md-3">
+        <h2 class="mb-4">Update Domain Record</h2>
+        <form method="post"
+              action="{% url 'update_domain_record' customer_record.pk %}">
+            {% csrf_token %}
+            <!-- Render each field with labels -->
+            <div class="mb-3">
+                <label for="{{ form.client.id_for_label }}">Client</label>
+                {{ form.client }}
+            </div>
+            <div class="mb-3">
+                <label for="{{ form.domain.id_for_label }}">Domain</label>
+                {{ form.domain }}
+            </div>
+            <div class="mb-3">
+                <label for="{{ form.host.id_for_label }}">Host</label>
+                {{ form.host }}
+            </div>
+            <div class="mb-3">
+                <label for="{{ form.package.id_for_label }}">Package</label>
+                {{ form.package }}
+            </div>
+            <!-- New Status Field -->
+            <div class="mb-3">
+                <label for="{{ form.status.id_for_label }}">Status</label>
+                {{ form.status }}
+            </div>
+            <!-- Form actions -->
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn btn-outline-primary">Update</button>
+                <a href="{% url 'domain_record' customer_record.pk %}"
+                   class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+{% endblock %}
+{% block extra_js %}
+    <!-- jQuery + Select2 -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+$(document).ready(function () {
+    $('#id_client').select2({
+        placeholder: 'Select Client',
+        allowClear: true,
+        width: '100%'
+    });
+});
+    </script>
+{% endblock %}

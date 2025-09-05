@@ -1,39 +1,31 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block body_class %}login-bg{% endblock %}
-
 {% block content %}
-<div class="vh-100 d-flex align-items-center justify-content-center">
-    <div class="register-wrapper col-11 col-sm-8 col-md-6 col-lg-4">
-        <div class="text-center mb-4">
-            <img src="{% static 'images/logo.png' %}" alt="Logo" width="100" height="100">
-        </div>
-
-        <div class="card login-card">
-            <form method="POST" action="">
-                {% csrf_token %}
-                
-                {% if form.non_field_errors %}
-                    <div class="alert alert-danger">
-                        {{ form.non_field_errors }}
+    <div class="vh-100 d-flex align-items-center justify-content-center">
+        <div class="register-wrapper col-11 col-sm-8 col-md-6 col-lg-4">
+            <div class="text-center mb-4">
+                <img src="{% static 'images/logo.png' %}"
+                     alt="Logo"
+                     width="100"
+                     height="100">
+            </div>
+            <div class="card login-card">
+                <form method="POST" action="">
+                    {% csrf_token %}
+                    {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
+                    {% for field in form %}
+                        <div class="mb-3">
+                            {{ field.label_tag }}
+                            {{ field }}
+                            {% for error in field.errors %}<small class="text-danger">{{ error }}</small>{% endfor %}
+                        </div>
+                    {% endfor %}
+                    <div class="d-grid mb-3">
+                        <button type="submit" class="btn btn-outline-primary login-btn">Add User</button>
                     </div>
-                {% endif %}
-
-                {% for field in form %}
-                    <div class="mb-3">
-                        {{ field.label_tag }}
-                        {{ field }}
-                        {% for error in field.errors %}
-                            <small class="text-danger">{{ error }}</small>
-                        {% endfor %}
-                    </div>
-                {% endfor %}
-
-                <div class="d-grid mb-3">
-                    <button type="submit" class="btn btn-outline-primary login-btn">Add User</button>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     </div>
-</div>
 {% endblock %}

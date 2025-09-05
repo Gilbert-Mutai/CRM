@@ -18,6 +18,12 @@
             <!-- ===== Left Nav Menu ===== -->
             {% if user.is_authenticated %}
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'access_center' %}active{% endif %}"
+                           href="{% url 'access_center' %}">
+                            <i class="bi bi-grid me-1"></i> Access Center
+                        </a>
+                    </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle"
                            href="#"
@@ -30,31 +36,17 @@
                         <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-lg-end shadow-sm rounded-3 animate__animated animate__fadeIn"
                             aria-labelledby="navMenuDropdown">
                             <li>
-                                <a class="dropdown-item" href="{% url 'client_records' %}"><i class="bi bi-people me-2 text-muted"></i>Customer Master</a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="{% url 'threecx_records' %}"><i class="bi bi-telephone me-2 text-muted"></i>3CX</a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="{% url 'nova_records' %}"><i class="bi bi-lightning-charge me-2 text-muted"></i>Nova</a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="{% url 'novapool4_records' %}"><i class="bi bi-cpu me-2 text-muted"></i>Novapool 4</a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="{% url 'domain_records' %}"><i class="bi bi-globe me-2 text-muted"></i>Domains</a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="{% url 'cloudberry_records' %}"><i class="bi bi-cloud me-2 text-muted"></i>Cloudberry</a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="{% url 'veeam_records' %}"><i class="bi bi-shield-check me-2 text-muted"></i>Veeam</a>
+                                <a class="dropdown-item" href="{% url 'client_records' %}">
+                                    <i class="bi bi-people me-2"></i>Customer Master
+                                </a>
                             </li>
                             <li>
                                 <hr class="dropdown-divider">
                             </li>
                             <li>
-                                <a class="dropdown-item" href="{% url 'pm_records' %}"><i class="bi bi-kanban me-2 text-muted"></i>Projects</a>
+                                <a class="dropdown-item" href="{% url 'pm_records' %}">
+                                    <i class="bi bi-kanban me-2"></i>Projects
+                                </a>
                             </li>
                         </ul>
                     </li>
@@ -77,20 +69,26 @@
                             aria-labelledby="profileDropdown">
                             {% if user.is_staff or user.is_superuser %}
                                 <li>
-                                    <a class="dropdown-item" href="{% url 'register' %}"><i class="bi bi-person-plus me-2"></i>Add User</a>
+                                    <a class="dropdown-item" href="{% url 'register' %}">
+                                        <i class="bi bi-person-plus me-2"></i>Add User
+                                    </a>
                                 </li>
                                 <li>
                                     <hr class="dropdown-divider">
                                 </li>
                             {% endif %}
                             <li>
-                                <a class="dropdown-item" href="{% url 'logout' %}"><i class="bi bi-box-arrow-right me-2"></i>Logout</a>
+                                <a class="dropdown-item" href="{% url 'logout' %}">
+                                    <i class="bi bi-box-arrow-right me-2"></i>Logout
+                                </a>
                             </li>
                         </ul>
                     </li>
                 {% else %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'login' %}"><i class="bi bi-box-arrow-in-right me-1"></i>Login</a>
+                        <a class="nav-link" href="{% url 'login' %}">
+                            <i class="bi bi-box-arrow-in-right me-1"></i>Login
+                        </a>
                     </li>
                 {% endif %}
             </ul>
