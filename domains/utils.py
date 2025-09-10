@@ -36,3 +36,4 @@ def validate_emails(raw_emails: str):
 
 def has_form_changed(form, instance=None):
     return form.has_changed()
+

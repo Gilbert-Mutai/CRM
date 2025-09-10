@@ -1,8 +1,218 @@
 {% extends 'base.html' %}
 {% block content %}
-    
-    <h1>SD-WAN records will be in this page...</h1>
+    <!-- Heading and Action Buttons -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-0">SD-WAN Records</h4>
+        <div class="d-flex gap-2">
+            <a href="{% url 'access_center' %}"
+               class="btn btn-outline-secondary btn-sm"
+               title="Back to Menu">
+                <i class="bi bi-arrow-left"></i> Back
+            </a>
+            <a href="{% url 'add_sdwan_record' %}"
+               id="add-record-btn"
+               class="btn btn-outline-primary btn-sm"
+               title="Add New Record">
+                <i class="bi bi-plus-lg"></i> Add Record
+            </a>
+        </div>
+    </div>
 
+    <!-- Filter & Search Form -->
+    <form method="get" class="mb-3" id="filter-form">
+        <div class="row g-2 align-items-center">
+            <div class="col-auto" style="min-width: 220px;">
+                <input type="text"
+                       name="search"
+                       class="form-control form-control-sm"
+                       placeholder="Search by Company or Account Number"
+                       value="{{ search_query }}"
+                       id="search-input"
+                       autocomplete="off" />
+            </div>
+            <div class="col-auto" style="min-width: 180px;">
+                <select name="provider"
+                        class="form-select form-select-sm"
+                        onchange="this.form.submit()">
+                    <option value="">All Providers</option>
+                    {% for key, label in provider_choices.items %}
+                        <option value="{{ key }}" {% if key == selected_provider %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-auto ms-auto">
+                <div id="bulk-action-buttons" style="display: none;">
+                    <a href="#" class="btn btn-sm btn-primary me-2" id="send-email-btn">Send Notification</a>
+                    <a href="#" id="export-selected" class="btn btn-sm btn-success">Export</a>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <!-- Hidden Export Form -->
+    <form id="export-form"
+          method="post"
+          action="{% url 'export_selected_sdwan_records' %}">
+        {% csrf_token %}
+        <input type="hidden" name="companies" id="export-companies" value="">
+    </form>
+
+    <!-- SD-WAN Records Table -->
+    <div class="table-responsive">
+        <table class="table table-striped table-hover table-bordered">
+            <thead class="table-primary">
+                <tr>
+                    <th><input type="checkbox" id="select-all" title="Select All"></th>
+                    <th>Company/Username</th>
+                    <th>Account Number</th>
+                    <th>Contact Person</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Provider</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% regroup records by client as client_groups %}
+                {% for group in client_groups %}
+                    <!-- Group Header -->
+                    <tr class="table-secondary">
+                        <td>
+                            <input type="checkbox"
+                                   class="company-checkbox"
+                                   value="{{ group.grouper.id }}">
+                        </td>
+                        <td colspan="7" class="fw-bold">{{ group.grouper.name }}</td>
+                    </tr>
+                    {% for record in group.list %}
+                        <tr data-href="{% url 'sdwan_record' record.id %}"
+                            tabindex="0"
+                            role="button">
+                            <td></td>
+                            <td>{{ record.client.name }}</td>
+                            <td>{{ record.account_number }}</td>
+                            <td>{{ record.client.contact_person }}</td>
+                            <td>{{ record.client.email }}</td>
+                            <td>{{ record.client.phone_number }}</td>
+                            <td>{{ record.provider }}</td>
+                            <td>
+                                <a href="{% url 'sdwan_record' record.id %}"
+                                   class="btn btn-sm btn-outline-primary">View</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center">No records found.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination & Page Size -->
+    <div class="d-flex justify-content-between align-items-center mt-3">
+        <form method="get" id="page-size-form" class="d-inline">
+            {% for key, value in request.GET.items %}
+                {% if key != "page" and key != "page_size" %}<input type="hidden" name="{{ key }}" value="{{ value }}">{% endif %}
+            {% endfor %}
+            <label for="page-size-select" class="form-label me-2">Show</label>
+            <select name="page_size"
+                    id="page-size-select"
+                    class="form-select form-select-sm d-inline w-auto">
+                <option value="20" {% if page_size == 20 %}selected{% endif %}>20</option>
+                <option value="50" {% if page_size == 50 %}selected{% endif %}>50</option>
+                <option value="100" {% if page_size == 100 %}selected{% endif %}>100</option>
+            </select>
+        </form>
+        <nav aria-label="Page navigation">
+            <ul class="pagination pagination-sm mb-0">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link"
+                           href="?page={{ page_obj.previous_page_number }}&{{ querystring }}"
+                           aria-label="Previous">&laquo;</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
+                {% endif %}
+                <li class="page-item disabled">
+                    <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                </li>
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link"
+                           href="?page={{ page_obj.next_page_number }}&{{ querystring }}"
+                           aria-label="Next">&raquo;</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+function debounce(func, wait) {
+    let timeout;
+    return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+}
+
+document.getElementById("search-input").addEventListener("input", debounce(() => {
+    document.getElementById("filter-form").submit();
+}, 500));
+
+document.getElementById("page-size-select").addEventListener("change", function () {
+    document.getElementById("page-size-form").submit();
+});
+
+document.querySelectorAll("tr[data-href]").forEach(row => {
+    row.addEventListener("click", function (e) {
+        if (!e.target.closest("input, a, button")) {
+            window.location = this.dataset.href;
+        }
+    });
+});
+
+document.getElementById("select-all").addEventListener("change", function () {
+    document.querySelectorAll(".company-checkbox").forEach(cb => cb.checked = this.checked);
+    toggleBulkActions();
+});
+
+document.querySelectorAll(".company-checkbox").forEach(cb => {
+    cb.addEventListener("change", toggleBulkActions);
+});
+
+function toggleBulkActions() {
+    const anyChecked = Array.from(document.querySelectorAll(".company-checkbox")).some(cb => cb.checked);
+    document.getElementById("bulk-action-buttons").style.display = anyChecked ? "block" : "none";
+}
+
+document.getElementById("export-selected").addEventListener("click", function (e) {
+    e.preventDefault();
+    const selected = Array.from(document.querySelectorAll(".company-checkbox:checked")).map(cb => cb.value);
+    if (selected.length === 0) {
+        alert("Please select at least one company to export.");
+        return;
+    }
+    document.getElementById("export-companies").value = selected.join(",");
+    document.getElementById("export-form").submit();
+});
+
+document.getElementById("send-email-btn").addEventListener("click", function (e) {
+    e.preventDefault();
+    const selected = Array.from(document.querySelectorAll(".company-checkbox:checked")).map(cb => cb.value);
+    if (selected.length === 0) {
+        alert("Please select at least one company to notify.");
+        return;
+    }
+    const companyIds = selected.join(",");
+    const url = "{% url 'send_notification_sdwan' %}?companies=" + encodeURIComponent(companyIds);
+    window.location.href = url;
+});
+    </script>
 {% endblock %}
-
-

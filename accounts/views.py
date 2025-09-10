@@ -54,7 +54,7 @@ def register_user(request):
             send_confirmation_email(user)
 
             messages.success(request, "User added successfully!")
-            return redirect("menu")
+            return redirect("access_center")
     else:
         form = SignUpForm()
 

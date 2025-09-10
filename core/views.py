@@ -6,6 +6,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.db.models import Q
 from django.core.paginator import Paginator
 from .utils import generate_csv_for_selected_emails
+from .mattermost import send_to_mattermost, send_email_alert_to_mattermost
 from django.views.decorators.http import require_POST
 from .models import Client
 from .forms import AddClientForm, ClientUpdateForm, NotificationForm
@@ -19,54 +20,13 @@ def home(request):
 @login_required
 def access_center(request):
     client_sections = [
-        {
-            "title": "3CX",
-            "url_name": "threecx_records",
-            "icon": "telephone",
-            "btn_class": "primary",
-        },
-        {
-            "title": "Domain & Hosting",
-            "url_name": "domain_records",
-            "icon": "globe",
-            "btn_class": "success",
-        },
-        {
-            "title": "Nova",
-            "url_name": "nova_records",
-            "icon": "lightning-charge",
-            "btn_class": "warning",
-        },
-        {
-            "title": "Cloudberry",
-            "url_name": "cloudberry_records",
-            "icon": "cloud",
-            "btn_class": "danger",
-        },
-        {
-            "title": "Novapool 4",
-            "url_name": "novapool4_records",
-            "icon": "cpu",
-            "btn_class": "warning",
-        },
-        {
-            "title": "SD-WAN",
-            "url_name": "sdwan_records",
-            "icon": "diagram-3",
-            "btn_class": "primary",
-        },
-        {
-            "title": "Veeam",
-            "url_name": "veeam_records",
-            "icon": "shield-check",
-            "btn_class": "success",
-        },
-        {
-            "title": "Projects",
-            "url_name": "pm_records",
-            "icon": "kanban",
-            "btn_class": "danger",
-        },
+        {"title": "3CX", "url_name": "threecx_records", "icon": "telephone", "btn_class": "primary"},
+        {"title": "Domain & Hosting", "url_name": "domain_records", "icon": "globe", "btn_class": "success"},
+        {"title": "Nova", "url_name": "nova_records", "icon": "lightning-charge", "btn_class": "warning"},
+        {"title": "Novapool 4", "url_name": "novapool4_records", "icon": "cpu", "btn_class": "warning"},
+        {"title": "SD-WAN", "url_name": "sdwan_records", "icon": "diagram-3", "btn_class": "primary"},
+        {"title": "Veeam", "url_name": "veeam_records", "icon": "shield-check", "btn_class": "success"},
+        {"title": "Projects", "url_name": "pm_records", "icon": "kanban", "btn_class": "danger"},
     ]
     return render(request, "access_center.html", {"client_sections": client_sections})
 
@@ -76,23 +36,17 @@ def client_records(request):
     query = request.GET.get("search", "").strip()
     selected_client_type = request.GET.get("client_type", "").strip()
 
-    # Base queryset
     clients = Client.objects.all().order_by("-last_updated", "-created_at")
 
-    # Filters
     if query:
         clients = clients.filter(
-            Q(name__icontains=query)
-            | Q(email__icontains=query)
-            | Q(contact_person__icontains=query)
+            Q(name__icontains=query) | Q(email__icontains=query) | Q(contact_person__icontains=query)
         )
     if selected_client_type:
         clients = clients.filter(client_type=selected_client_type)
 
-    # Unique client types for filter dropdown
     client_types = Client.objects.values_list("client_type", flat=True).distinct()
 
-    # Handle page size (with safe fallback)
     page_size = request.GET.get("page_size", 20)
     try:
         page_size = int(page_size)
@@ -101,12 +55,10 @@ def client_records(request):
     except ValueError:
         page_size = 20
 
-    # Pagination
     paginator = Paginator(clients, page_size)
     page_number = request.GET.get("page", 1)
     page_obj = paginator.get_page(page_number)
 
-    # Preserve other query parameters in pagination links
     get_params = request.GET.copy()
     get_params["page_size"] = str(page_size)
     if "page" in get_params:
@@ -120,16 +72,29 @@ def client_records(request):
         "selected_client_type": selected_client_type,
         "querystring": get_params.urlencode(),
     }
-
     return render(request, "client_records.html", context)
 
 
 @login_required
 def client_record(request, pk):
     client_record = get_object_or_404(Client, pk=pk)
-    return render(
-        request, "client_record_details.html", {"client_record": client_record}
-    )
+    return render(request, "client_record_details.html", {"client_record": client_record})
+
+
+# ------------------------------
+# Mattermost notification helper
+# ------------------------------
+def notify_client(action, client_name, user):
+    user_display = user.get_full_name() or user.email
+    if action == "add":
+        msg = f"CRM Updates: A new client called **{client_name}** has been added by **{user_display}**"
+    elif action == "update":
+        msg = f"CRM Updates: The client called **{client_name}** has been modified by **{user_display}**"
+    elif action == "delete":
+        msg = f"CRM Updates: The client called **{client_name}** has been deleted by **{user_display}**"
+    else:
+        return
+    send_to_mattermost(msg)
 
 
 @login_required
@@ -142,10 +107,12 @@ def add_client_record(request):
             new_client.updated_by = request.user
             new_client.save()
             messages.success(request, "Client added successfully.")
+
+            notify_client("add", new_client.name, request.user)
+
             return redirect("client_records")
     else:
         form = AddClientForm()
-
     return render(request, "client_add_record.html", {"form": form})
 
 
@@ -161,6 +128,8 @@ def update_client_record(request, pk):
                 updated_client.updated_by = request.user
                 updated_client.save()
                 messages.success(request, "Client updated successfully.")
+
+                notify_client("update", updated_client.name, request.user)
             else:
                 messages.warning(request, "No changes detected.")
             return redirect("client_record", pk=client_record.pk)
@@ -181,13 +150,16 @@ def delete_client_record(request, pk):
 
     if request.method == "POST":
         client = get_object_or_404(Client, pk=pk)
+        client_name = client.name
         client.delete()
         messages.success(request, "Client deleted successfully.")
+
+        notify_client("delete", client_name, request.user)
+
         return redirect("client_records")
 
     messages.error(request, "Invalid request. Deletion only allowed via POST.")
     return redirect("client_record", pk=pk)
-
 
 @login_required
 def send_notification_client(request):
@@ -199,7 +171,9 @@ def send_notification_client(request):
             return redirect("client_records")
         form = NotificationForm(initial={"bcc_emails": ",".join(emails)})
         return render(
-            request, "client_email_notification.html", {"form": form, "emails": emails}
+            request,
+            "client_email_notification.html",
+            {"form": form, "emails": emails},
         )
 
     if request.method == "POST":
@@ -213,7 +187,8 @@ def send_notification_client(request):
 
             if invalid_emails:
                 messages.warning(
-                    request, f"Ignoring invalid email(s): {', '.join(invalid_emails)}"
+                    request,
+                    f"Ignoring invalid email(s): {', '.join(invalid_emails)}",
                 )
 
             signature_block = SIGNATURES.get(signature_key, signature_key)
@@ -228,12 +203,20 @@ def send_notification_client(request):
             msg.attach_alternative(full_body, "text/html")
             msg.send(fail_silently=False)
 
+            # Send alert to Mattermost
+            send_email_alert_to_mattermost(
+                subject=subject,
+                recipient_count=len(valid_emails),
+                user_display=request.user.get_full_name() or request.user.username,
+            )
+
             messages.success(
-                request, f"Notification sent to {len(valid_emails)} recipient(s)."
+                request,
+                f"Notification sent to {len(valid_emails)} recipient(s).",
             )
             return redirect("client_records")
+
         else:
-            # Retain visible email list in form reshow
             emails = request.POST.get("bcc_emails", "").split(",")
             return render(
                 request,
