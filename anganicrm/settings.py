@@ -145,6 +145,12 @@ EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL = "Angani Client Manager <noreply.anganicrm@gmail.com>"
 
+
+
+MATTERMOST_WEBHOOK_URL = os.getenv("MATTERMOST_WEBHOOK_URL")
+MATTERMOST_CHANNEL = os.getenv("MATTERMOST_CHANNEL", "general")
+MATTERMOST_USERNAME = os.getenv("MATTERMOST_USERNAME", "django-bot")
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 

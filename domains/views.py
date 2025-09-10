@@ -14,6 +14,7 @@ from django.core.mail import EmailMultiAlternatives
 from .forms import AddDomainForm
 from .models import Domain
 from .utils import get_record_by_id, delete_record, has_form_changed
+from core.mattermost import send_to_mattermost
 from core.forms import NotificationForm
 from core.constants import SIGNATURE_BLOCKS as SIGNATURES
 

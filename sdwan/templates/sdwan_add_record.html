@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="col-md-8 offset-md-2">
+        <h2 class="mb-4">Add SDWAN Record</h2>
+        {% if form.errors %}
+            <div class="alert alert-danger">
+                <ul>
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <li>
+                                <strong>{{ field.label }}:</strong> {{ error }}
+                            </li>
+                        {% endfor %}
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+        <form method="POST" action="{% url 'add_sdwan_record' %}">
+            {% csrf_token %}
+            <div class="mb-2">{{ form.client }}</div>
+            <div class="mb-2">{{ form.account_number }}</div>
+            <div class="mb-2">{{ form.provider }}</div>
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn btn-outline-primary">Add Record</button>
+                <a href="{% url 'sdwan_records' %}" class="btn btn-outline-secondary">Back</a>
+            </div>
+        </form>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+$(document).ready(function () {
+    $('#id_client').select2({
+        placeholder: 'Select Client',
+        allowClear: true,
+        width: '100%'
+    });
+});
+    </script>
+{% endblock %}

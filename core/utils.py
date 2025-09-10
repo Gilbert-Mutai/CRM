@@ -53,3 +53,4 @@ def generate_csv_for_selected_emails(emails):
     response = HttpResponse(buffer.getvalue(), content_type="text/csv")
     response["Content-Disposition"] = "attachment; filename=Angani_Clients.csv"
     return response
+

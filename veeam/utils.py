@@ -4,7 +4,6 @@ from django.http import HttpResponse
 from .models import VeeamJob
 import csv
 
-
 def get_record_by_id(pk):
     try:
         return VeeamJob.objects.get(pk=pk)

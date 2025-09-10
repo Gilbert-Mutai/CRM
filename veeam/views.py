@@ -22,6 +22,7 @@ from django.views.decorators.http import require_POST
 from .models import VeeamJob
 from .forms import AddVeeamForm, UpdateVeeamForm
 from .utils import get_record_by_id, delete_record, has_form_changed
+from core.mattermost import send_to_mattermost
 
 # Core App
 from core.models import Client

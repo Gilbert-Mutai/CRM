@@ -7,7 +7,6 @@ from io import StringIO
 from django.http import HttpResponse
 import re
 
-
 def get_all_records():
     return ThreeCX.objects.all().order_by("-last_updated", "-created_at")
 

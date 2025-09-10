@@ -1,4 +1,4 @@
-# Updated threecx/views.py to support search and filter functionality
+# threecx/views.py
 from io import StringIO
 from django.shortcuts import render, redirect
 from django.contrib import messages
@@ -12,6 +12,7 @@ from .utils import (
     delete_record,
     has_form_changed,
 )
+from core.mattermost import send_to_mattermost
 from .models import ThreeCX
 from django.views.decorators.http import require_POST
 from django.core.paginator import Paginator
@@ -21,6 +22,22 @@ from core.forms import NotificationForm
 from core.constants import SIGNATURE_BLOCKS as SIGNATURES
 
 
+# --- Helper function for notifications ---
+def notify_threecx(action, company_name, user):
+    user_name = user.get_full_name() or user.email
+    if action == "add":
+        message = f"CRM updates: A new 3CX record for {company_name} has been added by {user_name}"
+    elif action == "update":
+        message = f"CRM updates: 3CX record for {company_name} has been modified by {user_name}"
+    elif action == "delete":
+        message = f"CRM updates: 3CX record for {company_name} has been deleted by {user_name}"
+    else:
+        message = f"CRM updates: 3CX record for {company_name} was changed by {user_name}"
+
+    send_to_mattermost(message)
+
+
+# --- Views ---
 def threecx_records(request):
     query = request.GET.get("search", "")
     sip_filter = request.GET.get("sip_provider", "")
@@ -51,7 +68,6 @@ def threecx_records(request):
         page_size = 20
 
     paginator = Paginator(records, page_size)
-
     page_number = request.GET.get("page", 1)
     page_obj = paginator.get_page(page_number)
 
@@ -85,8 +101,17 @@ def delete_threecx_record(request, pk):
         messages.warning(request, "You must be logged in to do that.")
         return redirect("login")
 
+    record = get_record_by_id(pk)
+    company_name = (
+        record.client.name if record and getattr(record, "client", None) else "Unknown Company"
+    )
+
     delete_record(pk)
     messages.success(request, "Record deleted successfully.")
+
+    # Mattermost notification
+    notify_threecx("delete", company_name, request.user)
+
     return redirect("threecx_records")
 
 
@@ -103,6 +128,13 @@ def add_threecx_record(request):
             new_record.updated_by = request.user
             new_record.save()
             messages.success(request, "Record has been added!")
+
+            # Mattermost notification
+            company_name = (
+                new_record.client.name if getattr(new_record, "client", None) else "Unknown Company"
+            )
+            notify_threecx("add", company_name, request.user)
+
             return redirect("threecx_records")
     else:
         form = AddThreeCXForm()
@@ -125,6 +157,14 @@ def update_threecx_record(request, pk):
             updated_record.updated_by = request.user
             updated_record.save()
             messages.success(request, "Record has been updated!")
+
+            # Mattermost notification
+            company_name = (
+                updated_record.client.name
+                if getattr(updated_record, "client", None)
+                else "Unknown Company"
+            )
+            notify_threecx("update", company_name, request.user)
         else:
             messages.warning(request, "No changes detected.")
 
